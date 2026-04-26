@@ -16,9 +16,9 @@ export default function Navbar({ onOpenCart }) {
           <a href="#rechner" className="hover:text-tomato transition-colors">Ersparnis</a>
           <a href="/ueber-uns" className="hover:text-tomato transition-colors">Über uns</a>
         </div>
-        <button onClick={onOpenCart} className="bg-ink text-white px-6 py-3 flex items-center gap-3 shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
+        <button onClick={onOpenCart} className="bg-ink text-white px-4 py-3 flex items-center gap-2 shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
           <ShoppingBag size={18} />
-          <span className="font-bold text-sm uppercase">Warenkorb</span>
+          <span className="hidden sm:inline font-bold text-sm uppercase">Warenkorb</span>
           <span className="bg-sun text-ink w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black">
             {totalQty}
           </span>

@@ -1,12 +1,12 @@
 export default function Hero() {
   return (
     <section className="bg-ink text-white py-24 border-b-4 border-tomato overflow-hidden">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div>
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-12 items-center">
+        <div className="min-w-0">
           <span className="text-sun font-black uppercase tracking-[0.3em] text-[10px]">
             Exklusives Start-Event
           </span>
-          <h1 className="font-serif font-black text-6xl md:text-8xl leading-none mt-4 tracking-tighter italic">
+          <h1 className="font-serif font-black text-[2.2rem] sm:text-5xl md:text-6xl lg:text-7xl leading-none mt-4 tracking-tighter italic">
             NEUERÖFFNUNG.
           </h1>
           <p className="mt-6 text-paper/70 text-lg max-w-md font-medium leading-tight">
