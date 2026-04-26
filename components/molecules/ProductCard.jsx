@@ -22,6 +22,9 @@ export default function ProductCard({ product }) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
+  const availablePrints = product.hasBackPrint
+    ? PRINT_OPTIONS
+    : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both');
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const totalUnitPrice = product.newPrice + selectedPrint.price;
   const savings = ((product.oldPrice - product.newPrice) / product.oldPrice * 100).toFixed(0);
@@ -112,7 +115,7 @@ export default function ProductCard({ product }) {
         <div>
           <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Druckoption</p>
           <div className="grid grid-cols-2 gap-2">
-            {PRINT_OPTIONS.map((opt) => (
+            {availablePrints.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setPrintType(opt.value)}

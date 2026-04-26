@@ -8,7 +8,8 @@ export const PRODUCTS = [
     newPrice: 10.00,
     badge: 'NEUERÖFFNUNGS-DEAL',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
-    hasSizes: true
+    hasSizes: true,
+    hasBackPrint: true
   },
   {
     id: 'latz',
@@ -52,6 +53,7 @@ export const PRODUCTS = [
     newPrice: 14.00,
     badge: 'TOP START-DEAL',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
-    hasSizes: true
+    hasSizes: true,
+    hasBackPrint: true
   }
 ];
