@@ -12,9 +12,10 @@ export default function Navbar({ onOpenCart }) {
           Kittel<span className="text-tomato">werk</span>.
         </div>
         <div className="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-ink/60">
-          <a href="#produkte" className="hover:text-tomato transition-colors">Produkte</a>
-          <a href="#rechner" className="hover:text-tomato transition-colors">Ersparnis</a>
+          <a href="/#produkte" className="hover:text-tomato transition-colors">Produkte</a>
+          <a href="/#rechner" className="hover:text-tomato transition-colors">Ersparnis-Rechner</a>
           <a href="/ueber-uns" className="hover:text-tomato transition-colors">Über uns</a>
+          <a href="/kontakt" className="hover:text-tomato transition-colors">Kontakt</a>
         </div>
         <button onClick={onOpenCart} className="bg-ink text-white px-4 py-3 flex items-center gap-2 shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
           <ShoppingBag size={18} />
