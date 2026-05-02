@@ -22,7 +22,7 @@ export async function POST(req) {
   }
 
   await resend.emails.send({
-    from: 'Kittelwerk <onboarding@resend.dev>',
+    from: 'Kittelwerk <info@kittelwerk.de>',
     to: email,
     subject: '🎉 Dein Rabattcode: KITTEL10',
     html: `

@@ -34,7 +34,7 @@ export async function POST(req) {
 
   // Müşteriye onay e-postası
   await resend.emails.send({
-    from: 'Kittelwerk <onboarding@resend.dev>',
+    from: 'Kittelwerk <info@kittelwerk.de>',
     to: email,
     subject: 'Deine Bestellanfrage bei Kittelwerk',
     html: `
@@ -67,7 +67,7 @@ export async function POST(req) {
 
   // Murata bildirim e-postası
   await resend.emails.send({
-    from: 'Kittelwerk <onboarding@resend.dev>',
+    from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
     subject: `🛒 Neue Bestellung: ${company} — ${total.toFixed(2)}€`,
     html: `
