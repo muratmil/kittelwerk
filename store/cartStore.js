@@ -1,10 +1,15 @@
 import { create } from 'zustand';
 
+// Baskı ücretsiz promosyonu — false yapınca normal fiyatlar aktif olur
+export const PRINT_PROMO_ACTIVE = true;
+
+const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 8.0 };
+
 export const useCartStore = create((set, get) => ({
   items: [],
   addItem: (product, color, size, qty = 1, printType = 'none') => {
-    const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 8.0 };
-    const price = product.newPrice + PRINT_PRICES[printType];
+    const printCost = PRINT_PROMO_ACTIVE ? 0 : PRINT_PRICES[printType];
+    const price = product.newPrice + printCost;
 
     set((state) => {
       const existing = state.items.find(i => i.id === product.id && i.color === color && i.size === size);
