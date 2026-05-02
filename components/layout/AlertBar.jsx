@@ -7,7 +7,7 @@ export default function AlertBar() {
             <span className="w-2 h-2 bg-tomato rounded-full" />
             NEUKUNDENANGEBOT: Stark Reduziert — Alles sehr günstig!
             <span className="w-2 h-2 bg-tomato rounded-full" />
-            Druck kostenlos · Direkt zu Türkei-Preisen
+            Vorderdruck kostenlos · Rückendruck nur +5€ · Direkt zu Türkei-Preisen
           </span>
         ))}
       </div>

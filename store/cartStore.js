@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 
-// Baskı ücretsiz promosyonu — false yapınca normal fiyatlar aktif olur
-export const PRINT_PROMO_ACTIVE = true;
+// Ücretsiz baskı seçenekleri — ['none'] yapınca hepsi ücretli olur
+export const FREE_PRINT_TYPES = ['none', 'front'];
 
-const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 8.0 };
+const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0 };
 
 export const useCartStore = create((set, get) => ({
   items: [],
   addItem: (product, color, size, qty = 1, printType = 'none') => {
-    const printCost = PRINT_PROMO_ACTIVE ? 0 : PRINT_PRICES[printType];
+    const printCost = FREE_PRINT_TYPES.includes(printType) ? 0 : PRINT_PRICES[printType];
     const price = product.newPrice + printCost;
 
     set((state) => {

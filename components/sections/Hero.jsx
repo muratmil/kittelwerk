@@ -13,7 +13,7 @@ export default function Hero() {
             Alles sehr günstig.
           </p>
           <p className="mt-6 text-paper/70 text-lg max-w-md font-medium leading-tight">
-            Hochwertige Gastro-Textilien zu unschlagbaren Preisen — nur für begrenzte Zeit. Kein Lagerabbau: Das Angebot bleibt bestehen. <span className="text-sun font-bold">Druck kostenlos inklusive.</span>
+            Hochwertige Gastro-Textilien zu unschlagbaren Preisen — nur für begrenzte Zeit. Kein Lagerabbau: Das Angebot bleibt bestehen. <span className="text-sun font-bold">Vorderdruck kostenlos inklusive.</span>
           </p>
           <div className="mt-10">
             <a href="#produkte" className="bg-tomato text-white px-8 py-4 font-black uppercase shadow-[4px_4px_0px_0px_#FAFBF7] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all inline-block">

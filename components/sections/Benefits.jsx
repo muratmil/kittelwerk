@@ -4,7 +4,7 @@ const BENEFITS = [
   { icon: '★', title: 'Profi-Qualität', desc: '24/1 Supreme Baumwolle. Doppelsteppung. DTF-Premium-Druck.' },
   { icon: '⚡', title: 'Schnelle Lieferung', desc: '7–10 Werktage von Bestätigung bis Lieferung deutschlandweit.' },
   { icon: '♻', title: 'Neukundenangebot', desc: 'Exklusive Aktionspreise für Neukunden — zeitlich begrenzt, aber kein Lagerabbau. Das Angebot bleibt bestehen.' },
-  { icon: '◉', title: 'Druck kostenlos', desc: 'Logo-Druck ohne Aufpreis. Vektordatei senden — wir übernehmen alles.' },
+  { icon: '◉', title: 'Vorderdruck kostenlos', desc: 'Vorderdruck ohne Aufpreis inklusive. Rückendruck nur +5 €. Vektordatei senden — wir übernehmen alles.' },
 ];
 
 export default function Benefits() {

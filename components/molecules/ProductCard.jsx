@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { ShoppingBag, Plus, Minus } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
-import { useCartStore, PRINT_PROMO_ACTIVE } from '@/store/cartStore';
+import { useCartStore, FREE_PRINT_TYPES } from '@/store/cartStore';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const MIN_QTY = 10;
@@ -11,7 +11,7 @@ const PRINT_OPTIONS = [
   { value: 'none',  label: 'Kein Druck',            price: 0 },
   { value: 'front', label: 'Vorderdruck',            price: 5 },
   { value: 'back',  label: 'Rückendruck',            price: 5 },
-  { value: 'both',  label: 'Vorder- + Rückendruck',  price: 8 },
+  { value: 'both',  label: 'Vorder- + Rückendruck',  price: 5 },
 ];
 
 export default function ProductCard({ product }) {
@@ -26,7 +26,8 @@ export default function ProductCard({ product }) {
     ? PRINT_OPTIONS
     : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both');
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
-  const effectivePrintPrice = PRINT_PROMO_ACTIVE ? 0 : selectedPrint.price;
+  const isFree = FREE_PRINT_TYPES.includes(printType);
+  const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
   const totalUnitPrice = product.newPrice + effectivePrintPrice;
   const savings = ((product.oldPrice - product.newPrice) / product.oldPrice * 100).toFixed(0);
 
@@ -66,7 +67,7 @@ export default function ProductCard({ product }) {
           {selectedPrint.price > 0 && (
             <div className="flex items-center justify-between text-[10px] font-bold uppercase border-t border-ink/20 pt-1">
               <span className="opacity-60">{selectedPrint.label}</span>
-              {PRINT_PROMO_ACTIVE ? (
+              {isFree ? (
                 <span className="flex items-center gap-1.5">
                   <span className="line-through opacity-40">+{selectedPrint.price.toFixed(2)}€</span>
                   <span className="bg-olive text-white font-black px-1 py-0.5 text-[8px]">GRATIS</span>
@@ -76,7 +77,7 @@ export default function ProductCard({ product }) {
               )}
             </div>
           )}
-          {selectedPrint.price > 0 && !PRINT_PROMO_ACTIVE && (
+          {selectedPrint.price > 0 && !isFree && (
             <div className="flex items-center justify-between text-[11px] font-black uppercase border-t-2 border-ink pt-1">
               <span>Gesamt / Stück</span>
               <span>{totalUnitPrice.toFixed(2)}€</span>
@@ -131,13 +132,15 @@ export default function ProductCard({ product }) {
                   ${printType === opt.value ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}
               >
                 {opt.label}
-                {opt.price === 0 ? (
-                  <span className="block text-[8px] font-bold mt-0.5 opacity-70">Kostenlos</span>
-                ) : PRINT_PROMO_ACTIVE ? (
-                  <span className="block mt-0.5 flex items-center gap-1">
-                    <span className={`text-[8px] font-bold line-through ${printType === opt.value ? 'opacity-40' : 'opacity-40'}`}>+{opt.price.toFixed(2)}€</span>
-                    <span className="text-[8px] font-black bg-olive text-white px-1">GRATIS</span>
-                  </span>
+                {opt.price === 0 || FREE_PRINT_TYPES.includes(opt.value) ? (
+                  opt.price === 0 ? (
+                    <span className="block text-[8px] font-bold mt-0.5 opacity-70">Kostenlos</span>
+                  ) : (
+                    <span className="block mt-0.5 flex items-center gap-1">
+                      <span className="text-[8px] font-bold line-through opacity-40">+{opt.price.toFixed(2)}€</span>
+                      <span className="text-[8px] font-black bg-olive text-white px-1">GRATIS</span>
+                    </span>
+                  )
                 ) : (
                   <span className={`block text-[8px] font-bold mt-0.5 ${printType === opt.value ? 'opacity-70' : 'text-tomato'}`}>
                     +{opt.price.toFixed(2)}€
