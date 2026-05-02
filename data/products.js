@@ -6,7 +6,7 @@ export const PRODUCTS = [
     image: '/images/tshirt.png',
     oldPrice: 20.00,
     newPrice: 10.00,
-    badge: 'NEUERÖFFNUNGS-DEAL',
+    badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: true,
     hasBackPrint: true
@@ -18,7 +18,7 @@ export const PRODUCTS = [
     image: '/images/apron-latz.png',
     oldPrice: 17.00,
     newPrice: 10.00,
-    badge: 'ERÖFFNUNGS-SPECIAL',
+    badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: false
   },
@@ -40,7 +40,7 @@ export const PRODUCTS = [
     image: '/images/cap.png',
     oldPrice: 14.00,
     newPrice: 7.00,
-    badge: 'ERÖFFNUNGS-DEAL',
+    badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: false
   },
@@ -51,7 +51,7 @@ export const PRODUCTS = [
     image: '/images/sweatshirt.png',
     oldPrice: 30.00,
     newPrice: 14.00,
-    badge: 'TOP START-DEAL',
+    badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: true,
     hasBackPrint: true

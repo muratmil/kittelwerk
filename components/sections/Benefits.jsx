@@ -3,8 +3,8 @@ const BENEFITS = [
   { icon: '✓', title: 'Deutsche Abwicklung', desc: 'SEPA-Überweisung auf deutsches Konto. Kein Auslandsaufschlag.' },
   { icon: '★', title: 'Profi-Qualität', desc: '24/1 Supreme Baumwolle. Doppelsteppung. DTF-Premium-Druck.' },
   { icon: '⚡', title: 'Schnelle Lieferung', desc: '7–10 Werktage von Bestätigung bis Lieferung deutschlandweit.' },
-  { icon: '♻', title: 'Lager reduziert', desc: 'Einmalige Aktionspreise nur während der Lagerräumung.' },
-  { icon: '◉', title: 'Logo-Druck inklusive', desc: 'Vektordatei senden — wir übernehmen die Druckvorbereitung.' },
+  { icon: '♻', title: 'Neukundenangebot', desc: 'Exklusive Aktionspreise für Neukunden — zeitlich begrenzt, aber kein Lagerabbau. Das Angebot bleibt bestehen.' },
+  { icon: '◉', title: 'Druck kostenlos', desc: 'Logo-Druck ohne Aufpreis. Vektordatei senden — wir übernehmen alles.' },
 ];
 
 export default function Benefits() {

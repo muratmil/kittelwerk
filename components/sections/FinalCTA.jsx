@@ -7,7 +7,7 @@ export default function FinalCTA() {
         <h2 className="font-serif font-black text-5xl md:text-7xl italic tracking-tighter leading-none mb-4">
           Jetzt Team<br /><span className="text-sun">einheitlich einkleiden.</span>
         </h2>
-        <p className="text-base mb-8 opacity-90">Solange der Vorrat reicht. Nach der Lagerräumung kehren die Preise zurück.</p>
+        <p className="text-base mb-8 opacity-90">Dieses Neukundenangebot gilt nur für begrenzte Zeit — danach kehren die regulären Preise zurück.</p>
         <a href="#produkte"
           className="inline-block bg-paper text-ink px-10 py-4 font-black uppercase shadow-brutalist hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
           Zur Produktauswahl ›

@@ -4,13 +4,16 @@ export default function Hero() {
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-12 items-center">
         <div className="min-w-0">
           <span className="text-sun font-black uppercase tracking-[0.3em] text-[10px]">
-            Exklusives Start-Event
+            Neukundenangebot — Zeitlich begrenzt
           </span>
           <h1 className="font-serif font-black text-[2.2rem] sm:text-5xl md:text-6xl lg:text-7xl leading-none mt-4 tracking-tighter italic">
-            NEUERÖFFNUNG.
+            Stark Reduziert!
           </h1>
+          <p className="font-serif font-black text-2xl md:text-3xl italic text-tomato tracking-tighter mt-1 leading-none">
+            Alles sehr günstig.
+          </p>
           <p className="mt-6 text-paper/70 text-lg max-w-md font-medium leading-tight">
-            Premium Gastro-Textilien direkt ab Werk. Nur für kurze Zeit zum Eröffnungs-Preis.
+            Hochwertige Gastro-Textilien zu unschlagbaren Preisen — nur für begrenzte Zeit. Kein Lagerabbau: Das Angebot bleibt bestehen. <span className="text-sun font-bold">Druck kostenlos inklusive.</span>
           </p>
           <div className="mt-10">
             <a href="#produkte" className="bg-tomato text-white px-8 py-4 font-black uppercase shadow-[4px_4px_0px_0px_#FAFBF7] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all inline-block">

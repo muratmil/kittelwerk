@@ -18,7 +18,7 @@ export default function AboutUs() {
             Wir produzieren in der Türkei ve liefern direkt an Gastronomen in ganz Europa. Das spart Kosten, verkürzt Lieferwege ve sichert faire Preise.
           </p>
           <p className="font-serif italic text-3xl leading-tight">
-            "Unsere Neueröffnung ist der Startschuss für eine neue Art der Arbeitskleidung: Brutal ehrlich, extrem robust ve unschlagbar im Preis."
+            "Unser Neukundenangebot ist der Startschuss für eine neue Art der Arbeitskleidung: Brutal ehrlich, extrem robust und unschlagbar im Preis."
           </p>
         </div>
       </section>

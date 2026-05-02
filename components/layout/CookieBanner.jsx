@@ -21,7 +21,7 @@ export default function CookieBanner() {
         >
           <h5 className="font-serif font-black text-xl mb-2 italic text-sun">Kekse? 🍪</h5>
           <p className="text-[10px] leading-relaxed uppercase tracking-widest opacity-80 mb-4">
-            Wir nutzen Cookies, um dein Erlebnis bei unserer Neueröffnung so reibungslos wie möglich zu machen.
+            Wir nutzen Cookies, um dein Erlebnis auf unserer Website so reibungslos wie möglich zu machen.
           </p>
           <div className="flex gap-4">
             <button onClick={acceptCookies} className="flex-1 bg-sun text-ink font-black py-2 text-xs uppercase hover:bg-white transition-all shadow-[2px_2px_0px_0px_white]">

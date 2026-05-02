@@ -5,8 +5,8 @@ const fraunces = Fraunces({ subsets: ['latin'], weight: ['900'], style: ['italic
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-sans' });
 
 export const metadata = {
-  title: 'Kittelwerk | Neueröffnung - Gastro Textilien Direkt ab Werk',
-  description: 'Exklusive Eröffnungs-Deals für Restaurant-Profis. Premium Schürzen, T-Shirts ve Sweatshirts zum Start-Preis.',
+  title: 'Kittelwerk | Stark Reduziert — Neukundenangebot für Gastro-Profis',
+  description: 'Hochwertige Gastro-Textilien zu unschlagbaren Preisen. Neukundenangebot für begrenzte Zeit — inkl. kostenlosem Logo-Druck. Direkt vom Hersteller.',
 };
 
 export default function RootLayout({ children }) {

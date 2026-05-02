@@ -44,7 +44,7 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-10 bg-sun border-4 border-ink p-4 text-center font-black text-sm shadow-brutalist">
-            ⚡ Mindestbestellmenge: <span className="text-tomato">10 Stück gesamt</span> (Produkte kombinierbar) · Maximum: 100 Stück pro Bestellung
+            ⚡ Mindestbestellmenge: <span className="text-tomato">10 Stück gesamt</span> (Produkte kombinierbar) · Maximum: 100 Stück · Versandkosten: 5,90 € · Druck kostenlos inklusive
           </div>
         </div>
       </section>

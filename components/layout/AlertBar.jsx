@@ -5,9 +5,9 @@ export default function AlertBar() {
         {[...Array(10)].map((_, i) => (
           <span key={i} className="flex items-center gap-2">
             <span className="w-2 h-2 bg-tomato rounded-full" />
-            NEUERÖFFNUNGS-DEALS AKTIV: Nur für kurze Zeit!
+            NEUKUNDENANGEBOT: Stark Reduziert — Alles sehr günstig!
             <span className="w-2 h-2 bg-tomato rounded-full" />
-            Direkt zu Türkei-Preisen
+            Druck kostenlos · Direkt zu Türkei-Preisen
           </span>
         ))}
       </div>

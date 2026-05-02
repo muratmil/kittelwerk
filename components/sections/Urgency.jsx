@@ -27,7 +27,7 @@ export default function Urgency() {
   return (
     <div className="bg-tomato text-white py-6 border-t-4 border-ink border-b-4">
       <div className="container mx-auto px-6 flex flex-wrap items-center justify-center gap-6">
-        <h3 className="font-serif font-black text-2xl">⚠ Lagerräumung endet in:</h3>
+        <h3 className="font-serif font-black text-2xl">⚠ Neukundenangebot endet in:</h3>
         <div className="flex gap-3">
           {[{ v: time.days, l: 'Tage' }, { v: time.hours, l: 'Std' }, { v: time.min, l: 'Min' }, { v: time.sec, l: 'Sek' }].map(({ v, l }) => (
             <div key={l} className="bg-ink text-white px-4 py-2 min-w-[56px] text-center border-2 border-white">
