@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
+  console.log('RESEND_API_KEY set:', !!process.env.RESEND_API_KEY);
   const { email } = await req.json();
 
   if (!email || !email.includes('@')) {
