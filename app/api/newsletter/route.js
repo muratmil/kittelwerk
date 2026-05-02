@@ -22,7 +22,7 @@ export async function POST(req) {
     return Response.json({ error: 'Ein Fehler ist aufgetreten.' }, { status: 500 });
   }
 
-  const { error: resendError } = await resend.emails.send({
+  const { data: resendData, error: resendError } = await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: email,
     subject: '🎉 Dein Rabattcode: KITTEL10',
@@ -40,6 +40,9 @@ export async function POST(req) {
       </div>
     `,
   });
+
+  console.log('Resend data:', JSON.stringify(resendData));
+  console.log('Resend error:', JSON.stringify(resendError));
 
   if (resendError) {
     console.error('Resend error:', resendError);
