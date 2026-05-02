@@ -14,6 +14,7 @@ import FAQ from '@/components/sections/FAQ';
 import FinalCTA from '@/components/sections/FinalCTA';
 import CartDrawer from '@/components/cart/CartDrawer';
 import CookieBanner from '@/components/layout/CookieBanner';
+import NewsletterPopup from '@/components/layout/NewsletterPopup';
 import Footer from '@/components/layout/Footer';
 import { PRODUCTS } from '@/data/products';
 
@@ -59,6 +60,7 @@ export default function Home() {
       <Footer />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <CookieBanner />
+      <NewsletterPopup />
     </main>
   );
 }

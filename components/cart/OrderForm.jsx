@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { Upload, Send, ChevronLeft } from 'lucide-react';
+import { Upload, Send, ChevronLeft, CheckCircle } from 'lucide-react';
+import { useCartStore } from '@/store/cartStore';
 
 const Field = ({ label, type = 'text', value, onChange, required = true, placeholder = '' }) => (
   <div className="flex flex-col gap-1">
@@ -8,23 +9,54 @@ const Field = ({ label, type = 'text', value, onChange, required = true, placeho
       {label} {required && <span className="text-tomato">*</span>}
     </label>
     <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      required={required}
+      type={type} value={value} onChange={onChange}
+      placeholder={placeholder} required={required}
       className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm"
     />
   </div>
 );
 
 export default function OrderForm({ items, totalPrice, onBack }) {
+  const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode, discountPercent } = useCartStore();
   const [file, setFile] = useState(null);
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [form, setForm] = useState({
-    name: '', company: '', email: '', phone: '', street: '', city: '',
+    name: '', company: '', email: '', phone: '', street: '', plz: '', city: '',
   });
 
   const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+
+    const subtotal = getSubtotal();
+    const discountAmount = getDiscountAmount();
+    const shippingCost = getShippingCost();
+    const total = getFinalTotal();
+
+    const res = await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...form,
+        items: items.map(i => ({ name: i.name, color: i.color, size: i.size, qty: i.qty, price: i.price, printType: i.printType })),
+        subtotal, discountCode: appliedCode, discountAmount, shippingCost, total,
+      }),
+    });
+
+    setStatus(res.ok ? 'success' : 'error');
+  };
+
+  if (status === 'success') {
+    return (
+      <div className="text-center py-12 space-y-4">
+        <CheckCircle size={56} className="text-olive mx-auto" />
+        <h3 className="font-serif font-black text-2xl uppercase italic">Anfrage gesendet!</h3>
+        <p className="text-sm opacity-70 max-w-xs mx-auto">Wir melden uns innerhalb von 24 Stunden per E-Mail bei dir.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -32,7 +64,7 @@ export default function OrderForm({ items, totalPrice, onBack }) {
         <ChevronLeft size={14} /> Zurück zum Warenkorb
       </button>
 
-      <form className="space-y-4 bg-white p-6 border-2 border-ink shadow-brutalist">
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 border-2 border-ink shadow-brutalist">
         <h3 className="font-serif font-black text-xl uppercase italic border-b-2 border-ink pb-2">Kontaktdaten</h3>
 
         <Field label="Name / Vorname"     value={form.name}    onChange={set('name')} />
@@ -47,21 +79,16 @@ export default function OrderForm({ items, totalPrice, onBack }) {
         <div className="grid grid-cols-[1fr_2fr] gap-2">
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-black uppercase tracking-widest">PLZ <span className="text-tomato">*</span></label>
-            <input
-              type="text" inputMode="numeric" maxLength={5}
+            <input type="text" inputMode="numeric" maxLength={5}
               value={form.plz} onChange={(e) => setForm(p => ({ ...p, plz: e.target.value }))}
               placeholder="12345" required
-              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm"
-            />
+              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-black uppercase tracking-widest">Stadt <span className="text-tomato">*</span></label>
-            <input
-              type="text"
-              value={form.city} onChange={set('city')}
+            <input type="text" value={form.city} onChange={set('city')}
               placeholder="Berlin" required
-              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm"
-            />
+              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
           </div>
         </div>
 
@@ -75,11 +102,16 @@ export default function OrderForm({ items, totalPrice, onBack }) {
           </label>
         </div>
 
+        {status === 'error' && (
+          <p className="text-[11px] text-tomato font-bold uppercase">Ein Fehler ist aufgetreten. Bitte versuche es erneut.</p>
+        )}
+
         <p className="text-[9px] opacity-50 uppercase tracking-widest"><span className="text-tomato">*</span> Pflichtfeld</p>
 
-        <button type="button" className="w-full bg-ink text-white py-4 font-black uppercase flex items-center justify-center gap-3 hover:bg-tomato transition-all shadow-brutalist">
+        <button type="submit" disabled={status === 'loading'}
+          className="w-full bg-ink text-white py-4 font-black uppercase flex items-center justify-center gap-3 hover:bg-tomato transition-all shadow-brutalist disabled:opacity-50">
           <Send size={18} />
-          Anfrage absenden
+          {status === 'loading' ? 'Wird gesendet...' : 'Anfrage absenden'}
         </button>
       </form>
     </div>
