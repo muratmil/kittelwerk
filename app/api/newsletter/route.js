@@ -21,7 +21,7 @@ export async function POST(req) {
     return Response.json({ error: 'Ein Fehler ist aufgetreten.' }, { status: 500 });
   }
 
-  await resend.emails.send({
+  const { error: resendError } = await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: email,
     subject: '🎉 Dein Rabattcode: KITTEL10',
@@ -39,6 +39,11 @@ export async function POST(req) {
       </div>
     `,
   });
+
+  if (resendError) {
+    console.error('Resend error:', resendError);
+    return Response.json({ error: 'E-Mail konnte nicht gesendet werden.', detail: resendError }, { status: 500 });
+  }
 
   return Response.json({ success: true });
 }
