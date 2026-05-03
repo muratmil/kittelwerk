@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Upload, Send, ChevronLeft, CheckCircle } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
+import { createClient } from '@/utils/supabase/client';
 
 const Field = ({ label, type = 'text', value, onChange, required = true, placeholder = '' }) => (
   <div className="flex flex-col gap-1">
@@ -35,16 +36,20 @@ export default function OrderForm({ items, totalPrice, onBack }) {
     const shippingCost = getShippingCost();
     const total = getFinalTotal();
 
-    let logoBase64 = null;
-    let logoFilename = null;
+    let logoUrl = null;
 
     if (file) {
-      logoBase64 = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target.result.split(',')[1]);
-        reader.readAsDataURL(file);
-      });
-      logoFilename = file.name;
+      const supabase = createClient();
+      const ext = file.name.split('.').pop();
+      const filename = `${Date.now()}_${form.company.replace(/\s+/g, '_') || 'logo'}.${ext}`;
+
+      const { data, error } = await supabase.storage
+        .from('logos')
+        .upload(filename, file, { upsert: false });
+
+      if (!error && data) {
+        logoUrl = data.path;
+      }
     }
 
     const res = await fetch('/api/order', {
@@ -61,7 +66,7 @@ export default function OrderForm({ items, totalPrice, onBack }) {
           printType: i.printType,
         })),
         subtotal, discountCode: appliedCode, discountAmount, shippingCost, total,
-        logoBase64, logoFilename,
+        logoUrl,
       }),
     });
 

@@ -10,7 +10,7 @@ function formatSizes(sizes) {
 
 export async function POST(req) {
   const body = await req.json();
-  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoBase64, logoFilename } = body;
+  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoUrl } = body;
 
   const { data: order, error } = await supabaseAdmin
     .from('orders')
@@ -19,6 +19,7 @@ export async function POST(req) {
       items, subtotal, discount_code: discountCode || null,
       discount_amount: discountAmount || 0,
       shipping_cost: shippingCost, total,
+      logo_url: logoUrl || null,
       status: 'new',
     }])
     .select()
@@ -26,6 +27,15 @@ export async function POST(req) {
 
   if (error) {
     return Response.json({ error: 'Fehler beim Speichern der Bestellung.' }, { status: 500 });
+  }
+
+  // Logo için signed URL oluştur (48 saat geçerli)
+  let logoDownloadUrl = null;
+  if (logoUrl) {
+    const { data: signedData } = await supabaseAdmin.storage
+      .from('logos')
+      .createSignedUrl(logoUrl, 172800);
+    if (signedData) logoDownloadUrl = signedData.signedUrl;
   }
 
   const itemsHtml = items.map(i =>
@@ -70,8 +80,8 @@ export async function POST(req) {
     `,
   });
 
-  // Murata bildirim e-postası
-  const adminEmailPayload = {
+  // Admin bildirim e-postası
+  await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
     subject: `🛒 Neue Bestellung: ${company} — ${total.toFixed(2)}€`,
@@ -86,23 +96,17 @@ export async function POST(req) {
           <tr><td style="padding:6px;color:#555;">Adresse</td><td>${street}, ${plz} ${city}</td></tr>
           <tr><td style="padding:6px;color:#555;">Bestellwert</td><td><strong>${total.toFixed(2)}€</strong></td></tr>
           ${discountCode ? `<tr><td style="padding:6px;color:#555;">Rabattcode</td><td>${discountCode} (−${discountAmount.toFixed(2)}€)</td></tr>` : ''}
-          ${logoFilename ? `<tr><td style="padding:6px;color:#555;">Logo</td><td>Im Anhang: ${logoFilename}</td></tr>` : ''}
+          ${logoDownloadUrl ? `<tr><td style="padding:6px;color:#555;">Logo</td><td><a href="${logoDownloadUrl}" style="color:#E63946;font-weight:bold;">📎 Logo herunterladen (48h)</a></td></tr>` : '<tr><td style="padding:6px;color:#555;">Logo</td><td style="color:#999;">Kein Logo hochgeladen</td></tr>'}
         </table>
         <h3 style="margin-top:24px;">Bestellpositionen</h3>
         <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="background:#111;color:#fff;"><th style="padding:8px;text-align:left;">Produkt</th><th style="padding:8px;">Menge</th><th style="padding:8px;text-align:right;">Preis</th></tr></thead>
+          <thead><tr style="background:#111;color:#fff;"><th style="padding:8px;text-align:left;">Produkt</th><th style="padding:8px;text-align:left;">Variante</th><th style="padding:8px;text-align:center;">Menge</th><th style="padding:8px;text-align:right;">Preis</th></tr></thead>
           <tbody>${itemsHtml}</tbody>
         </table>
         <p style="margin-top:16px;color:#555;font-size:13px;">Bestellung #${order.id}</p>
       </div>
     `,
-  };
-
-  if (logoBase64 && logoFilename) {
-    adminEmailPayload.attachments = [{ filename: logoFilename, content: logoBase64 }];
-  }
-
-  await resend.emails.send(adminEmailPayload);
+  });
 
   return Response.json({ success: true, orderId: order.id });
 }

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save } from 'lucide-react';
+import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save, Download } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: 'new',        label: 'Neu',            color: 'bg-sun text-ink' },
@@ -26,13 +26,20 @@ function formatSizes(sizes) {
   return Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · ');
 }
 
-function OrderRow({ order, onStatusChange, onNotesSave }) {
+function OrderRow({ order, onStatusChange, onNotesSave, supabase }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState(order.status || 'new');
   const [notes, setNotes] = useState(order.notes || '');
   const [updating, setUpdating] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(null);
+
+  const handleLogoDownload = async () => {
+    if (!order.logo_url) return;
+    const { data } = await supabase.storage.from('logos').createSignedUrl(order.logo_url, 3600);
+    if (data) window.open(data.signedUrl, '_blank');
+  };
 
   const handleStatus = async (newStatus) => {
     setUpdating(true);
@@ -82,6 +89,16 @@ function OrderRow({ order, onStatusChange, onNotesSave }) {
             {order.discount_code && (
               <div><span className="opacity-50 uppercase font-black">Rabatt</span><br />{order.discount_code} (−{Number(order.discount_amount).toFixed(2)}€)</div>
             )}
+            <div>
+              <span className="opacity-50 uppercase font-black">Logo</span><br />
+              {order.logo_url ? (
+                <button onClick={handleLogoDownload} className="flex items-center gap-1.5 text-tomato font-bold hover:underline">
+                  <Download size={12} /> Logo herunterladen
+                </button>
+              ) : (
+                <span className="opacity-40">Kein Logo</span>
+              )}
+            </div>
           </div>
 
           {/* Bestellpositionen */}
@@ -255,7 +272,7 @@ export default function BackendPage() {
         ) : (
           <div className="space-y-3">
             {filtered.map(order => (
-              <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} />
+              <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} supabase={supabase} />
             ))}
           </div>
         )}
