@@ -3,9 +3,14 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function formatSizes(sizes) {
+  if (!sizes || sizes['-'] !== undefined) return `${sizes?.['-'] ?? '—'} Stück`;
+  return Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · ');
+}
+
 export async function POST(req) {
   const body = await req.json();
-  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total } = body;
+  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoBase64, logoFilename } = body;
 
   const { data: order, error } = await supabaseAdmin
     .from('orders')
@@ -26,7 +31,7 @@ export async function POST(req) {
   const itemsHtml = items.map(i =>
     `<tr>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.name}</td>
-      <td style="padding:8px;border-bottom:1px solid #eee;">${i.color} · ${i.size !== '-' ? 'Gr. ' + i.size : '—'}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${i.color} · ${formatSizes(i.sizes)}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.qty} Stück</td>
       <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${(i.price * i.qty).toFixed(2)}€</td>
     </tr>`
@@ -41,7 +46,7 @@ export async function POST(req) {
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
         <h1 style="font-size:28px;font-weight:900;">Kittel<span style="color:#E63946">werk</span>.</h1>
         <h2 style="margin-top:24px;">Danke, ${name}!</h2>
-        <p>Wir haben deine Bestellanfrage erhalten und melden uns innerhalb von 24 Stunden bei dir.</p>
+        <p>Wir haben deine Bestellanfrage erhalten und melden uns bald bei dir.</p>
         <table style="width:100%;border-collapse:collapse;margin:24px 0;">
           <thead>
             <tr style="background:#111;color:#fff;">
@@ -66,7 +71,7 @@ export async function POST(req) {
   });
 
   // Murata bildirim e-postası
-  await resend.emails.send({
+  const adminEmailPayload = {
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
     subject: `🛒 Neue Bestellung: ${company} — ${total.toFixed(2)}€`,
@@ -81,6 +86,7 @@ export async function POST(req) {
           <tr><td style="padding:6px;color:#555;">Adresse</td><td>${street}, ${plz} ${city}</td></tr>
           <tr><td style="padding:6px;color:#555;">Bestellwert</td><td><strong>${total.toFixed(2)}€</strong></td></tr>
           ${discountCode ? `<tr><td style="padding:6px;color:#555;">Rabattcode</td><td>${discountCode} (−${discountAmount.toFixed(2)}€)</td></tr>` : ''}
+          ${logoFilename ? `<tr><td style="padding:6px;color:#555;">Logo</td><td>Im Anhang: ${logoFilename}</td></tr>` : ''}
         </table>
         <h3 style="margin-top:24px;">Bestellpositionen</h3>
         <table style="width:100%;border-collapse:collapse;">
@@ -90,7 +96,13 @@ export async function POST(req) {
         <p style="margin-top:16px;color:#555;font-size:13px;">Bestellung #${order.id}</p>
       </div>
     `,
-  });
+  };
+
+  if (logoBase64 && logoFilename) {
+    adminEmailPayload.attachments = [{ filename: logoFilename, content: logoBase64 }];
+  }
+
+  await resend.emails.send(adminEmailPayload);
 
   return Response.json({ success: true, orderId: order.id });
 }

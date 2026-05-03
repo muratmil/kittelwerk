@@ -17,14 +17,14 @@ const Field = ({ label, type = 'text', value, onChange, required = true, placeho
 );
 
 export default function OrderForm({ items, totalPrice, onBack }) {
-  const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode, discountPercent } = useCartStore();
+  const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode } = useCartStore();
   const [file, setFile] = useState(null);
-  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [status, setStatus] = useState('idle');
   const [form, setForm] = useState({
     name: '', company: '', email: '', phone: '', street: '', plz: '', city: '',
   });
 
-  const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
+  const setField = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,13 +35,33 @@ export default function OrderForm({ items, totalPrice, onBack }) {
     const shippingCost = getShippingCost();
     const total = getFinalTotal();
 
+    let logoBase64 = null;
+    let logoFilename = null;
+
+    if (file) {
+      logoBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => resolve(ev.target.result.split(',')[1]);
+        reader.readAsDataURL(file);
+      });
+      logoFilename = file.name;
+    }
+
     const res = await fetch('/api/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...form,
-        items: items.map(i => ({ name: i.name, color: i.color, size: i.size, qty: i.qty, price: i.price, printType: i.printType })),
+        items: items.map(i => ({
+          name: i.name,
+          color: i.color,
+          sizes: i.sizes,
+          qty: i.qty,
+          price: i.price,
+          printType: i.printType,
+        })),
         subtotal, discountCode: appliedCode, discountAmount, shippingCost, total,
+        logoBase64, logoFilename,
       }),
     });
 
@@ -53,7 +73,7 @@ export default function OrderForm({ items, totalPrice, onBack }) {
       <div className="text-center py-12 space-y-4">
         <CheckCircle size={56} className="text-olive mx-auto" />
         <h3 className="font-serif font-black text-2xl uppercase italic">Anfrage gesendet!</h3>
-        <p className="text-sm opacity-70 max-w-xs mx-auto">Wir melden uns innerhalb von 24 Stunden per E-Mail bei dir.</p>
+        <p className="text-sm opacity-70 max-w-xs mx-auto">Wir melden uns bald per E-Mail bei dir.</p>
       </div>
     );
   }
@@ -67,14 +87,14 @@ export default function OrderForm({ items, totalPrice, onBack }) {
       <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 border-2 border-ink shadow-brutalist">
         <h3 className="font-serif font-black text-xl uppercase italic border-b-2 border-ink pb-2">Kontaktdaten</h3>
 
-        <Field label="Name / Vorname"     value={form.name}    onChange={set('name')} />
-        <Field label="Restaurant / Firma" value={form.company} onChange={set('company')} />
-        <Field label="E-Mail Adresse"     type="email" value={form.email} onChange={set('email')} />
-        <Field label="Telefon"            type="tel"   value={form.phone} onChange={set('phone')} placeholder="+49 123 456789" />
+        <Field label="Name / Vorname"     value={form.name}    onChange={setField('name')} />
+        <Field label="Restaurant / Firma" value={form.company} onChange={setField('company')} />
+        <Field label="E-Mail Adresse"     type="email" value={form.email} onChange={setField('email')} />
+        <Field label="Telefon"            type="tel"   value={form.phone} onChange={setField('phone')} placeholder="+49 123 456789" />
 
         <h3 className="font-serif font-black text-xl uppercase italic border-b-2 border-ink pb-2 pt-2">Lieferadresse</h3>
 
-        <Field label="Straße / Hausnummer" value={form.street} onChange={set('street')} placeholder="Musterstraße 12" />
+        <Field label="Straße / Hausnummer" value={form.street} onChange={setField('street')} placeholder="Musterstraße 12" />
 
         <div className="grid grid-cols-[1fr_2fr] gap-2">
           <div className="flex flex-col gap-1">
@@ -86,19 +106,22 @@ export default function OrderForm({ items, totalPrice, onBack }) {
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-black uppercase tracking-widest">Stadt <span className="text-tomato">*</span></label>
-            <input type="text" value={form.city} onChange={set('city')}
+            <input type="text" value={form.city} onChange={setField('city')}
               placeholder="Berlin" required
               className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
           </div>
         </div>
 
-        <div className="border-2 border-dashed border-ink p-5 bg-paper flex flex-col items-center justify-center gap-2">
-          <input type="file" id="logo-upload" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
-          <label htmlFor="logo-upload" className="flex flex-col items-center cursor-pointer text-center">
-            <Upload className="text-tomato mb-2" />
-            <span className="text-[8px] font-black uppercase leading-tight">
-              {file ? file.name : 'Logo hochladen (PDF, PNG, SVG)'}
+        <div className={`border-2 border-dashed p-5 bg-paper flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${file ? 'border-olive bg-olive/5' : 'border-ink hover:border-tomato'}`}>
+          <input type="file" id="logo-upload" className="hidden"
+            accept=".pdf,.png,.svg,.ai,.eps,.jpg,.jpeg"
+            onChange={(e) => setFile(e.target.files[0])} />
+          <label htmlFor="logo-upload" className="flex flex-col items-center cursor-pointer text-center w-full">
+            <Upload className={`mb-2 ${file ? 'text-olive' : 'text-tomato'}`} size={20} />
+            <span className="text-[9px] font-black uppercase leading-tight">
+              {file ? `✓ ${file.name}` : 'Logo hochladen (PDF, PNG, SVG, AI, EPS)'}
             </span>
+            {!file && <span className="text-[8px] opacity-50 mt-1">Optional — oder per E-Mail nachsenden</span>}
           </label>
         </div>
 
