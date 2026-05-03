@@ -49,5 +49,5 @@ export async function POST(req) {
     return Response.json({ error: 'E-Mail konnte nicht gesendet werden.', detail: resendError }, { status: 500 });
   }
 
-  return Response.json({ success: true });
+  return Response.json({ success: true, _debug: resendData });
 }
