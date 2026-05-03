@@ -4,7 +4,6 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
-  console.log('RESEND_API_KEY set:', !!process.env.RESEND_API_KEY);
   const { email } = await req.json();
 
   if (!email || !email.includes('@')) {
@@ -43,17 +42,12 @@ export async function POST(req) {
       `,
     });
   } catch (e) {
-    console.error('Resend exception:', e.message);
-    return Response.json({ error: 'E-Mail konnte nicht gesendet werden.', detail: e.message }, { status: 500 });
+    return Response.json({ error: 'E-Mail konnte nicht gesendet werden.' }, { status: 500 });
   }
 
-  console.log('Resend full result:', JSON.stringify(resendResult));
-
-  const resendError = resendResult?.error;
-  if (resendError) {
-    console.error('Resend error:', resendError);
-    return Response.json({ error: 'E-Mail konnte nicht gesendet werden.', detail: resendError }, { status: 500 });
+  if (resendResult?.error) {
+    return Response.json({ error: 'E-Mail konnte nicht gesendet werden.' }, { status: 500 });
   }
 
-  return Response.json({ success: true, _debug: resendResult ?? 'null_result' });
+  return Response.json({ success: true });
 }
