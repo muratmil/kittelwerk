@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { RefreshCw, Printer } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { RefreshCw, Printer, LogOut } from 'lucide-react';
 
 const PRINT_LABELS = {
   none:  'Kein Druck',
@@ -123,10 +124,16 @@ export default function AtolyePage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/atolye/login');
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
-    const supabase = createClient();
     const { data } = await supabase
       .from('orders')
       .select('*')
@@ -157,6 +164,10 @@ export default function AtolyePage() {
           <button onClick={() => window.print()}
             className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-sun transition-all">
             <Printer size={14} /> Drucken
+          </button>
+          <button onClick={handleLogout}
+            className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-tomato hover:text-white transition-all">
+            <LogOut size={14} />
           </button>
         </div>
       </div>

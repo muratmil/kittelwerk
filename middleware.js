@@ -21,19 +21,25 @@ export async function middleware(request) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  const isLoginPage = request.nextUrl.pathname === '/backend/login'
+  const path = request.nextUrl.pathname
 
-  if (!user && !isLoginPage) {
-    return NextResponse.redirect(new URL('/backend/login', request.url))
+  // /backend koruması
+  if (path.startsWith('/backend')) {
+    const isLoginPage = path === '/backend/login'
+    if (!user && !isLoginPage) return NextResponse.redirect(new URL('/backend/login', request.url))
+    if (user && isLoginPage) return NextResponse.redirect(new URL('/backend', request.url))
   }
 
-  if (user && isLoginPage) {
-    return NextResponse.redirect(new URL('/backend', request.url))
+  // /atolye koruması
+  if (path.startsWith('/atolye')) {
+    const isLoginPage = path === '/atolye/login'
+    if (!user && !isLoginPage) return NextResponse.redirect(new URL('/atolye/login', request.url))
+    if (user && isLoginPage) return NextResponse.redirect(new URL('/atolye', request.url))
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/backend/:path*'],
+  matcher: ['/backend/:path*', '/atolye/:path*'],
 }
