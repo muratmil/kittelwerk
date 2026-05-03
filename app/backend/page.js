@@ -2,14 +2,14 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save } from 'lucide-react';
 
 const STATUS_OPTIONS = [
-  { value: 'new',        label: 'Neu',             color: 'bg-sun text-ink' },
-  { value: 'processing', label: 'In Bearbeitung',  color: 'bg-blue-100 text-blue-800' },
-  { value: 'shipped',    label: 'Versandt',         color: 'bg-olive/20 text-olive' },
-  { value: 'done',       label: 'Abgeschlossen',    color: 'bg-ink/10 text-ink/50' },
-  { value: 'cancelled',  label: 'Storniert',        color: 'bg-tomato/10 text-tomato' },
+  { value: 'new',        label: 'Neu',            color: 'bg-sun text-ink' },
+  { value: 'processing', label: 'In Bearbeitung', color: 'bg-blue-100 text-blue-800' },
+  { value: 'shipped',    label: 'Versandt',        color: 'bg-olive/20 text-olive' },
+  { value: 'done',       label: 'Abgeschlossen',   color: 'bg-ink/10 text-ink/50' },
+  { value: 'cancelled',  label: 'Storniert',       color: 'bg-tomato/10 text-tomato' },
 ];
 
 function StatusBadge({ status }) {
@@ -26,16 +26,27 @@ function formatSizes(sizes) {
   return Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · ');
 }
 
-function OrderRow({ order, onStatusChange }) {
+function OrderRow({ order, onStatusChange, onNotesSave }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState(order.status || 'new');
+  const [notes, setNotes] = useState(order.notes || '');
   const [updating, setUpdating] = useState(false);
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [notesSaved, setNotesSaved] = useState(false);
 
   const handleStatus = async (newStatus) => {
     setUpdating(true);
     await onStatusChange(order.id, newStatus);
     setStatus(newStatus);
     setUpdating(false);
+  };
+
+  const handleSaveNotes = async () => {
+    setSavingNotes(true);
+    await onNotesSave(order.id, notes);
+    setSavingNotes(false);
+    setNotesSaved(true);
+    setTimeout(() => setNotesSaved(false), 2000);
   };
 
   const date = new Date(order.created_at).toLocaleDateString('de-DE', {
@@ -55,6 +66,7 @@ function OrderRow({ order, onStatusChange }) {
             <StatusBadge status={status} />
             <span className="text-[10px] opacity-50">{order.items?.length || 0} Positionen</span>
             <span className="text-[10px] font-black">{Number(order.total).toFixed(2)}€</span>
+            {order.notes && <span className="text-[9px] bg-sun px-1.5 py-0.5 font-black uppercase">Notiz</span>}
           </div>
         </div>
         {open ? <ChevronUp size={16} className="flex-shrink-0 opacity-50" /> : <ChevronDown size={16} className="flex-shrink-0 opacity-50" />}
@@ -106,6 +118,24 @@ function OrderRow({ order, onStatusChange }) {
             </div>
           </div>
 
+          {/* Atölye Notu */}
+          <div className="space-y-2 border-t-2 border-ink/20 pt-3">
+            <label className="text-[9px] font-black uppercase opacity-60">Atölye-Notiz</label>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Hinweise für die Produktion (Logo-Status, Sonderwünsche, Liefertermin...)"
+              rows={3}
+              className="w-full border-2 border-ink p-3 text-[11px] outline-none focus:bg-sun resize-none bg-white"
+            />
+            <button onClick={handleSaveNotes} disabled={savingNotes}
+              className={`flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 border-2 border-ink transition-all
+                ${notesSaved ? 'bg-olive text-white' : 'bg-white hover:bg-sun'} disabled:opacity-50`}>
+              <Save size={12} />
+              {notesSaved ? 'Gespeichert ✓' : savingNotes ? 'Speichern...' : 'Notiz speichern'}
+            </button>
+          </div>
+
           {/* Status ändern */}
           <div className="flex flex-wrap gap-2 pt-2 border-t-2 border-ink/20">
             <span className="text-[9px] font-black uppercase opacity-50 self-center">Status:</span>
@@ -124,7 +154,7 @@ function OrderRow({ order, onStatusChange }) {
   );
 }
 
-export default function AdminPage() {
+export default function BackendPage() {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -159,21 +189,24 @@ export default function AdminPage() {
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
   };
 
+  const handleNotesSave = async (orderId, notes) => {
+    await supabase.from('orders').update({ notes }).eq('id', orderId);
+  };
+
   const filtered = filter === 'all' ? orders : orders.filter(o => (o.status || 'new') === filter);
 
   const counts = STATUS_OPTIONS.reduce((acc, opt) => {
     acc[opt.value] = orders.filter(o => (o.status || 'new') === opt.value).length;
     return acc;
-  }, { all: orders.length });
+  }, {});
 
   return (
     <div className="min-h-screen bg-paper">
-      {/* Header */}
       <div className="bg-white border-b-4 border-ink px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Package size={20} />
           <span className="font-serif font-black text-xl italic uppercase">
-            Kittel<span className="text-tomato">werk</span>. Admin
+            Kittel<span className="text-tomato">werk</span>. Backend
           </span>
         </div>
         <div className="flex items-center gap-4">
@@ -188,13 +221,12 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Gesamt', value: orders.length, color: 'bg-ink text-white' },
-            { label: 'Neu', value: counts.new || 0, color: 'bg-sun text-ink' },
-            { label: 'In Bearbeitung', value: counts.processing || 0, color: 'bg-blue-100 text-blue-800' },
-            { label: 'Versandt', value: counts.shipped || 0, color: 'bg-olive/20 text-olive' },
+            { label: 'Gesamt',         value: orders.length,            color: 'bg-ink text-white' },
+            { label: 'Neu',            value: counts.new || 0,          color: 'bg-sun text-ink' },
+            { label: 'In Bearbeitung', value: counts.processing || 0,   color: 'bg-blue-100 text-blue-800' },
+            { label: 'Versandt',       value: counts.shipped || 0,      color: 'bg-olive/20 text-olive' },
           ].map(stat => (
             <div key={stat.label} className={`border-2 border-ink p-4 shadow-brutalist ${stat.color}`}>
               <div className="text-3xl font-black">{stat.value}</div>
@@ -203,7 +235,6 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Filter */}
         <div className="flex flex-wrap gap-2">
           <button onClick={() => setFilter('all')}
             className={`text-[9px] font-black uppercase px-3 py-2 border-2 border-ink transition-all ${filter === 'all' ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
@@ -217,7 +248,6 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Orders */}
         {loading ? (
           <div className="text-center py-20 font-serif italic opacity-40 uppercase">Wird geladen...</div>
         ) : filtered.length === 0 ? (
@@ -225,7 +255,7 @@ export default function AdminPage() {
         ) : (
           <div className="space-y-3">
             {filtered.map(order => (
-              <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} />
+              <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} />
             ))}
           </div>
         )}
