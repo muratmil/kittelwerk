@@ -144,7 +144,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) { router.push('/admin/login'); return; }
+      if (!user) { router.push('/backend/login'); return; }
       setUserEmail(user.email);
     });
     fetchOrders();
@@ -152,7 +152,7 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/admin/login');
+    router.push('/backend/login');
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
