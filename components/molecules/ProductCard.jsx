@@ -8,16 +8,19 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const MIN_QTY = 10;
 
 const PRINT_OPTIONS = [
-  { value: 'none',  label: 'Kein Druck',            price: 0 },
-  { value: 'front', label: 'Vorderdruck',            price: 5 },
-  { value: 'back',  label: 'Rückendruck',            price: 5 },
-  { value: 'both',  label: 'Vorder- + Rückendruck',  price: 5 },
+  { value: 'none',  label: 'Kein Druck',           price: 0 },
+  { value: 'front', label: 'Vorderdruck',           price: 5 },
+  { value: 'back',  label: 'Rückendruck',           price: 5 },
+  { value: 'both',  label: 'Vorder- + Rückendruck', price: 5 },
 ];
 
 export default function ProductCard({ product }) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
-  const [selectedSize, setSelectedSize] = useState(product.hasSizes ? 'M' : '-');
-  const [qty, setQty] = useState(MIN_QTY);
+  const [sizeQtys, setSizeQtys] = useState(
+    product.hasSizes
+      ? Object.fromEntries(SIZES.map(s => [s, 0]))
+      : { '-': MIN_QTY }
+  );
   const [printType, setPrintType] = useState('none');
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
@@ -31,9 +34,24 @@ export default function ProductCard({ product }) {
   const totalUnitPrice = product.newPrice + effectivePrintPrice;
   const savings = ((product.oldPrice - product.newPrice) / product.oldPrice * 100).toFixed(0);
 
+  const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
+  const isValid = totalQty >= MIN_QTY;
+
+  const updateSize = (size, val) => {
+    const num = Math.max(0, parseInt(val) || 0);
+    setSizeQtys(prev => ({ ...prev, [size]: num }));
+  };
+
   const handleAddToCart = () => {
-    addItem(product, selectedColor, selectedSize, qty, printType);
+    if (!isValid) return;
+    const activeSizes = Object.fromEntries(Object.entries(sizeQtys).filter(([, v]) => v > 0));
+    addItem(product, selectedColor, activeSizes, totalQty, printType);
     setAdded(true);
+    setSizeQtys(
+      product.hasSizes
+        ? Object.fromEntries(SIZES.map(s => [s, 0]))
+        : { '-': MIN_QTY }
+    );
     setTimeout(() => setAdded(false), 1500);
   };
 
@@ -90,10 +108,7 @@ export default function ProductCard({ product }) {
           <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Farbe</p>
           <div className="flex gap-2">
             {product.colors.map((c) => (
-              <button
-                key={c.name}
-                onClick={() => setSelectedColor(c.name)}
-                title={c.name}
+              <button key={c.name} onClick={() => setSelectedColor(c.name)} title={c.name}
                 style={{ backgroundColor: c.hex }}
                 className={`w-7 h-7 border-2 transition-all ${selectedColor === c.name ? 'border-tomato scale-110' : 'border-ink'}`}
               />
@@ -101,36 +116,14 @@ export default function ProductCard({ product }) {
           </div>
         </div>
 
-        {/* Beden */}
-        {product.hasSizes && (
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Größe</p>
-            <div className="flex flex-wrap gap-2">
-              {SIZES.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSelectedSize(s)}
-                  className={`px-3 py-1 text-[10px] font-black uppercase border-2 border-ink transition-all
-                    ${selectedSize === s ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Baskı */}
         <div>
           <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Druckoption</p>
           <div className="grid grid-cols-2 gap-2">
             {availablePrints.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setPrintType(opt.value)}
+              <button key={opt.value} onClick={() => setPrintType(opt.value)}
                 className={`px-2 py-2 text-[9px] font-black uppercase border-2 border-ink transition-all text-left leading-tight
-                  ${printType === opt.value ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}
-              >
+                  ${printType === opt.value ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
                 {opt.label}
                 {opt.price === 0 || FREE_PRINT_TYPES.includes(opt.value) ? (
                   opt.price === 0 ? (
@@ -151,33 +144,77 @@ export default function ProductCard({ product }) {
           </div>
         </div>
 
-        {/* Adet */}
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">
-            Menge <span className="text-tomato">(Min. {MIN_QTY} Stück)</span>
-          </p>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center border-2 border-ink">
-              <button onClick={() => setQty(q => Math.max(MIN_QTY, q - 1))} className="px-3 py-2 hover:bg-sun transition-all">
-                <Minus size={14} />
-              </button>
-              <span className="px-4 py-2 font-black text-sm border-x-2 border-ink min-w-[3rem] text-center">{qty}</span>
-              <button onClick={() => setQty(q => q + 1)} className="px-3 py-2 hover:bg-sun transition-all">
-                <Plus size={14} />
-              </button>
+        {/* Beden & Adet */}
+        {product.hasSizes ? (
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
+              Größe & Menge{' '}
+              <span className={totalQty >= MIN_QTY ? 'text-olive' : 'text-tomato'}>
+                (Gesamt: {totalQty} / Min. {MIN_QTY})
+              </span>
+            </p>
+            <div className="space-y-2">
+              {SIZES.map(size => (
+                <div key={size} className="flex items-center gap-3">
+                  <span className="text-[10px] font-black uppercase w-8 flex-shrink-0">{size}</span>
+                  <div className="flex items-center border-2 border-ink">
+                    <button onClick={() => updateSize(size, sizeQtys[size] - 1)}
+                      className="px-2 py-1.5 hover:bg-sun transition-all">
+                      <Minus size={12} />
+                    </button>
+                    <input
+                      type="number" min="0" value={sizeQtys[size]}
+                      onChange={(e) => updateSize(size, e.target.value)}
+                      className="w-10 py-1.5 font-black text-sm border-x-2 border-ink text-center outline-none bg-transparent"
+                    />
+                    <button onClick={() => updateSize(size, sizeQtys[size] + 1)}
+                      className="px-2 py-1.5 hover:bg-sun transition-all">
+                      <Plus size={12} />
+                    </button>
+                  </div>
+                  {sizeQtys[size] > 0 && (
+                    <span className="text-[10px] opacity-50">
+                      = {(totalUnitPrice * sizeQtys[size]).toFixed(2)}€
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
-            <span className="text-[10px] font-black opacity-50 uppercase">= {(totalUnitPrice * qty).toFixed(2)}€</span>
           </div>
-        </div>
+        ) : (
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">
+              Menge <span className="text-tomato">(Min. {MIN_QTY} Stück)</span>
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center border-2 border-ink">
+                <button onClick={() => updateSize('-', sizeQtys['-'] - 1)}
+                  className="px-3 py-2 hover:bg-sun transition-all">
+                  <Minus size={14} />
+                </button>
+                <input
+                  type="number" min={MIN_QTY} value={sizeQtys['-']}
+                  onChange={(e) => updateSize('-', Math.max(MIN_QTY, parseInt(e.target.value) || MIN_QTY))}
+                  className="px-2 py-2 font-black text-sm border-x-2 border-ink w-16 text-center outline-none bg-transparent"
+                />
+                <button onClick={() => updateSize('-', sizeQtys['-'] + 1)}
+                  className="px-3 py-2 hover:bg-sun transition-all">
+                  <Plus size={14} />
+                </button>
+              </div>
+              <span className="text-[10px] font-black opacity-50 uppercase">
+                = {(totalUnitPrice * sizeQtys['-']).toFixed(2)}€
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Sepete ekle */}
-        <button
-          onClick={handleAddToCart}
-          className={`w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all active:translate-x-1 active:translate-y-1 active:shadow-none mt-auto
-            ${added ? 'bg-olive text-white' : 'bg-ink text-white hover:bg-tomato'}`}
-        >
+        <button onClick={handleAddToCart} disabled={!isValid}
+          className={`w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all mt-auto
+            ${added ? 'bg-olive text-white' : isValid ? 'bg-ink text-white hover:bg-tomato active:translate-x-1 active:translate-y-1 active:shadow-none' : 'bg-ink/30 text-white/50 cursor-not-allowed'}`}>
           <ShoppingBag size={16} />
-          {added ? 'Hinzugefügt!' : 'In den Warenkorb'}
+          {added ? 'Hinzugefügt!' : isValid ? 'In den Warenkorb' : `Min. ${MIN_QTY} Stück wählen`}
         </button>
       </div>
     </div>

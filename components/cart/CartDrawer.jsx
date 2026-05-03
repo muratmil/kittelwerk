@@ -5,6 +5,15 @@ import { X, Trash2, Tag, CheckCircle } from 'lucide-react';
 import OrderForm from './OrderForm';
 import { useState } from 'react';
 
+function SizeBreakdown({ sizes }) {
+  if (sizes['-'] !== undefined) return null;
+  return (
+    <span className="text-[10px] uppercase opacity-60">
+      {Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · ')}
+    </span>
+  );
+}
+
 export default function CartDrawer({ isOpen, onClose }) {
   const {
     items, removeItem,
@@ -59,15 +68,16 @@ export default function CartDrawer({ isOpen, onClose }) {
                   ) : (
                     items.map((item, idx) => (
                       <div key={idx} className="flex gap-4 p-4 border-2 border-ink bg-white shadow-brutalist">
-                        <div className="w-20 h-20 bg-ink flex items-center justify-center">
+                        <div className="w-20 h-20 bg-ink flex items-center justify-center flex-shrink-0">
                           <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-screen" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-sm uppercase">{item.name}</h4>
-                          <p className="text-[10px] uppercase opacity-60">{item.color} · Gr. {item.size}</p>
+                          <p className="text-[10px] uppercase opacity-60">{item.color}</p>
+                          <SizeBreakdown sizes={item.sizes} />
                           <div className="flex justify-between items-end mt-2">
                             <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
-                            <button onClick={() => removeItem(item.id, item.color, item.size)} className="text-tomato">
+                            <button onClick={() => removeItem(item.id, item.color, item.printType)} className="text-tomato">
                               <Trash2 size={16} />
                             </button>
                           </div>
@@ -81,15 +91,12 @@ export default function CartDrawer({ isOpen, onClose }) {
 
             {!showForm && items.length > 0 && (
               <div className="p-6 border-t-4 border-ink bg-sun space-y-3">
-
-                {/* Ücretsiz kargo uyarısı */}
                 {remainingForFreeShipping > 0 && (
                   <div className="text-[10px] font-bold uppercase text-center bg-ink text-white py-2 px-3">
                     Noch <span className="text-sun">{remainingForFreeShipping.toFixed(2)}€</span> bis zur kostenlosen Lieferung
                   </div>
                 )}
 
-                {/* Rabatt kodu */}
                 {!appliedCode ? (
                   <div className="flex gap-2">
                     <div className="flex-1 flex items-center border-2 border-ink bg-white">
@@ -103,10 +110,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                         className="flex-1 px-2 py-2 text-[11px] font-black uppercase outline-none bg-transparent tracking-widest"
                       />
                     </div>
-                    <button
-                      onClick={handleApplyCode}
-                      className="bg-ink text-white px-4 py-2 text-[10px] font-black uppercase hover:bg-tomato transition-all border-2 border-ink"
-                    >
+                    <button onClick={handleApplyCode}
+                      className="bg-ink text-white px-4 py-2 text-[10px] font-black uppercase hover:bg-tomato transition-all border-2 border-ink">
                       OK
                     </button>
                   </div>
@@ -122,11 +127,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                   </div>
                 )}
 
-                {codeError && (
-                  <p className="text-[10px] font-bold text-tomato uppercase">Ungültiger Rabattcode.</p>
-                )}
+                {codeError && <p className="text-[10px] font-bold text-tomato uppercase">Ungültiger Rabattcode.</p>}
 
-                {/* Fiyat dökümü */}
                 <div className="space-y-1.5 border-t-2 border-ink/30 pt-3">
                   <div className="flex justify-between text-[11px] font-bold uppercase">
                     <span className="opacity-60">Zwischensumme</span>
@@ -153,7 +155,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                   <span>{finalTotal.toFixed(2)}€</span>
                 </div>
 
-                <button onClick={() => setShowForm(true)} className="w-full bg-ink text-white py-5 font-black uppercase shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1">
+                <button onClick={() => setShowForm(true)}
+                  className="w-full bg-ink text-white py-5 font-black uppercase shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1">
                   Zur Bestellanfrage
                 </button>
               </div>

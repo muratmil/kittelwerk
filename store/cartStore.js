@@ -1,11 +1,9 @@
 import { create } from 'zustand';
 
-// Ücretsiz baskı seçenekleri — ['none'] yapınca hepsi ücretli olur
 export const FREE_PRINT_TYPES = ['none', 'front'];
 
 const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0 };
 
-// Rabatt kodları — { KOD: yüzde }
 export const DISCOUNT_CODES = { 'KITTEL10': 10 };
 
 export const SHIPPING_COST = 5.90;
@@ -16,25 +14,29 @@ export const useCartStore = create((set, get) => ({
   appliedCode: null,
   discountPercent: 0,
 
-  addItem: (product, color, size, qty = 1, printType = 'none') => {
+  // sizes: { XS: 2, S: 3, M: 5 } veya { '-': 10 } (bedensiz ürünler için)
+  addItem: (product, color, sizes, qty, printType = 'none') => {
     const printCost = FREE_PRINT_TYPES.includes(printType) ? 0 : PRINT_PRICES[printType];
     const price = product.newPrice + printCost;
     set((state) => {
-      const existing = state.items.find(i => i.id === product.id && i.color === color && i.size === size);
+      const existing = state.items.find(
+        i => i.id === product.id && i.color === color && i.printType === printType
+      );
       if (existing) {
         return {
           items: state.items.map(i =>
-            (i.id === product.id && i.color === color && i.size === size)
-              ? { ...i, qty: i.qty + qty } : i
-          )
+            (i.id === product.id && i.color === color && i.printType === printType)
+              ? { ...i, sizes, qty }
+              : i
+          ),
         };
       }
-      return { items: [...state.items, { ...product, color, size, qty, price, printType }] };
+      return { items: [...state.items, { ...product, color, sizes, qty, price, printType }] };
     });
   },
 
-  removeItem: (id, color, size) => set((state) => ({
-    items: state.items.filter(i => !(i.id === id && i.color === color && i.size === size))
+  removeItem: (id, color, printType) => set((state) => ({
+    items: state.items.filter(i => !(i.id === id && i.color === color && i.printType === printType)),
   })),
 
   applyCode: (code) => {

@@ -5,7 +5,6 @@ import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
 import TrustBar from '@/components/sections/TrustBar';
 import ProductCard from '@/components/molecules/ProductCard';
-import Urgency from '@/components/sections/Urgency';
 import Calculator from '@/components/sections/Calculator';
 import Process from '@/components/sections/Process';
 import Benefits from '@/components/sections/Benefits';
@@ -50,7 +49,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Urgency />
       <Calculator />
       <Process />
       <Benefits />
