@@ -22,32 +22,38 @@ export async function POST(req) {
     return Response.json({ error: 'Ein Fehler ist aufgetreten.' }, { status: 500 });
   }
 
-  const { data: resendData, error: resendError } = await resend.emails.send({
-    from: 'Kittelwerk <info@kittelwerk.de>',
-    to: email,
-    subject: '🎉 Dein Rabattcode: KITTEL10',
-    html: `
-      <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 32px;">
-        <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 8px;">Kittel<span style="color:#E63946">werk</span>.</h1>
-        <h2 style="font-size: 20px; margin-top: 24px;">Vielen Dank für deine Anmeldung!</h2>
-        <p style="color: #555;">Hier ist dein persönlicher Rabattcode für <strong>10% Rabatt</strong> auf deine erste Bestellung:</p>
-        <div style="background:#111; color:#F5B800; font-size:28px; font-weight:900; letter-spacing:4px; padding:20px; text-align:center; margin:24px 0;">
-          KITTEL10
+  let resendResult;
+  try {
+    resendResult = await resend.emails.send({
+      from: 'Kittelwerk <info@kittelwerk.de>',
+      to: email,
+      subject: '🎉 Dein Rabattcode: KITTEL10',
+      html: `
+        <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 32px;">
+          <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 8px;">Kittel<span style="color:#E63946">werk</span>.</h1>
+          <h2 style="font-size: 20px; margin-top: 24px;">Vielen Dank für deine Anmeldung!</h2>
+          <p style="color: #555;">Hier ist dein persönlicher Rabattcode für <strong>10% Rabatt</strong> auf deine erste Bestellung:</p>
+          <div style="background:#111; color:#F5B800; font-size:28px; font-weight:900; letter-spacing:4px; padding:20px; text-align:center; margin:24px 0;">
+            KITTEL10
+          </div>
+          <p style="color: #555; font-size: 13px;">Gib den Code im Warenkorb ein. Gültig für alle Produkte auf <a href="https://kittelwerk.de">kittelwerk.de</a>.</p>
+          <hr style="margin: 32px 0; border: none; border-top: 2px solid #111;" />
+          <p style="color: #999; font-size: 11px;">© 2026 Kittelwerk. Alle Rechte vorbehalten.</p>
         </div>
-        <p style="color: #555; font-size: 13px;">Gib den Code im Warenkorb ein. Gültig für alle Produkte auf <a href="https://kittelwerk.de">kittelwerk.de</a>.</p>
-        <hr style="margin: 32px 0; border: none; border-top: 2px solid #111;" />
-        <p style="color: #999; font-size: 11px;">© 2026 Kittelwerk. Alle Rechte vorbehalten.</p>
-      </div>
-    `,
-  });
+      `,
+    });
+  } catch (e) {
+    console.error('Resend exception:', e.message);
+    return Response.json({ error: 'E-Mail konnte nicht gesendet werden.', detail: e.message }, { status: 500 });
+  }
 
-  console.log('Resend data:', JSON.stringify(resendData));
-  console.log('Resend error:', JSON.stringify(resendError));
+  console.log('Resend full result:', JSON.stringify(resendResult));
 
+  const resendError = resendResult?.error;
   if (resendError) {
     console.error('Resend error:', resendError);
     return Response.json({ error: 'E-Mail konnte nicht gesendet werden.', detail: resendError }, { status: 500 });
   }
 
-  return Response.json({ success: true, _debug: resendData });
+  return Response.json({ success: true, _debug: resendResult ?? 'null_result' });
 }
