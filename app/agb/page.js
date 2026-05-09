@@ -18,7 +18,7 @@ export default function AGB() {
         <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 4 Mindest- und Maximalbestellmenge</h2>
         <p className="text-sm text-ink/70 leading-relaxed">Min. 10 Stück (kombinierbar), max. 100 Stück pro Bestellung.</p>
         <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 5 Lieferung</h2>
-        <p className="text-sm text-ink/70 leading-relaxed">7–10 Werktage nach Zahlungseingang. Lieferung per DHL/DPD innerhalb Deutschlands.</p>
+        <p className="text-sm text-ink/70 leading-relaxed">1–2 Wochen nach Zahlungseingang. Lieferung per DHL/DPD innerhalb Deutschlands.</p>
         <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 6 Widerrufsrecht</h2>
         <p className="text-sm text-ink/70 leading-relaxed">Bei individuell bedruckten Waren besteht gemäß § 312g Abs. 2 Nr. 1 BGB kein Widerrufsrecht. Bei Mängeln gilt das gesetzliche Gewährleistungsrecht.</p>
         <hr className="border-2 border-ink mt-8 mb-4" />

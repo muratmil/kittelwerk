@@ -2,7 +2,7 @@ const BENEFITS = [
   { icon: '€', title: 'Türkei-Preise direkt', desc: 'Bis zu 53% unter deutschem Marktwert. Keine Händlermargen.' },
   { icon: '✓', title: 'Deutsche Abwicklung', desc: 'SEPA-Überweisung auf deutsches Konto. Kein Auslandsaufschlag.' },
   { icon: '★', title: 'Profi-Qualität', desc: '24/1 Supreme Baumwolle. Doppelsteppung. DTF-Premium-Druck.' },
-  { icon: '⚡', title: 'Schnelle Lieferung', desc: '7–10 Werktage von Bestätigung bis Lieferung deutschlandweit.' },
+  { icon: '⚡', title: 'Schnelle Lieferung', desc: '1–2 Wochen von Bestätigung bis Lieferung deutschlandweit.' },
   { icon: '♻', title: 'Neukundenangebot', desc: 'Exklusive Aktionspreise für Neukunden — zeitlich begrenzt, aber kein Lagerabbau. Das Angebot bleibt bestehen.' },
   { icon: '◉', title: 'Vorderdruck kostenlos', desc: 'Vorderdruck ohne Aufpreis inklusive. Rückendruck nur +5 €. Vektordatei senden — wir übernehmen alles.' },
 ];

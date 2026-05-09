@@ -7,7 +7,7 @@ const ITEMS = [
   { q: 'Wie läuft die Zahlung ab?', a: 'SEPA-Überweisung auf deutsches Konto. Keine Auslandsüberweisung. Rechnung mit USt. per Mail.' },
   { q: 'Welche Druckoptionen gibt es?', a: 'DTF-Druck auf Front, Rückseite oder beides. Weich, dehnbar, waschmaschinenfest 60°C. Logo als Vektordatei einsenden — wir übernehmen den Rest.' },
   { q: 'Welche Größen gibt es?', a: 'T-Shirts und Sweatshirts in S, M, L, XL und 2XL. Schürzen und Kappen sind One-Size.' },
-  { q: 'Wie lange dauert die Lieferung?', a: '7–10 Werktage ab Zahlungseingang. Versand per DHL oder DPD mit Sendungsverfolgung.' },
+  { q: 'Wie lange dauert die Lieferung?', a: '1–2 Wochen ab Zahlungseingang. Versand per DHL oder DPD mit Sendungsverfolgung.' },
 ];
 
 export default function FAQ() {

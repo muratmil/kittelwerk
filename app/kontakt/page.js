@@ -80,7 +80,7 @@ export default function Kontakt() {
               </div>
               <div className="flex gap-3 items-start">
                 <strong className="w-20 flex-shrink-0 text-[10px] uppercase tracking-widest opacity-60">Versand</strong>
-                <span>7–10 Werktage · DHL / DPD</span>
+                <span>1–2 Wochen · DHL / DPD</span>
               </div>
               <div className="flex gap-3 items-start">
                 <strong className="w-20 flex-shrink-0 text-[10px] uppercase tracking-widest opacity-60">Zahlung</strong>

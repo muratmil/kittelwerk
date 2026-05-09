@@ -2,7 +2,7 @@ const STEPS = [
   { num: '01', title: 'Produkte wählen', desc: 'Min. 10 Stück gesamt. Farben: Schwarz / Weiß / Rot. Produkte kombinierbar.' },
   { num: '02', title: 'Daten & Logo senden', desc: 'Bestellung über den Warenkorb. Logo als Vektor (Ai/EPS/PDF) an info@kittelwerk.de.' },
   { num: '03', title: 'Angebot erhalten', desc: 'Verbindliches Angebot mit Stückpreisen innerhalb 24 Stunden per E-Mail.' },
-  { num: '04', title: 'Lieferung', desc: 'Zahlung an deutsches Konto. Versand in 7–10 Werktagen deutschlandweit.' },
+  { num: '04', title: 'Lieferung', desc: 'Zahlung an deutsches Konto. Versand in 1–2 Wochen deutschlandweit.' },
 ];
 
 export default function Process() {
