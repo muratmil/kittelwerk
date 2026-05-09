@@ -31,7 +31,7 @@ export async function POST(req) {
         <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 32px;">
           <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 8px;">Kittel<span style="color:#E63946">werk</span>.</h1>
           <h2 style="font-size: 20px; margin-top: 24px;">Vielen Dank für deine Anmeldung!</h2>
-          <p style="color: #555;">Hier ist dein persönlicher Rabattcode für <strong>10% Rabatt</strong> auf deine erste Bestellung:</p>
+          <p style="color: #555;">Hier ist dein persönlicher Rabattcode für <strong>5% Rabatt</strong> auf deine erste Bestellung:</p>
           <div style="background:#111; color:#F5B800; font-size:28px; font-weight:900; letter-spacing:4px; padding:20px; text-align:center; margin:24px 0;">
             KITTEL10
           </div>

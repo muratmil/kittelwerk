@@ -61,7 +61,7 @@ export default function NewsletterPopup() {
               </button>
               <span className="text-sun text-[10px] font-black uppercase tracking-[0.3em]">Exklusiv für Neukunden</span>
               <h2 className="font-serif font-black text-4xl italic tracking-tighter mt-2 leading-none">
-                10% Rabatt<br />sichern.
+                5% Rabatt<br />sichern.
               </h2>
             </div>
 
@@ -83,7 +83,7 @@ export default function NewsletterPopup() {
               ) : (
                 <>
                   <p className="text-sm font-medium opacity-70 mb-4 leading-tight">
-                    Jetzt anmelden und <strong>10% Rabatt</strong> auf deine erste Bestellung erhalten. Code wird per E-Mail zugeschickt.
+                    Jetzt anmelden und <strong>5% Rabatt</strong> auf deine erste Bestellung erhalten. Code wird per E-Mail zugeschickt.
                   </p>
                   <form onSubmit={handleSubmit} className="space-y-3">
                     <div className="flex border-2 border-ink">
