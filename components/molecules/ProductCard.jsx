@@ -11,7 +11,7 @@ const PRINT_OPTIONS = [
   { value: 'none',  label: 'Kein Druck',           price: 0 },
   { value: 'front', label: 'Vorderdruck',           price: 5 },
   { value: 'back',  label: 'Rückendruck',           price: 5 },
-  { value: 'both',  label: 'Vorder- + Rückendruck', price: 5 },
+  { value: 'both',  label: 'Vorder- + Rückendruck', price: 8 },
 ];
 
 export default function ProductCard({ product }) {

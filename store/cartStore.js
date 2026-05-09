@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const FREE_PRINT_TYPES = ['none', 'front'];
+export const FREE_PRINT_TYPES = ['none', 'front', 'back', 'both'];
 
 export function getTieredPrice(product, qty) {
   if (!product.tiers || product.tiers.length === 0) return product.newPrice;
