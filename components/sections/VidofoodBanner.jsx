@@ -10,7 +10,7 @@ export default function VidofoodBanner() {
         >
           <div className="flex items-center gap-5">
             <div className="bg-[#5B21F5] border-2 border-ink px-3 py-1.5 flex-shrink-0">
-              <span className="font-black text-white text-lg tracking-tight leading-none">vido<span className="opacity-70">food</span></span>
+              <span className="font-black text-white text-3xl tracking-tight leading-none">vido<span className="opacity-70">food</span></span>
             </div>
             <div>
               <span className="text-[9px] font-black uppercase tracking-[0.25em] opacity-40">Partner-Empfehlung</span>
