@@ -4,7 +4,7 @@ export const FREE_PRINT_TYPES = ['none', 'front'];
 
 const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0 };
 
-export const DISCOUNT_CODES = { 'KITTEL10': 10 };
+export const DISCOUNT_CODES = { 'KITTEL10': 5 };
 
 export const SHIPPING_COST = 5.90;
 export const FREE_SHIPPING_THRESHOLD = 300;
