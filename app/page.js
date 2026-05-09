@@ -11,6 +11,7 @@ import Benefits from '@/components/sections/Benefits';
 import Testimonials from '@/components/sections/Testimonials';
 import FAQ from '@/components/sections/FAQ';
 import FinalCTA from '@/components/sections/FinalCTA';
+import VidofoodBanner from '@/components/sections/VidofoodBanner';
 import CartDrawer from '@/components/cart/CartDrawer';
 import CookieBanner from '@/components/layout/CookieBanner';
 import NewsletterPopup from '@/components/layout/NewsletterPopup';
@@ -55,6 +56,7 @@ export default function Home() {
       <Testimonials />
       <FAQ />
       <FinalCTA />
+      <VidofoodBanner />
       <Footer />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <CookieBanner />
