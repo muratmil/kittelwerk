@@ -1,5 +1,5 @@
 const BENEFITS = [
-  { icon: '€', title: 'Türkei-Preise direkt', desc: 'Bis zu 53% unter deutschem Marktwert. Keine Händlermargen.' },
+  { icon: '€', title: 'Direkt vom Hersteller', desc: 'Bis zu 53% unter deutschem Marktwert. Keine Händlermargen.' },
   { icon: '✓', title: 'Deutsche Abwicklung', desc: 'SEPA-Überweisung auf deutsches Konto. Kein Auslandsaufschlag.' },
   { icon: '★', title: 'Profi-Qualität', desc: '24/1 Supreme Baumwolle. Doppelsteppung. DTF-Premium-Druck.' },
   { icon: '⚡', title: 'Schnelle Lieferung', desc: '1–2 Wochen von Bestätigung bis Lieferung deutschlandweit.' },

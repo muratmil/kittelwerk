@@ -9,7 +9,7 @@ export default function AlertBar() {
             <span className="w-2 h-2 bg-sun rounded-full" />
             Vorderdruck kostenlos · Rückendruck nur +5€
             <span className="w-2 h-2 bg-tomato rounded-full" />
-            Direkt zu Türkei-Preisen · Mindestbestellung 10 Stück
+            Unschlagbar im Preis-Leistungs-Verhältnis · Mindestbestellung 10 Stück
           </span>
         ))}
       </div>

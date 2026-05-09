@@ -15,7 +15,7 @@ export default function AboutUs() {
             Kittelwerk wurde mit einer Vision gegründet: <span className="bg-sun px-2">Echte Qualität braucht keine Zwischenhändler.</span>
           </p>
           <p className="opacity-80">
-            Wir produzieren in der Türkei ve liefern direkt an Gastronomen in ganz Europa. Das spart Kosten, verkürzt Lieferwege ve sichert faire Preise.
+            Unsere Textilien kommen direkt vom Hersteller — ohne Zwischenstufen, ohne versteckte Kosten. Das spart Kosten, verkürzt Lieferwege und sichert faire Preise.
           </p>
           <p className="font-serif italic text-3xl leading-tight">
             "Unser Neukundenangebot ist der Startschuss für eine neue Art der Arbeitskleidung: Brutal ehrlich, extrem robust und unschlagbar im Preis."
