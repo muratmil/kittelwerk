@@ -25,6 +25,9 @@ export default function ProductCard({ product }) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
+  const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
+  const isValid = totalQty >= MIN_QTY;
+
   const availablePrints = product.hasBackPrint
     ? PRINT_OPTIONS
     : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both');
@@ -34,9 +37,6 @@ export default function ProductCard({ product }) {
   const basePrice = getTieredPrice(product, totalQty);
   const totalUnitPrice = basePrice + effectivePrintPrice;
   const savings = ((product.oldPrice - basePrice) / product.oldPrice * 100).toFixed(0);
-
-  const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
-  const isValid = totalQty >= MIN_QTY;
 
   const updateSize = (size, val) => {
     const num = Math.max(0, parseInt(val) || 0);
