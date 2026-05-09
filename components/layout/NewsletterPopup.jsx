@@ -69,16 +69,21 @@ export default function NewsletterPopup() {
               {status === 'success' ? (
                 <div className="text-center py-4 space-y-4">
                   <CheckCircle size={48} className="text-olive mx-auto" />
-                  <p className="font-black text-lg uppercase">Dein Rabattcode:</p>
-                  <div className="bg-ink text-sun font-black text-3xl tracking-[6px] py-4 text-center border-4 border-ink shadow-brutalist">
-                    KITTEL10
+                  <p className="font-black text-lg uppercase">Dein Code ist unterwegs!</p>
+                  <p className="text-sm font-medium opacity-80 leading-snug">
+                    Wir haben dir deinen persönlichen Rabattcode per E-Mail geschickt.
+                  </p>
+                  <div className="bg-tomato text-white px-4 py-3 border-2 border-ink text-left">
+                    <p className="text-[11px] font-black uppercase tracking-wide leading-snug">
+                      ⚠ Bitte prüfe auch deinen Spam-Ordner — unsere Mail könnte dort gelandet sein!
+                    </p>
                   </div>
-                  <p className="text-[11px] opacity-60 uppercase tracking-widest">Code wurde auch per E-Mail gesendet.</p>
+                  <p className="text-[10px] opacity-50 uppercase tracking-widest">Der Code ist ausschließlich per E-Mail verfügbar.</p>
                 </div>
               ) : (
                 <>
                   <p className="text-sm font-medium opacity-70 mb-4 leading-tight">
-                    Jetzt anmelden und <strong>10% Rabatt</strong> auf deine erste Bestellung erhalten. Code wird sofort angezeigt.
+                    Jetzt anmelden und <strong>10% Rabatt</strong> auf deine erste Bestellung erhalten. Code wird per E-Mail zugeschickt.
                   </p>
                   <form onSubmit={handleSubmit} className="space-y-3">
                     <div className="flex border-2 border-ink">

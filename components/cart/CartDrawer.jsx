@@ -30,6 +30,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   const shippingCost = getShippingCost();
   const finalTotal = getFinalTotal();
   const remainingForFreeShipping = FREE_SHIPPING_THRESHOLD - subtotal;
+  const totalQty = items.reduce((acc, item) => acc + item.qty, 0);
 
   const handleApplyCode = () => {
     const result = applyCode(codeInput);
@@ -91,6 +92,11 @@ export default function CartDrawer({ isOpen, onClose }) {
 
             {!showForm && items.length > 0 && (
               <div className="p-6 border-t-4 border-ink bg-sun space-y-3">
+                {totalQty > 50 && (
+                  <div className="bg-tomato text-white px-3 py-3 text-[11px] font-bold uppercase leading-tight border-2 border-ink">
+                    ⚠ Bei Bestellungen über 50 Stück ist eine individuelle Rücksprache erforderlich — die Produktionszeit kann sich verlängern. Bitte kontaktiere uns vorab unter info@kittelwerk.de.
+                  </div>
+                )}
                 {remainingForFreeShipping > 0 && (
                   <div className="text-[10px] font-bold uppercase text-center bg-ink text-white py-2 px-3">
                     Noch <span className="text-sun">{remainingForFreeShipping.toFixed(2)}€</span> bis zur kostenlosen Lieferung
