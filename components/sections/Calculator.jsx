@@ -42,11 +42,11 @@ export default function Calculator() {
                   <div className="flex items-center border-2 border-ink">
                     <button onClick={() => setQtys(q => ({ ...q, [p.key]: Math.max(0, (q[p.key] || 0) - 1) }))}
                       className="px-2 py-1 hover:bg-sun font-bold text-sm w-8 text-center">−</button>
-                    <input type="number" min="0" max="100"
+                    <input type="number" min="0"
                       value={qtys[p.key]}
-                      onChange={e => setQtys(q => ({ ...q, [p.key]: Math.max(0, Math.min(100, +e.target.value || 0)) }))}
+                      onChange={e => setQtys(q => ({ ...q, [p.key]: Math.max(0, +e.target.value || 0) }))}
                       className="w-14 text-center font-black text-sm border-x-2 border-ink py-1 bg-paper outline-none" />
-                    <button onClick={() => setQtys(q => ({ ...q, [p.key]: Math.min(100, (q[p.key] || 0) + 1) }))}
+                    <button onClick={() => setQtys(q => ({ ...q, [p.key]: (q[p.key] || 0) + 1 }))}
                       className="px-2 py-1 hover:bg-sun font-bold text-sm w-8 text-center">+</button>
                   </div>
                 </div>

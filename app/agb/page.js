@@ -15,8 +15,8 @@ export default function AGB() {
         <p className="text-sm text-ink/70 leading-relaxed">Eine Bestellanfrage ist ein Angebot. Der Vertrag kommt erst mit schriftlicher Bestätigung und Rechnungsstellung zustande.</p>
         <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 3 Preise und Zahlung</h2>
         <p className="text-sm text-ink/70 leading-relaxed">Preise in Euro inkl. MwSt. Zahlung per SEPA-Überweisung auf das in der Rechnung angegebene deutsche Konto. Produktion beginnt nach Zahlungseingang.</p>
-        <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 4 Mindest- und Maximalbestellmenge</h2>
-        <p className="text-sm text-ink/70 leading-relaxed">Min. 10 Stück (kombinierbar), max. 100 Stück pro Bestellung.</p>
+        <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 4 Mindestbestellmenge</h2>
+        <p className="text-sm text-ink/70 leading-relaxed">Min. 10 Stück (kombinierbar). Es gibt keine Obergrenze — auch Großbestellungen sind willkommen.</p>
         <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 5 Lieferung</h2>
         <p className="text-sm text-ink/70 leading-relaxed">1–2 Wochen nach Zahlungseingang. Lieferung per DHL/DPD innerhalb Deutschlands.</p>
         <h2 className="font-serif font-black text-xl mt-8 mb-3">§ 6 Widerrufsrecht</h2>

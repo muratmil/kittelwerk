@@ -36,7 +36,7 @@ export default function Home() {
               5 Produkte. <span className="text-tomato">Ein Preis.</span>
             </h2>
             <p className="mt-3 text-sm font-medium opacity-60">
-              Alle Artikel in <strong>Schwarz · Weiß · Rot</strong> · Mindestbestellung: <strong>10 Stück gesamt</strong> · Max. 100 Stück
+              Alle Artikel in <strong>Schwarz · Weiß · Rot</strong> · Mindestbestellung: <strong>10 Stück gesamt</strong>
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -45,7 +45,7 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-10 bg-sun border-4 border-ink p-4 text-center font-black text-sm shadow-brutalist">
-            ⚡ Mindestbestellmenge: <span className="text-tomato">10 Stück gesamt</span> (Produkte kombinierbar) · Maximum: 100 Stück · Versandkosten: 5,90 € · Druck kostenlos inklusive
+            ⚡ Mindestbestellmenge: <span className="text-tomato">10 Stück gesamt</span> (Produkte kombinierbar) · Versandkosten: 5,90 € · Druck kostenlos inklusive
           </div>
         </div>
       </section>

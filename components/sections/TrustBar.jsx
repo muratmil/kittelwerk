@@ -3,7 +3,7 @@ export default function TrustBar() {
     { num: '24/1', lbl: 'Supreme Baumwolle' },
     { num: '5', lbl: 'Produkte' },
     { num: '10+', lbl: 'Stück Mindestmenge' },
-    { num: '100', lbl: 'Max. pro Bestellung' },
+    { num: '1–2W', lbl: 'Lieferzeit' },
     { num: 'GRATIS', lbl: 'Logo-Druck' },
     { num: '5,90 €', lbl: 'Versandkosten' },
   ];

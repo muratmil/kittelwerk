@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 const ITEMS = [
   { q: 'Wie funktioniert die Bestellung?', a: 'Produkte und Mengen wählen, Anfrage absenden. Logo als Vektor (Ai/EPS/PDF) per Mail an info@kittelwerk.de. Verbindliches Angebot binnen 24 h. Nach Zahlung: Fertigung und Versand.' },
-  { q: 'Was ist die Mindestbestellmenge?', a: 'Mindestens 10 Stück gesamt — verschiedene Produkte kombinierbar. Maximum 100 Stück. Beispiel: 5 T-Shirts + 3 Schürzen + 2 Kappen = gültig.' },
+  { q: 'Was ist die Mindestbestellmenge?', a: 'Mindestens 10 Stück gesamt — verschiedene Produkte kombinierbar. Beispiel: 5 T-Shirts + 3 Schürzen + 2 Kappen = gültig.' },
   { q: 'Wie läuft die Zahlung ab?', a: 'SEPA-Überweisung auf deutsches Konto. Keine Auslandsüberweisung. Rechnung mit USt. per Mail.' },
   { q: 'Welche Druckoptionen gibt es?', a: 'DTF-Druck auf Front, Rückseite oder beides. Weich, dehnbar, waschmaschinenfest 60°C. Logo als Vektordatei einsenden — wir übernehmen den Rest.' },
   { q: 'Welche Größen gibt es?', a: 'T-Shirts und Sweatshirts in S, M, L, XL und 2XL. Schürzen und Kappen sind One-Size.' },
