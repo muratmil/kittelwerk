@@ -2,6 +2,13 @@ import { create } from 'zustand';
 
 export const FREE_PRINT_TYPES = ['none', 'front'];
 
+export function getTieredPrice(product, qty) {
+  if (!product.tiers || product.tiers.length === 0) return product.newPrice;
+  const sorted = [...product.tiers].sort((a, b) => b.minQty - a.minQty);
+  const tier = sorted.find(t => qty >= t.minQty);
+  return tier ? tier.price : product.newPrice;
+}
+
 const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0 };
 
 export const DISCOUNT_CODES = { 'KITTEL10': 5 };
@@ -17,7 +24,7 @@ export const useCartStore = create((set, get) => ({
   // sizes: { XS: 2, S: 3, M: 5 } veya { '-': 10 } (bedensiz ürünler için)
   addItem: (product, color, sizes, qty, printType = 'none') => {
     const printCost = FREE_PRINT_TYPES.includes(printType) ? 0 : PRINT_PRICES[printType];
-    const price = product.newPrice + printCost;
+    const price = getTieredPrice(product, qty) + printCost;
     set((state) => {
       const existing = state.items.find(
         i => i.id === product.id && i.color === color && i.printType === printType

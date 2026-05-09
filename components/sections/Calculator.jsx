@@ -1,21 +1,25 @@
 'use client';
 import { useState } from 'react';
+import { PRODUCTS as ALL_PRODUCTS } from '@/data/products';
+import { getTieredPrice } from '@/store/cartStore';
 
-const PRODUCTS = [
-  { label: 'T-Shirt', old: 20, new: 10, key: 'tshirt', default: 20 },
-  { label: 'Latzschürze', old: 17, new: 10, key: 'latz', default: 15 },
-  { label: 'Schürze', old: 15, new: 8, key: 'apron', default: 10 },
-  { label: 'Kappe', old: 14, new: 7, key: 'cap', default: 10 },
-  { label: 'Sweatshirt', old: 30, new: 14, key: 'sweat', default: 10 },
+const CALC_PRODUCTS = [
+  { label: 'T-Shirt',     key: 'tshirt', default: 20 },
+  { label: 'Latzschürze', key: 'latz',   default: 15 },
+  { label: 'Schürze',     key: 'apron',  default: 10 },
+  { label: 'Kappe',       key: 'cap',    default: 10 },
+  { label: 'Sweatshirt',  key: 'sweat',  default: 10 },
 ];
 
 export default function Calculator() {
   const [qtys, setQtys] = useState(
-    Object.fromEntries(PRODUCTS.map(p => [p.key, p.default]))
+    Object.fromEntries(CALC_PRODUCTS.map(p => [p.key, p.default]))
   );
 
-  const totalOld = PRODUCTS.reduce((s, p) => s + p.old * (qtys[p.key] || 0), 0);
-  const totalNew = PRODUCTS.reduce((s, p) => s + p.new * (qtys[p.key] || 0), 0);
+  const getProduct = (key) => ALL_PRODUCTS.find(p => p.id === key);
+
+  const totalOld = CALC_PRODUCTS.reduce((s, p) => s + getProduct(p.key).oldPrice * (qtys[p.key] || 0), 0);
+  const totalNew = CALC_PRODUCTS.reduce((s, p) => s + getTieredPrice(getProduct(p.key), qtys[p.key] || 0) * (qtys[p.key] || 0), 0);
   const savings = totalOld - totalNew;
   const pct = totalOld > 0 ? ((savings / totalOld) * 100).toFixed(0) : 0;
 
@@ -34,10 +38,10 @@ export default function Calculator() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-3">
               <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4">Stückzahlen eingeben</p>
-              {PRODUCTS.map((p) => (
+              {CALC_PRODUCTS.map((p) => (
                 <div key={p.key} className="flex items-center justify-between gap-4">
                   <span className="text-sm font-medium flex-1">
-                    {p.label} <span className="opacity-50 text-xs">({p.old}€→{p.new}€)</span>
+                    {p.label} <span className="opacity-50 text-xs">({getTieredPrice(getProduct(p.key), qtys[p.key] || 0).toFixed(2)}€/Stk)</span>
                   </span>
                   <div className="flex items-center border-2 border-ink">
                     <button onClick={() => setQtys(q => ({ ...q, [p.key]: Math.max(0, (q[p.key] || 0) - 1) }))}
@@ -58,10 +62,10 @@ export default function Calculator() {
               <p className="font-serif font-black text-5xl text-sun leading-none">{savings.toFixed(0)} €</p>
               <p className="text-xs opacity-60 mt-2">{pct}% gegenüber deutschen Marktpreisen</p>
               <div className="mt-4 pt-4 border-t border-white/20 space-y-1 text-xs">
-                {PRODUCTS.map(p => qtys[p.key] > 0 && (
+                {CALC_PRODUCTS.map(p => qtys[p.key] > 0 && (
                   <div key={p.key} className="flex justify-between">
                     <span className="opacity-70">{qtys[p.key]}× {p.label}</span>
-                    <span className="text-sun font-bold">−{((p.old - p.new) * qtys[p.key]).toFixed(0)}€</span>
+                    <span className="text-sun font-bold">−{((getProduct(p.key).oldPrice - getTieredPrice(getProduct(p.key), qtys[p.key])) * qtys[p.key]).toFixed(0)}€</span>
                   </div>
                 ))}
                 <div className="flex justify-between font-black pt-2 border-t border-white/20 text-sun">

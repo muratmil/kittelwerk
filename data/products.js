@@ -5,11 +5,19 @@ export const PRODUCTS = [
     desc: '24/1 Supreme Baumwolle · Premium Profi-Ware',
     image: '/images/tshirt.png',
     oldPrice: 20.00,
-    newPrice: 10.00,
+    newPrice: 15.00,
     badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: true,
-    hasBackPrint: true
+    hasBackPrint: true,
+    tiers: [
+      { minQty: 10,  price: 15.00 },
+      { minQty: 20,  price: 14.00 },
+      { minQty: 30,  price: 13.00 },
+      { minQty: 40,  price: 12.00 },
+      { minQty: 50,  price: 11.00 },
+      { minQty: 100, price: 10.00 },
+    ],
   },
   {
     id: 'latz',
@@ -17,10 +25,18 @@ export const PRODUCTS = [
     desc: 'Verstellbarer Nackengurt · Robuste Qualität',
     image: '/images/apron-latz.png',
     oldPrice: 17.00,
-    newPrice: 10.00,
+    newPrice: 15.00,
     badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
-    hasSizes: false
+    hasSizes: false,
+    tiers: [
+      { minQty: 10,  price: 15.00 },
+      { minQty: 20,  price: 14.00 },
+      { minQty: 30,  price: 13.00 },
+      { minQty: 40,  price: 12.00 },
+      { minQty: 50,  price: 11.00 },
+      { minQty: 100, price: 10.00 },
+    ],
   },
   {
     id: 'apron',
@@ -28,10 +44,18 @@ export const PRODUCTS = [
     desc: 'Klassischer Schnitt · Leicht zu reinigen',
     image: '/images/apron-waist.png',
     oldPrice: 15.00,
-    newPrice: 8.00,
+    newPrice: 12.00,
     badge: 'NEU',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
-    hasSizes: false
+    hasSizes: false,
+    tiers: [
+      { minQty: 10,  price: 12.00 },
+      { minQty: 20,  price: 11.00 },
+      { minQty: 30,  price: 10.00 },
+      { minQty: 40,  price:  9.00 },
+      { minQty: 50,  price:  8.50 },
+      { minQty: 100, price:  8.00 },
+    ],
   },
   {
     id: 'cap',
@@ -39,10 +63,18 @@ export const PRODUCTS = [
     desc: 'Sechs-Panel · Verstellbarer Verschluss',
     image: '/images/cap.png',
     oldPrice: 14.00,
-    newPrice: 7.00,
+    newPrice: 12.00,
     badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
-    hasSizes: false
+    hasSizes: false,
+    tiers: [
+      { minQty: 10,  price: 12.00 },
+      { minQty: 20,  price: 11.00 },
+      { minQty: 30,  price: 10.00 },
+      { minQty: 40,  price:  9.00 },
+      { minQty: 50,  price:  8.00 },
+      { minQty: 100, price:  7.00 },
+    ],
   },
   {
     id: 'sweat',
@@ -50,10 +82,18 @@ export const PRODUCTS = [
     desc: '320 g/m² · Hochwertig & Winterfest',
     image: '/images/sweatshirt.png',
     oldPrice: 30.00,
-    newPrice: 14.00,
+    newPrice: 22.00,
     badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: true,
-    hasBackPrint: true
-  }
+    hasBackPrint: true,
+    tiers: [
+      { minQty: 10,  price: 22.00 },
+      { minQty: 20,  price: 20.00 },
+      { minQty: 30,  price: 19.00 },
+      { minQty: 40,  price: 17.00 },
+      { minQty: 50,  price: 16.00 },
+      { minQty: 100, price: 14.00 },
+    ],
+  },
 ];
