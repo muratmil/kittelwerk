@@ -6,7 +6,8 @@ export default function Footer() {
           <h3 className="font-serif font-black text-4xl mb-4 italic">Kittel<span className="text-tomato">werk</span>.</h3>
           <p className="text-paper/50 text-[10px] max-w-xs uppercase tracking-widest leading-loose">
             © 2026 Kittelwerk. Premium Gastro-Textilien.<br />
-            Direkt ab Werk. Designed for Professionals.
+            Direkt ab Werk. Designed for Professionals.<br />
+            Lieferung in Hannover & ganz Niedersachsen.
           </p>
         </div>
         <div className="space-y-4 text-xs">
