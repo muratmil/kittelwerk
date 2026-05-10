@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { RefreshCw, Printer, LogOut } from 'lucide-react';
+import Image from 'next/image';
 
 const PRINT_LABELS = {
   none:  'Kein Druck',
@@ -151,9 +152,10 @@ export default function AtolyePage() {
       {/* Header */}
       <div className="bg-white border-b-4 border-ink px-6 py-4 flex justify-between items-center print:hidden">
         <div>
-          <h1 className="font-serif font-black text-2xl italic uppercase">
-            Kittel<span className="text-tomato">werk</span>. Atölye
-          </h1>
+          <div className="flex items-center gap-3">
+            <Image src="/images/logo.png" alt="Kittelwerk" width={130} height={36} className="h-8 w-auto object-contain" />
+            <span className="font-serif font-black text-sm italic uppercase opacity-50">Atölye</span>
+          </div>
           {lastUpdated && <p className="text-[9px] opacity-40 uppercase mt-0.5">Zuletzt aktualisiert: {lastUpdated}</p>}
         </div>
         <div className="flex gap-2">
