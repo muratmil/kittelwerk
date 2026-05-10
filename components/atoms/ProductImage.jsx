@@ -1,6 +1,6 @@
 export default function ProductImage({ src, alt }) {
   return (
-    <div className="relative aspect-square w-full overflow-hidden border-2 border-ink bg-paper group">
+    <div className="relative aspect-square w-full overflow-hidden border-2 border-ink bg-paper group p-4">
       <img
         src={src}
         alt={alt}
