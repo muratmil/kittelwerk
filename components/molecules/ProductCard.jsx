@@ -88,11 +88,13 @@ export default function ProductCard({ product }) {
               <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">Staffelpreise inkl. Druck</p>
               <div className="grid grid-cols-3 gap-x-2 gap-y-0.5">
                 {product.tiers.map((tier, i) => {
-                  const isActive = totalQty >= tier.minQty && (i === product.tiers.length - 1 || totalQty < product.tiers[i + 1].minQty);
+                  const isActive = totalQty === 0
+                    ? i === 0
+                    : totalQty >= tier.minQty && (i === product.tiers.length - 1 || totalQty < product.tiers[i + 1].minQty);
                   return (
-                    <div key={tier.minQty} className={`flex justify-between text-[9px] px-1 py-0.5 ${isActive ? 'bg-sun font-black' : 'opacity-50'}`}>
+                    <div key={tier.minQty} className={`flex flex-col text-[9px] px-1 py-0.5 ${isActive ? 'bg-sun' : 'opacity-50'}`}>
                       <span>{tier.minQty === 100 ? '100+' : `${tier.minQty}`} Stk</span>
-                      <span>{tier.price.toFixed(2)}€</span>
+                      <span className="font-black">{tier.price.toFixed(2)}€</span>
                     </div>
                   );
                 })}
