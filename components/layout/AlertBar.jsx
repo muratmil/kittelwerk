@@ -7,7 +7,7 @@ export default function AlertBar() {
             <span className="w-2 h-2 bg-tomato rounded-full" />
             Neukundenangebot: Stark Reduziert
             <span className="w-2 h-2 bg-sun rounded-full" />
-            Vorderdruck kostenlos · Rückendruck nur +5€
+            Vorder- & Rückendruck kostenlos
             <span className="w-2 h-2 bg-tomato rounded-full" />
             Unschlagbar im Preis-Leistungs-Verhältnis · Mindestbestellung 10 Stück
           </span>
