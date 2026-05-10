@@ -23,7 +23,7 @@ export default function Hero() {
         </div>
         <div className="relative hidden md:block">
           <div className="border-4 border-sun p-2 rotate-3 shadow-brutalist bg-paper relative z-10">
-            <img src="/images/team.png" alt="Kittelwerk Team" className="w-full grayscale contrast-125" />
+            <img src="/images/toplutshirt.png" alt="Gastro Textilien" className="w-full" />
           </div>
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-tomato rounded-full -z-0 animate-pulse"></div>
         </div>
