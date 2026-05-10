@@ -93,7 +93,7 @@ export default function ProductCard({ product }) {
                     : totalQty >= tier.minQty && (i === product.tiers.length - 1 || totalQty < product.tiers[i + 1].minQty);
                   return (
                     <div key={tier.minQty} className={`flex flex-col text-[9px] px-1 py-0.5 ${isActive ? 'bg-sun' : 'opacity-50'}`}>
-                      <span>{tier.minQty === 100 ? '100+' : `${tier.minQty}`} Stk</span>
+                      <span className="whitespace-nowrap">{tier.minQty === 100 ? '100+' : `${tier.minQty}`} Stk</span>
                       <span className="font-black">{tier.price.toFixed(2)}€</span>
                     </div>
                   );
