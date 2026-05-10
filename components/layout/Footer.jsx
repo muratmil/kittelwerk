@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div className="col-span-2">
           <div className="mb-4">
-            <Image src="/images/logo-white.png" alt="Kittelwerk" width={180} height={50} className="h-10 w-auto object-contain" />
+            <Image src="/images/logo-dark.png" alt="Kittelwerk" width={180} height={50} className="h-10 w-auto object-contain" />
           </div>
           <p className="text-paper/50 text-[10px] max-w-xs uppercase tracking-widest leading-loose">
             © 2026 Kittelwerk. Premium Gastro-Textilien.<br />
