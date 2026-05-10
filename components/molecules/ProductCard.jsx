@@ -86,7 +86,7 @@ export default function ProductCard({ product }) {
           {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
               <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">Staffelpreise inkl. Druck</p>
-              <div className="grid grid-cols-3 gap-x-2 gap-y-0.5">
+              <div className="grid grid-cols-6 gap-x-1 gap-y-0.5">
                 {product.tiers.map((tier, i) => {
                   const isActive = totalQty === 0
                     ? i === 0
