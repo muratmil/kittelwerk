@@ -5,8 +5,8 @@ export default function Footer() {
     <footer className="bg-ink text-white py-16 border-t-4 border-sun">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div className="col-span-2">
-          <div className="inline-block bg-paper px-3 py-2 mb-4">
-            <Image src="/images/logo.png" alt="Kittelwerk" width={180} height={50} className="h-10 w-auto object-contain" />
+          <div className="mb-4">
+            <Image src="/images/logo-white.png" alt="Kittelwerk" width={180} height={50} className="h-10 w-auto object-contain" />
           </div>
           <p className="text-paper/50 text-[10px] max-w-xs uppercase tracking-widest leading-loose">
             © 2026 Kittelwerk. Premium Gastro-Textilien.<br />
