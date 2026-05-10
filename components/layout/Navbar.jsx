@@ -1,7 +1,6 @@
 'use client';
 import { useCartStore } from '@/store/cartStore';
 import { ShoppingBag } from 'lucide-react';
-import Image from 'next/image';
 
 export default function Navbar({ onOpenCart }) {
   const totalQty = useCartStore((state) => state.getTotalQty());
@@ -9,8 +8,8 @@ export default function Navbar({ onOpenCart }) {
   return (
     <nav className="sticky top-0 z-50 bg-paper border-b-4 border-ink py-4">
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <div className="cursor-pointer">
-          <Image src="/images/logo.png" alt="Kittelwerk" width={180} height={50} className="h-10 w-auto object-contain" priority />
+        <div className="font-serif font-black text-3xl tracking-tighter cursor-pointer">
+          Kittel<span className="text-tomato">werk</span>.
         </div>
         <div className="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-ink/60">
           <a href="/#produkte" className="hover:text-tomato transition-colors">Produkte</a>

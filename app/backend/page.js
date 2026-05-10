@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save, Download } from 'lucide-react';
-import Image from 'next/image';
 
 const STATUS_OPTIONS = [
   { value: 'new',        label: 'Neu',            color: 'bg-sun text-ink' },
@@ -223,8 +222,9 @@ export default function BackendPage() {
       <div className="bg-white border-b-4 border-ink px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Package size={20} />
-          <Image src="/images/logo.png" alt="Kittelwerk" width={130} height={36} className="h-8 w-auto object-contain" />
-          <span className="font-serif font-black text-sm italic uppercase opacity-50">Backend</span>
+          <span className="font-serif font-black text-xl italic uppercase">
+            Kittel<span className="text-tomato">werk</span>. Backend
+          </span>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[10px] opacity-50 hidden sm:block">{userEmail}</span>

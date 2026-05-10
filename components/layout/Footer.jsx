@@ -1,13 +1,9 @@
-import Image from 'next/image';
-
 export default function Footer() {
   return (
     <footer className="bg-ink text-white py-16 border-t-4 border-sun">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div className="col-span-2">
-          <div className="mb-4">
-            <Image src="/images/logo-dark.png" alt="Kittelwerk" width={180} height={50} className="h-10 w-auto object-contain" />
-          </div>
+          <h3 className="font-serif font-black text-4xl mb-4 italic">Kittel<span className="text-tomato">werk</span>.</h3>
           <p className="text-paper/50 text-[10px] max-w-xs uppercase tracking-widest leading-loose">
             © 2026 Kittelwerk. Premium Gastro-Textilien.<br />
             Direkt ab Werk. Designed for Professionals.
