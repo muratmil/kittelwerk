@@ -131,7 +131,7 @@ export default function ProductDetailPage({ product }) {
 
               <div className="border-t-2 border-ink/20 pt-3">
                 <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-2">
-                  {product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Druck'}
+                  {product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Logo-Druck'}
                 </p>
                 <div className="grid grid-cols-6 gap-1">
                   {product.tiers.map((tier, i) => {
@@ -182,16 +182,19 @@ export default function ProductDetailPage({ product }) {
             {/* Kumaş Seçimi */}
             {product.fabricOptions && (
               <div>
-                <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">Kumaş Kalitesi</p>
+                <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">Stoffqualität</p>
                 <div className="grid grid-cols-1 gap-2">
                   {product.fabricOptions.map((opt) => {
                     const isSelected = selectedFabric === opt.value;
                     return (
                       <button key={opt.value} onClick={() => setSelectedFabric(opt.value)}
                         className={`w-full px-4 py-3 text-left border-2 border-ink transition-all ${isSelected ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[11px] font-black uppercase">{opt.label}</span>
-                          <span className={`text-[10px] font-black border px-2 py-0.5 ${isSelected ? 'border-white/30 text-white/70' : 'border-ink/30 opacity-60'}`}>{opt.weight}</span>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div>
+                            <span className="block text-[11px] font-black">{opt.label}</span>
+                            {opt.sublabel && <span className={`block text-[9px] mt-0.5 ${isSelected ? 'opacity-60' : 'opacity-40'}`}>{opt.sublabel}</span>}
+                          </div>
+                          <span className={`text-[9px] font-black border px-2 py-0.5 flex-shrink-0 ${isSelected ? 'border-white/30 text-white/70' : 'border-ink/30 opacity-60'}`}>{opt.weight}</span>
                         </div>
                         <p className={`text-[10px] leading-snug ${isSelected ? 'opacity-70' : 'opacity-50'}`}>{opt.desc}</p>
                         {isSelected && opt.careNote && (
@@ -374,8 +377,8 @@ export default function ProductDetailPage({ product }) {
             {/* Güven & Geri */}
             <div className="border-2 border-ink/20 p-4 bg-white grid grid-cols-3 gap-3 text-center">
               <div>
-                <p className="text-[18px] mb-1">🖨️</p>
-                <p className="text-[9px] font-black uppercase">Druck kostenlos</p>
+                <div className="w-8 h-8 bg-ink text-white flex items-center justify-center text-[8px] font-black mb-1 mx-auto border-2 border-ink">LOGO</div>
+                <p className="text-[9px] font-black uppercase">Logo-Druck kostenlos</p>
               </div>
               <div>
                 <p className="text-[18px] mb-1">📦</p>

@@ -97,7 +97,7 @@ export default function ProductCard({ product }) {
           </div>
           {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">{product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Druck'}</p>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">{product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Logo-Druck'}</p>
               <div className="grid grid-cols-6 gap-x-1 gap-y-0.5">
                 {product.tiers.map((tier, i) => {
                   const isActive = totalQty === 0
@@ -150,19 +150,22 @@ export default function ProductCard({ product }) {
         {/* Kumaş Seçimi */}
         {product.fabricOptions && (
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Kumaş Kalitesi</p>
+            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Stoffqualität</p>
             <div className="flex flex-col gap-1.5">
               {product.fabricOptions.map((opt) => {
                 const isSelected = selectedFabric === opt.value;
                 return (
                   <button key={opt.value} onClick={() => setSelectedFabric(opt.value)}
                     className={`w-full px-2 py-2 text-left border-2 border-ink transition-all ${isSelected ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-black uppercase">{opt.label}</span>
-                      <span className={`text-[8px] font-bold ${isSelected ? 'opacity-70' : 'opacity-50'}`}>{opt.weight}</span>
+                    <div className="flex items-start justify-between gap-1">
+                      <div>
+                        <span className="block text-[9px] font-black">{opt.label}</span>
+                        {opt.sublabel && <span className={`block text-[8px] mt-0.5 ${isSelected ? 'opacity-60' : 'opacity-40'}`}>{opt.sublabel}</span>}
+                      </div>
+                      <span className={`text-[8px] font-bold flex-shrink-0 ${isSelected ? 'opacity-70' : 'opacity-50'}`}>{opt.weight}</span>
                     </div>
                     {isSelected && opt.careNote && (
-                      <p className="text-[8px] mt-1 text-sun font-bold">{opt.careNote}</p>
+                      <p className="text-[8px] mt-1.5 bg-sun text-ink px-1.5 py-1 font-bold">{opt.careNote}</p>
                     )}
                   </button>
                 );

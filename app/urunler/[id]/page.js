@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
   if (!product) return {};
   return {
     title: `${product.name} | Kittelwerk`,
-    description: `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Druck. Mindestbestellung 10 Stück.`,
+    description: `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung 10 Stück.`,
     openGraph: {
       title: `${product.name} | Kittelwerk`,
       description: `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€.`,
