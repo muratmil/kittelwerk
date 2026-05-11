@@ -61,7 +61,7 @@ export const PRODUCTS = [
         sublabel: '2-fädig, leicht angeraut',
         weight: 'ca. 240 g/m²',
         desc: 'Weich angeraute Innenseite für ein angenehm wärmendes Tragegefühl.',
-        careNote: '⚠ Auf links waschen – angeraute Innenseite kann leicht fusseln.',
+        careNote: '⚠ Vor dem Waschen auf links drehen – schützt die angeraute Innenseite.',
       },
       {
         value: '3thread-ungeraut',
@@ -77,7 +77,7 @@ export const PRODUCTS = [
         sublabel: '3-fädig, flauschig angeraut',
         weight: 'ca. 380 g/m²',
         desc: 'Flauschig angeraute Innenseite, besonders wärmend – für kalte Arbeitstage.',
-        careNote: '⚠ Auf links waschen – angeraute Innenseite kann leicht fusseln.',
+        careNote: '⚠ Vor dem Waschen auf links drehen – schützt die angeraute Innenseite.',
       },
     ],
     washing: [
@@ -85,7 +85,7 @@ export const PRODUCTS = [
       'Nicht bleichen',
       'Trockner geeignet (niedrige Stufe)',
       'Bügeln bis 150°C',
-      '3-Fädig Geflaust: Auf links waschen – Innenfleece kann leicht fusseln',
+      'Bei angerauten Varianten: vor dem Waschen auf links drehen',
     ],
     details: [
       'Stoffgewicht: Schweres 320 g/m² Qualitätsgewebe – spürbar hochwertig und wärmend.',
