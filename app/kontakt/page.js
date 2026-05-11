@@ -3,13 +3,13 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { CheckCircle, Mail, MessageCircle, Truck, Package, Clock } from 'lucide-react';
+import { CheckCircle, Mail, MessageCircle, Clock } from 'lucide-react';
 
 const TOPICS = [
   { value: 'Bestellung', label: 'Bestellung / Lieferung' },
-  { value: 'Großbestellung', label: 'Großbestellung / Angebot' },
+  { value: 'Großbestellung', label: 'Großbestellung' },
   { value: 'Produkt', label: 'Produktfrage' },
-  { value: 'Retoure', label: 'Rücksendung / Reklamation' },
+  { value: 'Retoure', label: 'Reklamation' },
   { value: 'Sonstiges', label: 'Sonstiges' },
 ];
 
@@ -36,8 +36,8 @@ export default function Kontakt() {
 
       {/* Hero */}
       <section className="bg-ink text-white overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 items-end" style={{ minHeight: 320 }}>
-          <div className="py-16 pr-8">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 h-[360px]">
+          <div className="flex flex-col justify-center pr-8">
             <a href="/" className="inline-flex items-center gap-2 text-sm font-bold text-white/40 hover:text-white transition mb-8">
               ← Startseite
             </a>
@@ -46,13 +46,12 @@ export default function Kontakt() {
               Wir helfen Ihnen gerne weiter — schnell, persönlich und unkompliziert.
             </p>
           </div>
-          <div className="hidden md:flex items-end justify-end h-80">
+          <div className="hidden md:block relative h-full">
             <Image
               src="/images/team.png"
               alt="Kittelwerk Team"
-              width={580}
-              height={380}
-              className="object-contain object-bottom h-full w-auto"
+              fill
+              className="object-cover object-top"
               priority
             />
           </div>
@@ -90,14 +89,23 @@ export default function Kontakt() {
               </Field>
 
               <Field label="Thema *">
-                <div className="relative">
-                  <select name="subject" value={form.subject} onChange={handleChange} required
-                    className="border-2 border-ink p-3 bg-paper focus:bg-sun outline-none w-full appearance-none cursor-pointer pr-8">
-                    {TOPICS.map(t => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-40">▼</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {TOPICS.map(t => (
+                    <label key={t.value} className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name="subject"
+                        value={t.value}
+                        checked={form.subject === t.value}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      <span className={`block border-2 border-ink px-3 py-2.5 text-[11px] font-black uppercase tracking-wide text-center transition-all
+                        ${form.subject === t.value ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
+                        {t.label}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               </Field>
 
@@ -146,31 +154,15 @@ export default function Kontakt() {
                 Nachricht schreiben →
               </a>
             </ContactCard>
-
-            <ContactCard icon={<Truck size={18} />} label="Lieferzeit">
-              <span>1–2 Wochen · DHL / DPD</span>
-            </ContactCard>
-
-            <ContactCard icon={<Package size={18} />} label="Mindestmenge">
-              <span>
-                10 Stück{' '}
-                <span className="opacity-50">(Produkte kombinierbar)</span>
-              </span>
-            </ContactCard>
           </div>
 
-          {/* Großbestellung CTA */}
-          <div className="mt-8 border-2 border-ink p-6 bg-ink text-white shadow-brutalist">
-            <p className="font-black text-xl uppercase tracking-tight leading-none mb-1">Großbestellung?</p>
-            <p className="text-sm text-white/50 mb-5">
-              Ab 50 Stück erhalten Sie ein individuelles Angebot mit Staffelpreisen.
+          {/* Großbestellung */}
+          <div className="mt-6 border-2 border-ink p-6 bg-ink text-white shadow-brutalist">
+            <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Ab 100 Stück</p>
+            <p className="font-black text-xl uppercase tracking-tight leading-none mb-2">Großbestellung?</p>
+            <p className="text-sm text-white/50">
+              Erhalten Sie ein individuelles Angebot mit Staffelpreisen — schreiben Sie uns einfach.
             </p>
-            <a
-              href="mailto:info@kittelwerk.de?subject=Großbestellung%20Anfrage"
-              className="inline-block bg-tomato text-white font-black text-sm uppercase px-6 py-3 hover:bg-white hover:text-ink transition-all"
-            >
-              Angebot anfordern →
-            </a>
           </div>
         </div>
       </div>
