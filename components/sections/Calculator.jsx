@@ -5,8 +5,8 @@ import { getTieredPrice } from '@/store/cartStore';
 
 const CALC_PRODUCTS = [
   { label: 'T-Shirt',     key: 'tshirt', default: 50 },
-  { label: 'Latzschürze', key: 'latz',   default: 15 },
-  { label: 'Schürze',     key: 'apron',  default: 10 },
+  { label: 'Latzschürze', key: 'latz',   default: 20 },
+  { label: 'Schürze',     key: 'apron',  default: 20 },
   { label: 'Kappe',       key: 'cap',    default: 10 },
   { label: 'Sweatshirt',  key: 'sweat',  default: 10 },
 ];
