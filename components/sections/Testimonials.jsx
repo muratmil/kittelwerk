@@ -1,7 +1,7 @@
 const REVIEWS = [
-  { initials: 'MK', name: 'Murat K.', place: 'Restaurant Bosporus · Hannover', color: 'bg-tomato', quote: '"Qualität wie versprochen. Stoff deutlich dicker als unser alter Lieferant — und wir zahlen die Hälfte. Logo-Druck sitzt perfekt."' },
-  { initials: 'SH', name: 'Sandra H.', place: 'Café Marrone · Berlin', color: 'bg-olive', quote: '"Nach der ersten Lieferung von 30 Schürzen ist klar: passt. Bestellen demnächst die T-Shirts nach."' },
-  { initials: 'EY', name: 'Erkan Y.', place: 'Pide-Haus 1453 · München', color: 'bg-sun', quote: '"Schnelle Abwicklung, Lieferung in 8 Tagen. Sweatshirt-Material top. Klare Empfehlung."' },
+  { initials: 'SD', name: 'Sole Mio Diyar', place: 'Sole Mio · Hannover', color: 'bg-tomato', quote: '"Qualität und Preis stimmen. Die Schürzen sehen professionell aus und halten was sie versprechen. Unser Team ist begeistert."' },
+  { initials: 'DA', name: 'Dönermeister Adem', place: 'Dönermeister · Hameln', color: 'bg-olive', quote: '"Unkomplizierte Abwicklung, schnelle Lieferung. Das Logo sitzt sauber auf dem Stoff — genau so wie wir es uns vorgestellt haben."' },
+  { initials: 'AD', name: 'Alladdin D.', place: 'Deli Alladdin · Löhne', color: 'bg-sun', quote: '"Für den Preis absolute Spitzenqualität. Wir haben 20 T-Shirts und 15 Schürzen bestellt — alles top verarbeitet. Kommen wieder."' },
 ];
 
 export default function Testimonials() {
