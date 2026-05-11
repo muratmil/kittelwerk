@@ -5,6 +5,6 @@ export default function robots() {
       allow: '/',
       disallow: ['/backend', '/atolye', '/api'],
     },
-    sitemap: 'https://kittelwerk.de/sitemap.xml',
+    sitemap: 'https://www.kittelwerk.de/sitemap.xml',
   };
 }
