@@ -22,8 +22,12 @@ export default function Hero() {
           </div>
         </div>
         <div className="relative hidden md:block">
-          <div className="border-4 border-sun p-2 rotate-3 shadow-brutalist bg-paper relative z-10">
-            <img src="/images/team.png" alt="Kittelwerk Team" className="w-full grayscale contrast-125" />
+          <div className="rotate-2 relative z-10 inline-block" style={{
+            background: '#FAFBF7',
+            padding: '12px 12px 56px 12px',
+            boxShadow: '6px 8px 32px rgba(0,0,0,0.55)',
+          }}>
+            <img src="/images/team.png" alt="Kittelwerk Team" className="w-full grayscale contrast-125 block" />
           </div>
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-tomato rounded-full -z-0 animate-pulse"></div>
         </div>
