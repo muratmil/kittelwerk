@@ -44,8 +44,15 @@ export default function Home() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-          <div className="mt-10 bg-sun border-4 border-ink p-4 text-center font-black text-sm shadow-brutalist">
-            ⚡ Mindestbestellmenge: <span className="text-tomato">10 Stück gesamt</span> (Produkte kombinierbar) · Versandkosten: 5,90 € · Logo-Druck kostenlos inklusive
+          <div className="mt-10 border-4 border-ink bg-ink text-white p-6 shadow-brutalist flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Großbestellung</p>
+              <p className="font-serif font-black text-2xl italic tracking-tight leading-none">Händleranfragen & Kooperationen</p>
+              <p className="text-sm text-white/50 mt-1">Ab 100 Stück — individuelles Angebot mit Staffelpreisen.</p>
+            </div>
+            <a href="/kontakt" className="flex-shrink-0 bg-tomato text-white font-black uppercase px-8 py-4 hover:bg-white hover:text-ink transition-all shadow-[4px_4px_0px_0px_#FAFBF7] hover:shadow-none hover:translate-x-1 hover:translate-y-1 whitespace-nowrap">
+              Jetzt anfragen →
+            </a>
           </div>
         </div>
       </section>
