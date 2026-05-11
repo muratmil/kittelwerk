@@ -1,10 +1,10 @@
 const BENEFITS = [
   { icon: '€', title: 'Direkt vom Hersteller', desc: 'Bis zu 53% unter deutschem Marktwert. Keine Händlermargen.' },
-  { icon: '✓', title: 'Deutsche Abwicklung', desc: 'SEPA-Überweisung auf deutsches Konto. Kein Auslandsaufschlag.' },
-  { icon: '★', title: 'Profi-Qualität', desc: '24/1 Supreme Baumwolle. Doppelsteppung. DTF-Premium-Druck.' },
+  { icon: '✓', title: 'Persönlicher Service', desc: 'WhatsApp & E-Mail direkt erreichbar — schnelle, persönliche Antworten. Kein Callcenter.' },
+  { icon: '★', title: 'Gastro-Qualität', desc: 'Formstabil, farbecht & industriewaschfest. Speziell für den täglichen Einsatz in der Gastronomie.' },
   { icon: '⚡', title: 'Schnelle Lieferung', desc: '1–2 Wochen von Bestätigung bis Lieferung deutschlandweit.' },
-  { icon: '♻', title: 'Neukundenangebot', desc: 'Exklusive Aktionspreise für Neukunden — zeitlich begrenzt, aber kein Lagerabbau. Das Angebot bleibt bestehen.' },
-  { icon: '◉', title: 'Vorderdruck kostenlos', desc: 'Vorderdruck ohne Aufpreis inklusive. Rückendruck nur +5 €. Vektordatei senden — wir übernehmen alles.' },
+  { icon: '♻', title: 'Newsletter-Vorteil', desc: '5% Rabatt für neue Abonnenten. Jetzt anmelden und beim ersten Einkauf sparen.' },
+  { icon: '◉', title: 'Alle Druckoptionen kostenlos', desc: 'Vorder- & Rückendruck sowie Logo-Druck — alles ohne Aufpreis inklusive.' },
 ];
 
 export default function Benefits() {
