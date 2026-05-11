@@ -98,8 +98,8 @@ export default function ProductCard({ product }) {
             <span className="text-[9px] font-black uppercase opacity-60">/ Stück</span>
           </div>
           {product.tiers && (
-            <p className="text-[9px] font-black uppercase opacity-50">
-              ab {product.tiers[product.tiers.length - 1].price.toFixed(0)}€
+            <p className="text-[9px] opacity-50">
+              ab <span className="font-black">{product.tiers[product.tiers.length - 1].price.toFixed(0)}€</span>
             </p>
           )}
           {product.tiers && (
