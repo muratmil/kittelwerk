@@ -1,6 +1,6 @@
 const REVIEWS = [
-  { initials: 'SD', name: 'Sole Mio Diyar', place: 'Sole Mio · Hannover', color: 'bg-tomato', quote: '"Qualität und Preis stimmen. Die Schürzen sehen professionell aus und halten was sie versprechen. Unser Team ist begeistert."' },
-  { initials: 'DA', name: 'Dönermeister Adem', place: 'Dönermeister · Hameln', color: 'bg-olive', quote: '"Unkomplizierte Abwicklung, schnelle Lieferung. Das Logo sitzt sauber auf dem Stoff — genau so wie wir es uns vorgestellt haben."' },
+  { initials: 'D', name: 'Diyar', place: 'Sole Mio · Hannover', color: 'bg-tomato', quote: '"Qualität und Preis stimmen. Die Schürzen sehen professionell aus und halten was sie versprechen. Unser Team ist begeistert."' },
+  { initials: 'A', name: 'Adem', place: 'Dönermeister · Hameln', color: 'bg-olive', quote: '"Unkomplizierte Abwicklung, schnelle Lieferung. Das Logo sitzt sauber auf dem Stoff — genau so wie wir es uns vorgestellt haben."' },
   { initials: 'AD', name: 'Alladdin D.', place: 'Deli Alladdin · Löhne', color: 'bg-sun', quote: '"Für den Preis absolute Spitzenqualität. Wir haben 20 T-Shirts und 15 Schürzen bestellt — alles top verarbeitet. Kommen wieder."' },
 ];
 
