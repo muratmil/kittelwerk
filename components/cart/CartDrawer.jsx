@@ -75,10 +75,16 @@ export default function CartDrawer({ isOpen, onClose }) {
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-sm uppercase">{item.name}</h4>
                           <p className="text-[10px] uppercase opacity-60">{item.color}</p>
+                          {item.fabric && (() => {
+                            const opt = item.fabricOptions?.find(o => o.value === item.fabric);
+                            return opt ? (
+                              <p className="text-[10px] uppercase opacity-60">{opt.label} · {opt.weight}</p>
+                            ) : null;
+                          })()}
                           <SizeBreakdown sizes={item.sizes} />
                           <div className="flex justify-between items-end mt-2">
                             <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
-                            <button onClick={() => removeItem(item.id, item.color, item.printType)} className="text-tomato">
+                            <button onClick={() => removeItem(item.id, item.color, item.printType, item.fabric)} className="text-tomato">
                               <Trash2 size={16} />
                             </button>
                           </div>

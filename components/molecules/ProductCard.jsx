@@ -24,6 +24,9 @@ export default function ProductCard({ product }) {
       : { '-': MIN_QTY }
   );
   const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung' : 'none');
+  const [selectedFabric, setSelectedFabric] = useState(
+    product.fabricOptions ? product.fabricOptions[0].value : null
+  );
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
@@ -50,7 +53,7 @@ export default function ProductCard({ product }) {
   const handleAddToCart = () => {
     if (!isValid) return;
     const activeSizes = Object.fromEntries(Object.entries(sizeQtys).filter(([, v]) => v > 0));
-    addItem(product, selectedColor, activeSizes, totalQty, printType);
+    addItem(product, selectedColor, activeSizes, totalQty, printType, selectedFabric);
     setAdded(true);
     setSizeQtys(
       product.hasSizes
@@ -143,6 +146,30 @@ export default function ProductCard({ product }) {
             ))}
           </div>
         </div>
+
+        {/* Kumaş Seçimi */}
+        {product.fabricOptions && (
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Kumaş Kalitesi</p>
+            <div className="flex flex-col gap-1.5">
+              {product.fabricOptions.map((opt) => {
+                const isSelected = selectedFabric === opt.value;
+                return (
+                  <button key={opt.value} onClick={() => setSelectedFabric(opt.value)}
+                    className={`w-full px-2 py-2 text-left border-2 border-ink transition-all ${isSelected ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-black uppercase">{opt.label}</span>
+                      <span className={`text-[8px] font-bold ${isSelected ? 'opacity-70' : 'opacity-50'}`}>{opt.weight}</span>
+                    </div>
+                    {isSelected && opt.careNote && (
+                      <p className="text-[8px] mt-1 text-sun font-bold">{opt.careNote}</p>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Baskı */}
         <div>

@@ -22,28 +22,28 @@ export const useCartStore = create((set, get) => ({
   discountPercent: 0,
 
   // sizes: { XS: 2, S: 3, M: 5 } veya { '-': 10 } (bedensiz ürünler için)
-  addItem: (product, color, sizes, qty, printType = 'none') => {
+  addItem: (product, color, sizes, qty, printType = 'none', fabric = null) => {
     const printCost = FREE_PRINT_TYPES.includes(printType) ? 0 : PRINT_PRICES[printType];
     const price = getTieredPrice(product, qty) + printCost;
     set((state) => {
       const existing = state.items.find(
-        i => i.id === product.id && i.color === color && i.printType === printType
+        i => i.id === product.id && i.color === color && i.printType === printType && i.fabric === fabric
       );
       if (existing) {
         return {
           items: state.items.map(i =>
-            (i.id === product.id && i.color === color && i.printType === printType)
+            (i.id === product.id && i.color === color && i.printType === printType && i.fabric === fabric)
               ? { ...i, sizes, qty }
               : i
           ),
         };
       }
-      return { items: [...state.items, { ...product, color, sizes, qty, price, printType }] };
+      return { items: [...state.items, { ...product, color, sizes, qty, price, printType, fabric }] };
     });
   },
 
-  removeItem: (id, color, printType) => set((state) => ({
-    items: state.items.filter(i => !(i.id === id && i.color === color && i.printType === printType)),
+  removeItem: (id, color, printType, fabric = null) => set((state) => ({
+    items: state.items.filter(i => !(i.id === id && i.color === color && i.printType === printType && i.fabric === fabric)),
   })),
 
   applyCode: (code) => {

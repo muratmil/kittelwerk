@@ -29,6 +29,9 @@ export default function ProductDetailPage({ product }) {
       : { '-': MIN_QTY }
   );
   const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung' : 'none');
+  const [selectedFabric, setSelectedFabric] = useState(
+    product.fabricOptions ? product.fabricOptions[0].value : null
+  );
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
@@ -56,7 +59,7 @@ export default function ProductDetailPage({ product }) {
   const handleAddToCart = () => {
     if (!isValid) return;
     const activeSizes = Object.fromEntries(Object.entries(sizeQtys).filter(([, v]) => v > 0));
-    addItem(product, selectedColor, activeSizes, totalQty, printType);
+    addItem(product, selectedColor, activeSizes, totalQty, printType, selectedFabric);
     setAdded(true);
     setSizeQtys(
       product.hasSizes
@@ -175,6 +178,31 @@ export default function ProductDetailPage({ product }) {
                 ))}
               </div>
             </div>
+
+            {/* Kumaş Seçimi */}
+            {product.fabricOptions && (
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">Kumaş Kalitesi</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {product.fabricOptions.map((opt) => {
+                    const isSelected = selectedFabric === opt.value;
+                    return (
+                      <button key={opt.value} onClick={() => setSelectedFabric(opt.value)}
+                        className={`w-full px-4 py-3 text-left border-2 border-ink transition-all ${isSelected ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[11px] font-black uppercase">{opt.label}</span>
+                          <span className={`text-[10px] font-black border px-2 py-0.5 ${isSelected ? 'border-white/30 text-white/70' : 'border-ink/30 opacity-60'}`}>{opt.weight}</span>
+                        </div>
+                        <p className={`text-[10px] leading-snug ${isSelected ? 'opacity-70' : 'opacity-50'}`}>{opt.desc}</p>
+                        {isSelected && opt.careNote && (
+                          <p className="text-[9px] font-black mt-2 bg-sun text-ink px-2 py-1">{opt.careNote}</p>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Baskı / Bestickung */}
             <div>
@@ -317,6 +345,29 @@ export default function ProductDetailPage({ product }) {
                     })}
                   </ul>
                 )}
+              </div>
+            )}
+
+            {/* Yıkama Talimatları */}
+            {product.washing && (
+              <div className="border-4 border-ink p-5 bg-white">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-4">Pflegehinweise</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {product.washing.map((item, i) => (
+                    <div key={i} className="flex items-start gap-3 text-[11px]">
+                      <span className="text-[16px] flex-shrink-0 leading-none">
+                        {item.includes('Maschinenwäsche') || item.includes('Handwäsche') ? '🧺' :
+                         item.includes('bleichen') ? '🚫' :
+                         item.includes('Trockner') ? '💨' :
+                         item.includes('Bügeln') || item.includes('bügeln') ? '🌡️' :
+                         item.includes('chemisch') ? '⚗️' :
+                         item.includes('links waschen') ? '⚠️' :
+                         item.includes('Form') ? '👐' : '•'}
+                      </span>
+                      <span className="leading-relaxed">{item}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

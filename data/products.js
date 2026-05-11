@@ -18,6 +18,13 @@ export const PRODUCTS = [
       'Langlebigkeit: Formstabil und farbecht, auch nach häufigem Waschen.',
       'Besonderheit: Höherer Tragekomfort durch atmungsaktive Naturfasern.',
     ],
+    washing: [
+      'Maschinenwäsche bis 40°C',
+      'Nicht bleichen',
+      'Trockner geeignet (niedrige Stufe)',
+      'Bügeln bis 150°C',
+      'Nicht chemisch reinigen',
+    ],
     tiers: [
       { minQty: 10,  price: 15.00 },
       { minQty: 20,  price: 14.00 },
@@ -62,6 +69,13 @@ export const PRODUCTS = [
         careNote: '⚠ Auf links waschen – das Innenfleece kann leicht fusseln.',
       },
     ],
+    washing: [
+      'Maschinenwäsche bis 40°C',
+      'Nicht bleichen',
+      'Trockner geeignet (niedrige Stufe)',
+      'Bügeln bis 150°C',
+      '3-Fädig Geflaust: Auf links waschen – Innenfleece kann leicht fusseln',
+    ],
     details: [
       'Stoffgewicht: Schweres 320 g/m² Qualitätsgewebe – spürbar hochwertig und wärmend.',
       'Material: Weiche Baumwoll-Mischung für optimalen Tragekomfort den ganzen Tag.',
@@ -91,6 +105,13 @@ export const PRODUCTS = [
     hasSizes: true,
     bestickungOnly: true,
     longDesc: 'Die Fleece Jacke aus 100% Polyester mit einem Gewicht von 280 g/m² bietet eine gute Wärmeisolierung bei gleichzeitiger Atmungsaktivität. Die Anti-Pilling Ausrüstung reduziert die Bildung von Knötchen auf der Oberfläche deutlich. Funktionale Details: durchgehender Frontreißverschluss mit Kinnschutz, hochschließender Kragen und zwei Seitentaschen mit Reißverschluss. Pflegeleicht und schnelltrocknend. Geeignet für Bestickung – die 280 g/m² Grammatur gibt dem Stoff ausreichend Stabilität für präzise Stickarbeiten.',
+    washing: [
+      'Maschinenwäsche bis 40°C',
+      'Nicht bleichen',
+      'Kein Wäschetrockner',
+      'Nicht bügeln',
+      'Nicht chemisch reinigen',
+    ],
     details: [
       'Material: Anti-Pilling Fleece – verhindert Tüllbildung und hält die Oberfläche dauerhaft glatt.',
       'Wärmeleistung: Optimales Wärme-Gewicht-Verhältnis für angenehme Körpertemperatur.',
@@ -119,6 +140,13 @@ export const PRODUCTS = [
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: false,
     longDesc: 'Die Vorbinder-Schürze aus Alpaka-Gewebe (75% Polyester, 25% Viskose) ist für den Einsatz in Gastronomie und Servicebetrieben konzipiert. Das Material ist bügelleicht, knitterarm und für Industriewäsche geeignet – die Schürze lässt sich bei hohen Temperaturen waschen, ohne die Formstabilität zu verlieren. Der Viskose-Anteil sorgt für Weichheit und Atmungsaktivität. Klassischer Schürzen-Schnitt für freie Bewegung während der Arbeit. Kostenloser Druck Ihres Firmenlogos inklusive.',
+    washing: [
+      'Maschinenwäsche bis 60°C (Industriewäsche geeignet)',
+      'Nicht bleichen',
+      'Trockner geeignet (niedrige Stufe)',
+      'Bügeln bis 110°C (niedrige Temperatur)',
+      'Nicht chemisch reinigen',
+    ],
     details: [
       'Material: Hochwertiges Alpaka-Gewebe (75% Polyester, 25% Viskose) für optimale Strapazierfähigkeit.',
       'Pflegeleicht & Knitterarm: Besonders bügelleicht – behält auch nach langen Arbeitsschichten seine glatte Struktur.',
@@ -147,6 +175,13 @@ export const PRODUCTS = [
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: false,
     longDesc: 'Die Latzschürze aus Alpaka-Gewebe (75% Polyester, 25% Viskose) bietet vollständige Abdeckung von Brust bis Knie – geeignet für Bereiche, in denen Spritzer und Verschmutzungen zum Arbeitsalltag gehören. Der verstellbare Nackengurt passt sich verschiedenen Körpergrößen an. Das Material ist bügelleicht, knitterarm und für Industriewäsche bei hohen Temperaturen geeignet. Der Viskose-Anteil sorgt für ein weiches Hautgefühl und Atmungsaktivität bei langen Schichten. Kostenloser Druck Ihres Firmenlogos inklusive.',
+    washing: [
+      'Maschinenwäsche bis 60°C (Industriewäsche geeignet)',
+      'Nicht bleichen',
+      'Trockner geeignet (niedrige Stufe)',
+      'Bügeln bis 110°C (niedrige Temperatur)',
+      'Nicht chemisch reinigen',
+    ],
     details: [
       'Material: Hochwertiges Alpaka-Gewebe (75% Polyester, 25% Viskose) für optimale Strapazierfähigkeit.',
       'Vollständige Abdeckung: Latz-Design schützt Oberkörper und Beine – ideal für intensive Arbeitsbereiche.',
@@ -176,6 +211,13 @@ export const PRODUCTS = [
     hasSizes: false,
     longDesc: 'Die Team-Kappe aus robustem 7x7 Gabardine (100% Baumwolle) ergänzt das Gastro-Outfit mit einem einheitlichen, professionellen Look. Die EVA-Einlage in der Front sorgt für Formstabilität – die Kappe behält bei sachgemäßer Handhabung ihre Struktur. Verstellbarer Verschluss (Metallschnalle oder Klettverschluss) für individuelle Passform. Das verstärkte Schweißband im Inneren verbessert den Tragekomfort. Geeignet für Bestickung und Druck – für die Anbringung Ihres Firmenlogos.',
     marketingText: 'Unsere Caps vereinen Funktionalität und Stil. Dank des schweren 7x7 Gabardine-Stoffes und der speziellen EVA-Einlage behält die Cap immer ihre Form – egal wie oft du sie trägst. Ein zeitloses Essential für jeden Tag.',
+    washing: [
+      'Handwäsche oder Schonwäsche bis 30°C empfohlen',
+      'Nicht bleichen',
+      'Kein Wäschetrockner',
+      'Form beim Trocknen beibehalten (liegend trocknen)',
+      'Nicht chemisch reinigen',
+    ],
     details: [
       'Material: 100% hochwertige Baumwolle (Premium Gabardine).',
       'Stoffqualität: Robuster 7x7 Gabardine-Stoff – strapazierfähig, langlebig, edle Oberflächenstruktur.',
