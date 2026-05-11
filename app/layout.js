@@ -12,7 +12,7 @@ export const metadata = {
   openGraph: {
     title: 'Kittelwerk | Gastro-Textilien Hannover & Niedersachsen',
     description: 'Gastro-Textilien direkt vom Hersteller — Schürzen, T-Shirts & Kappen inkl. kostenlosem Logo-Druck. Ab 10 Stück.',
-    url: 'https://kittelwerk.de',
+    url: 'https://www.kittelwerk.de',
     siteName: 'Kittelwerk',
     locale: 'de_DE',
     type: 'website',
@@ -22,7 +22,7 @@ export const metadata = {
     follow: true,
   },
   alternates: {
-    canonical: 'https://kittelwerk.de',
+    canonical: 'https://www.kittelwerk.de',
   },
 };
 
@@ -31,7 +31,7 @@ const localBusinessSchema = {
   '@type': 'LocalBusiness',
   name: 'Kittelwerk',
   description: 'Gastro-Textilien direkt vom Hersteller für Gastronomie in Hannover und Niedersachsen',
-  url: 'https://kittelwerk.de',
+  url: 'https://www.kittelwerk.de',
   email: 'info@kittelwerk.de',
   address: {
     '@type': 'PostalAddress',
