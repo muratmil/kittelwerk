@@ -1,7 +1,7 @@
 import { PRODUCTS } from '@/data/products';
 
 export default function sitemap() {
-  const base = 'https://kittelwerk.de';
+  const base = 'https://www.kittelwerk.de';
   const now = new Date();
 
   const productPages = PRODUCTS.map(p => ({
