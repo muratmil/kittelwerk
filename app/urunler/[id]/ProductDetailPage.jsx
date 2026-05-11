@@ -110,6 +110,13 @@ export default function ProductDetailPage({ product }) {
               <p className="text-[11px] uppercase tracking-widest opacity-60 mt-2">{product.desc}</p>
             </div>
 
+            {/* Ürün Açıklaması */}
+            {product.longDesc && (
+              <p className="text-sm leading-relaxed opacity-75 border-l-4 border-tomato pl-4">
+                {product.longDesc}
+              </p>
+            )}
+
             {/* Fiyat */}
             <div className="border-4 border-ink bg-white p-5 shadow-brutalist">
               <div className="flex items-baseline gap-3 mb-3">
@@ -283,6 +290,34 @@ export default function ProductDetailPage({ product }) {
                 <ShoppingBag size={16} />
                 Min. {MIN_QTY} Stück wählen
               </button>
+            )}
+
+            {/* Ürün Detayları */}
+            {(product.details || product.marketingText) && (
+              <div className="border-4 border-ink p-5 bg-white">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-4">Produktdetails</p>
+                {product.marketingText && (
+                  <p className="text-sm font-medium italic opacity-70 mb-4 pb-4 border-b-2 border-ink/10 leading-relaxed">
+                    „{product.marketingText}"
+                  </p>
+                )}
+                {product.details && (
+                  <ul className="space-y-2">
+                    {product.details.map((item, i) => {
+                      const [label, ...rest] = item.split(':');
+                      return (
+                        <li key={i} className="flex gap-2 text-[11px] leading-relaxed">
+                          <span className="text-tomato font-black mt-0.5 flex-shrink-0">—</span>
+                          <span>
+                            <strong className="font-black">{label}:</strong>
+                            {rest.join(':')}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             )}
 
             {/* Güven & Geri */}
