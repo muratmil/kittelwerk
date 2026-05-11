@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { ShoppingBag, Plus, Minus } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
 import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
@@ -61,7 +62,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
-      <div className="relative">
+      <Link href={`/urunler/${product.id}`} className="relative block group/img">
         <ProductImage src={product.image} alt={product.name} />
         {product.badge && (
           <span className="absolute top-3 left-3 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-2 py-1">
@@ -71,7 +72,12 @@ export default function ProductCard({ product }) {
         <span className="absolute top-3 right-3 bg-sun text-ink text-[9px] font-black uppercase px-2 py-1">
           -{savings}%
         </span>
-      </div>
+        <span className="absolute inset-0 bg-ink/0 group-hover/img:bg-ink/10 transition-all flex items-center justify-center">
+          <span className="opacity-0 group-hover/img:opacity-100 bg-ink text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 transition-all">
+            Details anzeigen →
+          </span>
+        </span>
+      </Link>
 
       <div className="p-6 flex flex-col gap-4 flex-1">
         <div>
