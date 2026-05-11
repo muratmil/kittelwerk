@@ -37,7 +37,9 @@ export default function ProductCard({ product }) {
     ? PRINT_OPTIONS.filter(o => o.value === 'bestickung')
     : product.hasBackPrint
       ? PRINT_OPTIONS.filter(o => o.value !== 'bestickung')
-      : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung');
+      : product.hasBestickung
+        ? PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both')
+        : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung');
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const isFree = FREE_PRINT_TYPES.includes(printType);
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;

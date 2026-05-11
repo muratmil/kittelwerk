@@ -204,6 +204,7 @@ export const PRODUCTS = [
     badge: 'NEUKUNDENANGEBOT',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: false,
+    hasBestickung: true,
     longDesc: 'Die Team-Kappe aus robustem 7x7 Gabardine (100% Baumwolle) ergänzt das Gastro-Outfit mit einem einheitlichen, professionellen Look. Die EVA-Einlage in der Front sorgt für Formstabilität – die Kappe behält bei sachgemäßer Handhabung ihre Struktur. Verstellbarer Verschluss (Metallschnalle oder Klettverschluss) für individuelle Passform. Das verstärkte Schweißband im Inneren verbessert den Tragekomfort. Geeignet für Bestickung und Druck – für die Anbringung Ihres Firmenlogos.',
     marketingText: 'Unsere Caps vereinen Funktionalität und Stil. Dank des schweren 7x7 Gabardine-Stoffes und der speziellen EVA-Einlage behält die Cap immer ihre Form – egal wie oft du sie trägst. Ein zeitloses Essential für jeden Tag.',
     washing: [
