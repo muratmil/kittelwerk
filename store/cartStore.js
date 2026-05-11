@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const FREE_PRINT_TYPES = ['none', 'front', 'back', 'both'];
+export const FREE_PRINT_TYPES = ['none', 'front', 'back', 'both', 'bestickung'];
 
 export function getTieredPrice(product, qty) {
   if (!product.tiers || product.tiers.length === 0) return product.newPrice;
@@ -9,7 +9,7 @@ export function getTieredPrice(product, qty) {
   return tier ? tier.price : product.newPrice;
 }
 
-const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0 };
+const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0, bestickung: 0 };
 
 export const DISCOUNT_CODES = { 'KITTEL10': 5 };
 

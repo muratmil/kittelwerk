@@ -8,10 +8,11 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const MIN_QTY = 10;
 
 const PRINT_OPTIONS = [
-  { value: 'none',  label: 'Kein Druck',           price: 0 },
-  { value: 'front', label: 'Vorderdruck',           price: 5 },
-  { value: 'back',  label: 'Rückendruck',           price: 5 },
-  { value: 'both',  label: 'Vorder- + Rückendruck', price: 8 },
+  { value: 'none',       label: 'Kein Druck',           price: 0 },
+  { value: 'front',      label: 'Vorderdruck',           price: 5 },
+  { value: 'back',       label: 'Rückendruck',           price: 5 },
+  { value: 'both',       label: 'Vorder- + Rückendruck', price: 8 },
+  { value: 'bestickung', label: 'Bestickung',            price: 0 },
 ];
 
 export default function ProductCard({ product }) {
@@ -21,16 +22,18 @@ export default function ProductCard({ product }) {
       ? Object.fromEntries(SIZES.map(s => [s, 0]))
       : { '-': MIN_QTY }
   );
-  const [printType, setPrintType] = useState('none');
+  const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung' : 'none');
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
   const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
   const isValid = totalQty >= MIN_QTY;
 
-  const availablePrints = product.hasBackPrint
-    ? PRINT_OPTIONS
-    : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both');
+  const availablePrints = product.bestickungOnly
+    ? PRINT_OPTIONS.filter(o => o.value === 'bestickung')
+    : product.hasBackPrint
+      ? PRINT_OPTIONS.filter(o => o.value !== 'bestickung')
+      : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung');
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const isFree = FREE_PRINT_TYPES.includes(printType);
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
@@ -85,7 +88,7 @@ export default function ProductCard({ product }) {
           </div>
           {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">Staffelpreise inkl. Druck</p>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">{product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Druck'}</p>
               <div className="grid grid-cols-6 gap-x-1 gap-y-0.5">
                 {product.tiers.map((tier, i) => {
                   const isActive = totalQty === 0
@@ -137,7 +140,7 @@ export default function ProductCard({ product }) {
 
         {/* Baskı */}
         <div>
-          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Druckoption</p>
+          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{product.bestickungOnly ? 'Veredelung' : 'Druckoption'}</p>
           <div className="grid grid-cols-2 gap-2">
             {availablePrints.map((opt) => (
               <button key={opt.value} onClick={() => setPrintType(opt.value)}
