@@ -105,14 +105,15 @@ export default function ProductCard({ product }) {
           {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
               <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">{product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Logo-Druck'}</p>
-              <div className="grid grid-cols-6 gap-x-1 gap-y-0.5">
-                {product.tiers.map((tier, i) => {
+              <div className="grid grid-cols-5 gap-x-1 gap-y-0.5">
+                {product.tiers.slice(0, -1).map((tier, i, arr) => {
+                  const isLastVisible = i === arr.length - 1;
                   const isActive = totalQty === 0
                     ? i === 0
-                    : totalQty >= tier.minQty && (i === product.tiers.length - 1 || totalQty < product.tiers[i + 1].minQty);
+                    : totalQty >= tier.minQty && (isLastVisible || totalQty < product.tiers[i + 1].minQty);
                   return (
                     <div key={tier.minQty} className={`flex flex-col text-[9px] px-1 py-0.5 ${isActive ? 'bg-sun' : 'opacity-50'}`}>
-                      <span className="whitespace-nowrap">{tier.minQty === 100 ? '100+' : `${tier.minQty}`} Stk</span>
+                      <span className="whitespace-nowrap">{isLastVisible ? `${tier.minQty}-100` : `${tier.minQty}`} Stk</span>
                       <span className="font-black">{tier.price.toFixed(2)}€</span>
                     </div>
                   );
