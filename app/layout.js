@@ -1,5 +1,6 @@
 import './globals.css';
 import { Fraunces, DM_Sans } from 'next/font/google';
+import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 
 const fraunces = Fraunces({ subsets: ['latin'], weight: ['900'], style: ['italic'], variable: '--font-serif' });
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-sans' });
@@ -62,6 +63,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
         />
         {children}
+        <FloatingWhatsApp />
       </body>
     </html>
   );

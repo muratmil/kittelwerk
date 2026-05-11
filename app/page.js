@@ -16,7 +16,6 @@ import CartDrawer from '@/components/cart/CartDrawer';
 import CookieBanner from '@/components/layout/CookieBanner';
 import NewsletterPopup from '@/components/layout/NewsletterPopup';
 import Footer from '@/components/layout/Footer';
-import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import { PRODUCTS } from '@/data/products';
 
 export default function Home() {
@@ -69,7 +68,6 @@ export default function Home() {
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <CookieBanner />
       <NewsletterPopup />
-      <FloatingWhatsApp />
     </main>
   );
 }
