@@ -223,12 +223,12 @@ export const PRODUCTS = [
       'Besonderheit: Atmungsaktives Naturmaterial mit verstärktem Schweißband im Inneren.',
     ],
     tiers: [
-      { minQty: 10,  price: 12.00 },
-      { minQty: 20,  price: 11.00 },
-      { minQty: 30,  price: 10.00 },
-      { minQty: 40,  price:  9.00 },
-      { minQty: 50,  price:  8.00 },
-      { minQty: 100, price:  7.00 },
+      { minQty: 10,  price: 11.00 },
+      { minQty: 20,  price: 10.00 },
+      { minQty: 30,  price:  9.00 },
+      { minQty: 40,  price:  8.00 },
+      { minQty: 50,  price:  7.00 },
+      { minQty: 100, price:  6.00 },
     ],
   },
 ];
