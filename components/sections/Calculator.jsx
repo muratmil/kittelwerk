@@ -8,7 +8,7 @@ const CALC_PRODUCTS = [
   { label: 'Latzschürze', key: 'latz',   default: 20 },
   { label: 'Schürze',     key: 'apron',  default: 20 },
   { label: 'Kappe',       key: 'cap',    default: 10 },
-  { label: 'Sweatshirt',  key: 'sweat',  default: 10 },
+  { label: 'Sweatshirt',  key: 'sweat',  default: 20 },
 ];
 
 export default function Calculator() {
