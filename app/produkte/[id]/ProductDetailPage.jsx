@@ -179,33 +179,37 @@ export default function ProductDetailPage({ product }) {
               </div>
             </div>
 
-            {/* Kumaş Seçimi */}
-            {product.fabricOptions && (
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">Stoffqualität</p>
-                <div className="grid grid-cols-1 gap-2">
-                  {product.fabricOptions.map((opt) => {
-                    const isSelected = selectedFabric === opt.value;
-                    return (
-                      <button key={opt.value} onClick={() => setSelectedFabric(opt.value)}
-                        className={`w-full px-4 py-3 text-left border-2 border-ink transition-all ${isSelected ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div>
-                            <span className="block text-[11px] font-black">{opt.label}</span>
-                            {opt.sublabel && <span className={`block text-[9px] mt-0.5 ${isSelected ? 'opacity-60' : 'opacity-40'}`}>{opt.sublabel}</span>}
-                          </div>
-                          <span className={`text-[9px] font-black border px-2 py-0.5 flex-shrink-0 ${isSelected ? 'border-white/30 text-white/70' : 'border-ink/30 opacity-60'}`}>{opt.weight}</span>
-                        </div>
-                        <p className={`text-[10px] leading-snug ${isSelected ? 'opacity-70' : 'opacity-50'}`}>{opt.desc}</p>
-                        {isSelected && opt.careNote && (
-                          <p className="text-[9px] font-black mt-2 bg-sun text-ink px-2 py-1">{opt.careNote}</p>
-                        )}
-                      </button>
-                    );
-                  })}
+            {/* Kumaş Seçimi — Dropdown */}
+            {product.fabricOptions && (() => {
+              const selected = product.fabricOptions.find(o => o.value === selectedFabric);
+              return (
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Stoffqualität</p>
+                  <div className="relative">
+                    <select
+                      value={selectedFabric}
+                      onChange={(e) => setSelectedFabric(e.target.value)}
+                      className="w-full border-2 border-ink bg-paper px-3 py-3 text-[11px] font-black uppercase appearance-none cursor-pointer focus:outline-none focus:bg-sun pr-8"
+                    >
+                      {product.fabricOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label} – {opt.sublabel} ({opt.weight})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none font-black text-[10px]">▾</span>
+                  </div>
+                  {selected && (
+                    <div className="border-2 border-ink border-t-0 bg-white px-3 py-2">
+                      <p className="text-[10px] opacity-60 leading-snug">{selected.desc}</p>
+                      {selected.careNote && (
+                        <p className="text-[9px] font-black mt-1.5 bg-sun text-ink px-2 py-1">{selected.careNote}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Baskı / Bestickung */}
             <div>
@@ -375,7 +379,7 @@ export default function ProductDetailPage({ product }) {
             )}
 
             {/* Güven & Geri */}
-            <div className="border-2 border-ink/20 p-4 bg-white grid grid-cols-3 gap-3 text-center">
+            <div className="border-2 border-ink/20 p-4 bg-white grid grid-cols-2 gap-3 text-center">
               <div>
                 <div className="w-8 h-8 bg-ink text-white flex items-center justify-center text-[8px] font-black mb-1 mx-auto border-2 border-ink">LOGO</div>
                 <p className="text-[9px] font-black uppercase">Logo-Druck kostenlos</p>
@@ -384,8 +388,7 @@ export default function ProductDetailPage({ product }) {
                 <p className="text-[18px] mb-1">📦</p>
                 <p className="text-[9px] font-black uppercase">Ab 10 Stück</p>
               </div>
-              <div>
-                <p className="text-[18px] mb-1">✉️</p>
+              <div className="hidden">
                 <p className="text-[9px] font-black uppercase">Logo per Mail</p>
               </div>
             </div>

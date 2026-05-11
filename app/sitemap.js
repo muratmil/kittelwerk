@@ -5,7 +5,7 @@ export default function sitemap() {
   const now = new Date();
 
   const productPages = PRODUCTS.map(p => ({
-    url: `${base}/urunler/${p.id}`,
+    url: `${base}/produkte/${p.id}`,
     lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.9,

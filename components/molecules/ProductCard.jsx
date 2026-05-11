@@ -65,7 +65,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
-      <Link href={`/urunler/${product.id}`} className="relative block group/img">
+      <Link href={`/produkte/${product.id}`} className="relative block group/img">
         <ProductImage src={product.image} alt={product.name} />
         {product.badge && (
           <span className="absolute top-3 left-3 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-2 py-1">
@@ -147,32 +147,32 @@ export default function ProductCard({ product }) {
           </div>
         </div>
 
-        {/* Kumaş Seçimi */}
-        {product.fabricOptions && (
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Stoffqualität</p>
-            <div className="flex flex-col gap-1.5">
-              {product.fabricOptions.map((opt) => {
-                const isSelected = selectedFabric === opt.value;
-                return (
-                  <button key={opt.value} onClick={() => setSelectedFabric(opt.value)}
-                    className={`w-full px-2 py-2 text-left border-2 border-ink transition-all ${isSelected ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
-                    <div className="flex items-start justify-between gap-1">
-                      <div>
-                        <span className="block text-[9px] font-black">{opt.label}</span>
-                        {opt.sublabel && <span className={`block text-[8px] mt-0.5 ${isSelected ? 'opacity-60' : 'opacity-40'}`}>{opt.sublabel}</span>}
-                      </div>
-                      <span className={`text-[8px] font-bold flex-shrink-0 ${isSelected ? 'opacity-70' : 'opacity-50'}`}>{opt.weight}</span>
-                    </div>
-                    {isSelected && opt.careNote && (
-                      <p className="text-[8px] mt-1.5 bg-sun text-ink px-1.5 py-1 font-bold">{opt.careNote}</p>
-                    )}
-                  </button>
-                );
-              })}
+        {/* Kumaş Seçimi — Dropdown */}
+        {product.fabricOptions && (() => {
+          const selected = product.fabricOptions.find(o => o.value === selectedFabric);
+          return (
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Stoffqualität</p>
+              <div className="relative">
+                <select
+                  value={selectedFabric}
+                  onChange={(e) => setSelectedFabric(e.target.value)}
+                  className="w-full border-2 border-ink bg-paper px-2 py-2 text-[9px] font-black uppercase appearance-none cursor-pointer focus:outline-none focus:bg-sun pr-6"
+                >
+                  {product.fabricOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label} – {opt.sublabel} ({opt.weight})
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none font-black text-[9px]">▾</span>
+              </div>
+              {selected?.careNote && (
+                <p className="text-[8px] font-bold mt-1 bg-sun text-ink px-2 py-1">{selected.careNote}</p>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Baskı */}
         <div>

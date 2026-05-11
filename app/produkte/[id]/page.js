@@ -11,10 +11,10 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: `${product.name} | Kittelwerk`,
       description: `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€.`,
-      url: `https://kittelwerk.de/urunler/${params.id}`,
+      url: `https://kittelwerk.de/produkte/${params.id}`,
     },
     alternates: {
-      canonical: `https://kittelwerk.de/urunler/${params.id}`,
+      canonical: `https://kittelwerk.de/produkte/${params.id}`,
     },
   };
 }

@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useCartStore } from '@/store/cartStore';
 import { ShoppingBag } from 'lucide-react';
 
@@ -8,10 +9,11 @@ export default function Navbar({ onOpenCart }) {
   return (
     <nav className="sticky top-0 z-50 bg-paper border-b-4 border-ink py-4">
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <div className="font-serif font-black text-3xl tracking-tighter cursor-pointer">
+        <Link href="/" className="font-serif font-black text-3xl tracking-tighter hover:opacity-80 transition-opacity">
           Kittel<span className="text-tomato">werk</span>.
-        </div>
+        </Link>
         <div className="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-ink/60">
+          <a href="/" className="hover:text-tomato transition-colors">Startseite</a>
           <a href="/#produkte" className="hover:text-tomato transition-colors">Produkte</a>
           <a href="/#rechner" className="hover:text-tomato transition-colors">Ersparnis-Rechner</a>
           <a href="/ueber-uns" className="hover:text-tomato transition-colors">Über uns</a>
