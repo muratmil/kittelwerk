@@ -98,6 +98,11 @@ export default function ProductCard({ product }) {
             <span className="text-[9px] font-black uppercase opacity-60">/ Stück</span>
           </div>
           {product.tiers && (
+            <p className="text-[9px] font-black uppercase opacity-50">
+              ab {product.tiers[product.tiers.length - 1].price.toFixed(0)}€
+            </p>
+          )}
+          {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
               <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">{product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Logo-Druck'}</p>
               <div className="grid grid-cols-6 gap-x-1 gap-y-0.5">
