@@ -14,7 +14,7 @@ export default function Navbar({ onOpenCart }) {
         </Link>
         <div className="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-ink/60">
           <a href="/" className="hover:text-tomato transition-colors">Startseite</a>
-          <a href="/#produkte" className="hover:text-tomato transition-colors">Produkte</a>
+          <a href="/produkte" className="hover:text-tomato transition-colors">Produkte</a>
           <a href="/#rechner" className="hover:text-tomato transition-colors">Ersparnis-Rechner</a>
           <a href="/ueber-uns" className="hover:text-tomato transition-colors">Über uns</a>
           <a href="/kontakt" className="hover:text-tomato transition-colors">Kontakt</a>

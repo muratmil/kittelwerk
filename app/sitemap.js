@@ -13,6 +13,7 @@ export default function sitemap() {
 
   return [
     { url: base,                    lastModified: now, changeFrequency: 'weekly',  priority: 1.0 },
+    { url: `${base}/produkte`,      lastModified: now, changeFrequency: 'weekly',  priority: 0.95 },
     { url: `${base}/kontakt`,       lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/ueber-uns`,     lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     ...productPages,

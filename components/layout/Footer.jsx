@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="space-y-4 text-xs">
           <h4 className="font-bold text-sun uppercase tracking-widest">Navigation</h4>
           <ul className="space-y-2 font-medium opacity-80 uppercase tracking-tighter">
-            <li><a href="/#produkte" className="hover:text-tomato transition-colors">Produkte</a></li>
+            <li><a href="/produkte" className="hover:text-tomato transition-colors">Produkte</a></li>
             <li><a href="/#rechner" className="hover:text-tomato transition-colors">Ersparnis-Rechner</a></li>
             <li><a href="/ueber-uns" className="hover:text-tomato transition-colors">Über uns</a></li>
             <li><a href="/kontakt" className="hover:text-tomato transition-colors">Kontakt</a></li>

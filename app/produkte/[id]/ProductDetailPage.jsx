@@ -80,7 +80,7 @@ export default function ProductDetailPage({ product }) {
         <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-50 mb-8">
           <Link href="/" className="hover:text-tomato transition-colors">Kittelwerk</Link>
           <span>/</span>
-          <Link href="/#produkte" className="hover:text-tomato transition-colors">Produkte</Link>
+          <Link href="/produkte" className="hover:text-tomato transition-colors">Produkte</Link>
           <span>/</span>
           <span className="text-ink opacity-100">{product.name}</span>
         </div>
@@ -393,7 +393,7 @@ export default function ProductDetailPage({ product }) {
               </div>
             </div>
 
-            <Link href="/#produkte"
+            <Link href="/produkte"
               className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-tomato transition-all w-fit">
               <ArrowLeft size={14} />
               Zurück zu allen Produkten
