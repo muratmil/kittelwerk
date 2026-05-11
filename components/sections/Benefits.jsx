@@ -1,7 +1,7 @@
 const BENEFITS = [
   { icon: '€', title: 'Direkt vom Hersteller', desc: 'Bis zu 53% unter deutschem Marktwert. Keine Händlermargen.' },
   { icon: '✓', title: 'Persönlicher Service', desc: 'WhatsApp & E-Mail direkt erreichbar — schnelle, persönliche Antworten. Kein Callcenter.' },
-  { icon: '★', title: 'Gastro-Qualität', desc: 'Formstabil, farbecht & industriewaschfest. Speziell für den täglichen Einsatz in der Gastronomie.' },
+  { icon: '★', title: 'Premium-Qualität', desc: '24/1 Supreme-Baumwolle, Alpaka-Gewebe & Fleece-Qualität — hochwertige Materialien, die man sofort spürt. Formstabil, farbecht und für den täglichen Einsatz gemacht.' },
   { icon: '⚡', title: 'Schnelle Lieferung', desc: '1–2 Wochen von Bestätigung bis Lieferung deutschlandweit.' },
   { icon: '♻', title: 'Newsletter-Vorteil', desc: '5% Rabatt für neue Abonnenten. Jetzt anmelden und beim ersten Einkauf sparen.' },
   { icon: '◉', title: 'Alle Druckoptionen kostenlos', desc: 'Vorder- & Rückendruck sowie Logo-Druck — alles ohne Aufpreis inklusive.' },
