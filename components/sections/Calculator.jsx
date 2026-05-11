@@ -4,7 +4,7 @@ import { PRODUCTS as ALL_PRODUCTS } from '@/data/products';
 import { getTieredPrice } from '@/store/cartStore';
 
 const CALC_PRODUCTS = [
-  { label: 'T-Shirt',     key: 'tshirt', default: 20 },
+  { label: 'T-Shirt',     key: 'tshirt', default: 50 },
   { label: 'Latzschürze', key: 'latz',   default: 15 },
   { label: 'Schürze',     key: 'apron',  default: 10 },
   { label: 'Kappe',       key: 'cap',    default: 10 },
