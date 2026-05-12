@@ -10,7 +10,7 @@ function formatSizes(sizes) {
 
 export async function POST(req) {
   const body = await req.json();
-  const { name, company, email, phone, street, plz, city, items, subtotal, discountLabel, discountAmount, shippingCost, total } = body;
+  const { name, company, email, phone, street, plz, city, note, items, subtotal, discountLabel, discountAmount, shippingCost, total } = body;
 
   const { data: order, error } = await supabaseAdmin
     .from('orders')
@@ -29,7 +29,7 @@ export async function POST(req) {
       shipping_cost: shippingCost,
       total,
       status: 'new',
-      notes: 'Direktbestellung via Verkauf-Panel',
+      notes: note ? `Direktbestellung via Verkauf-Panel\n\n${note}` : 'Direktbestellung via Verkauf-Panel',
     }])
     .select()
     .single();

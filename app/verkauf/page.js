@@ -55,6 +55,7 @@ export default function VerkaufPage() {
   const [sizes, setSizes] = useState(emptySize());
 
   const [cust, setCust] = useState({ name: '', company: '', email: '', phone: '', street: '', plz: '', city: '' });
+  const [note, setNote] = useState('');
 
   const [rabattType, setRabattType] = useState('%');
   const [rabattValue, setRabattValue] = useState('');
@@ -136,6 +137,7 @@ export default function VerkaufPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...cust,
+        note,
         items: items.map(({ id, ...rest }) => rest),
         subtotal,
         discountLabel: rabattValue ? `Rabatt ${rv}${rabattType}` : null,
@@ -157,6 +159,7 @@ export default function VerkaufPage() {
     setItems([]);
     setCust({ name: '', company: '', email: '', phone: '', street: '', plz: '', city: '' });
     setRabattValue('');
+    setNote('');
     setLoading(false);
   };
 
@@ -334,6 +337,12 @@ export default function VerkaufPage() {
               <div className="grid grid-cols-2 gap-3">
                 <Field label="PLZ *" value={cust.plz} onChange={v => setCust(p => ({ ...p, plz: v }))} required />
                 <Field label="Stadt *" value={cust.city} onChange={v => setCust(p => ({ ...p, city: v }))} required />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">Notiz (optional)</label>
+                <textarea value={note} onChange={e => setNote(e.target.value)}
+                  rows={3} placeholder="Zusätzliche Hinweise zur Bestellung..."
+                  className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm resize-none" />
               </div>
             </div>
 
