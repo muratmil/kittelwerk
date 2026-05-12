@@ -324,8 +324,10 @@ export default function BackendPage() {
 
   const [resellers, setResellers] = useState([]);
   const [resellerOrders, setResellerOrders] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [showAddReseller, setShowAddReseller] = useState(false);
   const [selectedReseller, setSelectedReseller] = useState(null);
+  const [appLoading, setAppLoading] = useState({});
 
   const router = useRouter();
   const supabase = createClient();
@@ -349,6 +351,14 @@ export default function BackendPage() {
     setResellerOrders(data || []);
   };
 
+  const fetchApplications = async () => {
+    const { data } = await supabase
+      .from('reseller_applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+    setApplications(data || []);
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { router.push('/backend/login'); return; }
@@ -357,6 +367,7 @@ export default function BackendPage() {
     fetchOrders();
     fetchResellers();
     fetchResellerOrders();
+    fetchApplications();
   }, []);
 
   const handleLogout = async () => {
@@ -374,6 +385,18 @@ export default function BackendPage() {
 
   const handleResellerOrderStatus = async (orderId, newStatus) => {
     await supabase.from('reseller_orders').update({ status: newStatus }).eq('id', orderId);
+  };
+
+  const handleApplication = async (appId, action, discountRate = 15) => {
+    setAppLoading(p => ({ ...p, [appId]: true }));
+    await fetch('/api/admin-approve-reseller', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ applicationId: appId, action, discount_rate: discountRate }),
+    });
+    await fetchApplications();
+    await fetchResellers();
+    setAppLoading(p => ({ ...p, [appId]: false }));
   };
 
   const filtered = filter === 'all' ? orders : orders.filter(o => (o.status || 'new') === filter);
@@ -399,14 +422,19 @@ export default function BackendPage() {
               <Package size={13} /> Bestellungen {orders.length > 0 && `(${orders.length})`}
             </button>
             <button onClick={() => setTab('reseller')}
-              className={`flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 transition-all border-l-2 border-ink ${tab === 'reseller' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+              className={`relative flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 transition-all border-l-2 border-ink ${tab === 'reseller' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
               <Users size={13} /> Händler {resellers.length > 0 && `(${resellers.length})`}
+              {applications.filter(a => a.status === 'pending').length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-tomato text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                  {applications.filter(a => a.status === 'pending').length}
+                </span>
+              )}
             </button>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[10px] opacity-50 hidden sm:block">{userEmail}</span>
-          <button onClick={() => { fetchOrders(); fetchResellers(); fetchResellerOrders(); }}
+          <button onClick={() => { fetchOrders(); fetchResellers(); fetchResellerOrders(); fetchApplications(); }}
             className="p-2 border-2 border-ink hover:bg-sun transition-all" title="Aktualisieren">
             <RefreshCw size={14} />
           </button>
@@ -464,6 +492,59 @@ export default function BackendPage() {
       {/* RESELLER SEKMESİ */}
       {tab === 'reseller' && (
         <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+          {/* Bekleyen Başvurular */}
+          {applications.filter(a => a.status === 'pending').length > 0 && (
+            <div className="space-y-3">
+              <h2 className="font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                <span className="bg-tomato text-white px-2 py-0.5">{applications.filter(a => a.status === 'pending').length}</span>
+                Offene Anfragen
+              </h2>
+              {applications.filter(a => a.status === 'pending').map(app => {
+                const [discountInput, setDiscountInput] = [
+                  app._discount || '15',
+                  (v) => setApplications(prev => prev.map(a => a.id === app.id ? { ...a, _discount: v } : a))
+                ];
+                return (
+                  <div key={app.id} className="bg-white border-4 border-ink shadow-brutalist p-5 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-black text-base uppercase">{app.company}</p>
+                        <p className="text-[11px] opacity-60 mt-0.5">{app.contact_name} · <a href={`mailto:${app.email}`} className="text-tomato">{app.email}</a></p>
+                        {app.phone && <p className="text-[11px] opacity-60">{app.phone}</p>}
+                      </div>
+                      <span className="text-[9px] font-black bg-sun px-2 py-1 uppercase">Ausstehend</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-[11px] border-t border-ink/10 pt-3">
+                      <div><span className="opacity-50 font-black uppercase text-[9px]">Steuernummer</span><p className="font-bold mt-0.5">{app.steuer_id}</p></div>
+                      {app.gewerbe_info && <div><span className="opacity-50 font-black uppercase text-[9px]">Gewerbe</span><p className="mt-0.5">{app.gewerbe_info}</p></div>}
+                      {app.street && <div><span className="opacity-50 font-black uppercase text-[9px]">Adresse</span><p className="mt-0.5">{app.street}, {app.plz} {app.city}</p></div>}
+                      {app.message && <div className="col-span-2"><span className="opacity-50 font-black uppercase text-[9px]">Nachricht</span><p className="mt-0.5 italic">{app.message}</p></div>}
+                    </div>
+                    <div className="flex items-center gap-3 pt-2 border-t border-ink/10 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <label className="text-[10px] font-black uppercase">Rabatt %</label>
+                        <input type="number" min="0" max="100"
+                          defaultValue="15"
+                          onChange={e => setApplications(prev => prev.map(a => a.id === app.id ? { ...a, _discount: e.target.value } : a))}
+                          className="w-16 border-2 border-ink p-2 text-center text-sm font-black focus:bg-sun outline-none" />
+                      </div>
+                      <button onClick={() => handleApplication(app.id, 'approve', app._discount || 15)}
+                        disabled={appLoading[app.id]}
+                        className="flex-1 bg-olive text-white py-2.5 font-black uppercase text-[11px] hover:bg-ink transition-all disabled:opacity-50">
+                        {appLoading[app.id] ? '...' : '✓ Genehmigen'}
+                      </button>
+                      <button onClick={() => handleApplication(app.id, 'reject')}
+                        disabled={appLoading[app.id]}
+                        className="px-4 py-2.5 border-2 border-tomato text-tomato font-black uppercase text-[11px] hover:bg-tomato hover:text-white transition-all disabled:opacity-50">
+                        Ablehnen
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <div className="flex justify-between items-center">
             <h2 className="font-black text-lg uppercase">Händler ({resellers.length})</h2>
             <button onClick={() => setShowAddReseller(true)}
