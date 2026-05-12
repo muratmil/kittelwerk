@@ -37,9 +37,16 @@ export async function middleware(request) {
     if (user && isLoginPage) return NextResponse.redirect(new URL('/atolye', request.url))
   }
 
+  // /verkauf koruması
+  if (path.startsWith('/verkauf')) {
+    const isLoginPage = path === '/verkauf/login'
+    if (!user && !isLoginPage) return NextResponse.redirect(new URL('/verkauf/login', request.url))
+    if (user && isLoginPage) return NextResponse.redirect(new URL('/verkauf', request.url))
+  }
+
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/backend/:path*', '/atolye/:path*'],
+  matcher: ['/backend/:path*', '/atolye/:path*', '/verkauf/:path*'],
 }
