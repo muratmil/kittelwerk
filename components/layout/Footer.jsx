@@ -24,6 +24,12 @@ export default function Footer() {
             <li><a href="/#rechner" className="hover:text-tomato transition-colors">Ersparnis-Rechner</a></li>
             <li><a href="/ueber-uns" className="hover:text-tomato transition-colors">Über uns</a></li>
             <li><a href="/kontakt" className="hover:text-tomato transition-colors">Kontakt</a></li>
+            <li>
+              <a href="/reseller/register"
+                className="inline-block mt-2 border border-sun text-sun px-3 py-1.5 hover:bg-sun hover:text-ink transition-all font-black tracking-widest">
+                Händler werden →
+              </a>
+            </li>
           </ul>
         </div>
       </div>
