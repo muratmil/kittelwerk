@@ -166,7 +166,7 @@ function WhatsAppBtn({ waPhone, waText, label }) {
   );
 }
 
-function OrderCard({ order, supabase, t, workshops, onWorkshopAssign, isWorkshop, onStatusChange }) {
+function OrderCard({ order, supabase, t, isWorkshop, onStatusChange }) {
   const date = new Date(order.created_at).toLocaleDateString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
@@ -174,20 +174,13 @@ function OrderCard({ order, supabase, t, workshops, onWorkshopAssign, isWorkshop
   const totalQty = order.items?.reduce((sum, i) => sum + i.qty, 0) || 0;
   const [qcChecks, setQcChecks] = useState({});
   const qcDone = t.qcItems.every(i => qcChecks[i.key]);
-  const [assignedWorkshop, setAssignedWorkshop] = useState(order.workshop_id || '');
   const [notes, setNotes] = useState(order.notes || '');
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
-  const assignedWs = workshops?.find(w => w.id === assignedWorkshop) || null;
 
-  // Koordinatör: atölyeye mesaj | Atölye kullanıcısı: admin'e mesaj
-  const waPhone = isWorkshop
-    ? ADMIN_WHATSAPP
-    : (assignedWs?.phone?.replace(/[\s\-\+\(\)]/g, '') || '');
-  const waText = isWorkshop
-    ? encodeURIComponent(`Bestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nhttps://kittelwerk.de/atolye#${order.id}`)
-    : encodeURIComponent(`Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`);
+  const waPhone = ADMIN_WHATSAPP;
+  const waText = encodeURIComponent(`Bestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nhttps://kittelwerk.de/atolye#${order.id}`);
 
   const handleStatusChange = async (newStatus) => {
     setUpdatingStatus(true);
@@ -314,7 +307,7 @@ function OrderCard({ order, supabase, t, workshops, onWorkshopAssign, isWorkshop
           )}
         </div>
 
-        {/* Atölye kullanıcısı: durum butonları */}
+        {/* Durum butonları (atölye kullanıcısı) */}
         {isWorkshop && (
           <div className="flex flex-wrap gap-2 print:hidden">
             <button onClick={() => handleStatusChange('processing')}
@@ -332,34 +325,10 @@ function OrderCard({ order, supabase, t, workshops, onWorkshopAssign, isWorkshop
           </div>
         )}
 
-        {/* Koordinatör: atölye atama + WhatsApp */}
-        {!isWorkshop && workshops?.length > 0 && (
-          <div className="border-2 border-ink/20 p-3 print:hidden space-y-2">
-            <p className="text-[9px] font-black uppercase opacity-50">{t.workshop}</p>
-            <select value={assignedWorkshop}
-              onChange={async e => {
-                const wid = e.target.value;
-                setAssignedWorkshop(wid);
-                await onWorkshopAssign(order.id, wid || null);
-              }}
-              className="border-2 border-ink p-1.5 text-[11px] bg-white focus:bg-sun outline-none w-full max-w-[240px]">
-              <option value="">{t.notAssigned}</option>
-              {workshops.map(w => (
-                <option key={w.id} value={w.id}>{w.name}</option>
-              ))}
-            </select>
-            {assignedWs && waPhone && (
-              <WhatsAppBtn waPhone={waPhone} waText={waText} label={t.whatsapp} />
-            )}
-          </div>
-        )}
-
-        {/* Atölye kullanıcısı: admin'e WhatsApp */}
-        {isWorkshop && (
-          <div className="flex justify-start print:hidden">
-            <WhatsAppBtn waPhone={waPhone} waText={waText} label={t.whatsapp} />
-          </div>
-        )}
+        {/* Admin'e WhatsApp */}
+        <div className="flex justify-start print:hidden">
+          <WhatsAppBtn waPhone={waPhone} waText={waText} label={t.whatsapp} />
+        </div>
 
         {/* Adres etiketi */}
         <div className="flex justify-end print:hidden">
@@ -379,7 +348,6 @@ export default function AtolyePage() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [workshopId, setWorkshopId] = useState(undefined);
   const [workshopName, setWorkshopName] = useState('');
-  const [workshops, setWorkshops] = useState([]);
   const [lang, setLang] = useState('de');
   const router = useRouter();
   const supabase = createClient();
@@ -404,10 +372,6 @@ export default function AtolyePage() {
     setLastUpdated(new Date().toLocaleTimeString('de-DE'));
   };
 
-  const handleWorkshopAssign = async (orderId, wid) => {
-    await supabase.from('orders').update({ workshop_id: wid }).eq('id', orderId);
-  };
-
   const handleStatusChange = async (orderId, newStatus) => {
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
   };
@@ -426,9 +390,6 @@ export default function AtolyePage() {
       const wid = profile?.workshop_id || null;
       setWorkshopId(wid);
       if (profile?.workshops?.name) setWorkshopName(profile.workshops.name);
-
-      const { data: wsData } = await supabase.from('workshops').select('*').order('name');
-      setWorkshops(wsData || []);
 
       await fetchOrders(wid);
 
@@ -510,7 +471,6 @@ export default function AtolyePage() {
             </div>
             {orders.map(order => (
               <OrderCard key={order.id} order={order} supabase={supabase} t={t}
-                workshops={workshops} onWorkshopAssign={handleWorkshopAssign}
                 isWorkshop={!!workshopId} onStatusChange={handleStatusChange} />
             ))}
           </>
