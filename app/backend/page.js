@@ -96,7 +96,7 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
               const waPhone = assignedWs?.phone?.replace(/[\s\-\+\(\)]/g, '');
               const totalQty = order.items?.reduce((s, i) => s + i.qty, 0) || 0;
               const waText = encodeURIComponent(
-                `Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nIm Atölye-Portal ansehen:\nkittelwerk.de/atolye`
+                `Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`
               );
               return (
               <div className="col-span-2 space-y-2">

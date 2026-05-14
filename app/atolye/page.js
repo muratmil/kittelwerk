@@ -150,7 +150,7 @@ function OrderCard({ order, supabase, t }) {
   };
 
   return (
-    <div className="border-4 border-ink bg-white shadow-brutalist-lg print:shadow-none print:border-2 print:break-inside-avoid">
+    <div id={order.id} className="border-4 border-ink bg-white shadow-brutalist-lg print:shadow-none print:border-2 print:break-inside-avoid">
       {/* Header */}
       <div className="bg-ink text-white px-5 py-3 flex justify-between items-center">
         <div>
