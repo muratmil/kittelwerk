@@ -127,7 +127,6 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
                 )}
               </div>
             )}
-            )}
           </div>
 
           <table className="w-full text-[11px] border-collapse">
