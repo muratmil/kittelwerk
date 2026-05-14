@@ -121,7 +121,7 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
                       </svg>
                     </span>
                     <span className="px-3 py-1.5 text-[10px] font-black uppercase bg-white tracking-wider">
-                      WhatsApp'a Yaz
+                      WhatsApp
                     </span>
                   </a>
                 )}

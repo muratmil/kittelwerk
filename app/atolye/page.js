@@ -54,7 +54,7 @@ const TRANSLATIONS = {
     noteSaving:     'Speichern...',
     workshop:       'Atölye zuweisen',
     notAssigned:    '— Nicht zugewiesen —',
-    whatsapp:       'WhatsApp\'a Yaz',
+    whatsapp:       'WhatsApp',
   },
   tr: {
     title:          'Atölye',
@@ -105,7 +105,7 @@ const TRANSLATIONS = {
     noteSaving:     'Kaydediliyor...',
     workshop:       'Atölye ata',
     notAssigned:    '— Atanmamış —',
-    whatsapp:       'WhatsApp\'a Yaz',
+    whatsapp:       'WhatsApp',
   },
 };
 
