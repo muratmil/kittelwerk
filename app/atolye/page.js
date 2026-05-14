@@ -49,6 +49,9 @@ const TRANSLATIONS = {
       cancelled:  'Storniert',
     },
     orderNo:        'Bestellung',
+    noteSave:       'Notiz speichern',
+    noteSaved:      'Gespeichert ✓',
+    noteSaving:     'Speichern...',
     workshop:       'Atölye zuweisen',
     notAssigned:    '— Nicht zugewiesen —',
     whatsapp:       'WhatsApp\'a Yaz',
@@ -97,6 +100,9 @@ const TRANSLATIONS = {
       cancelled:  'İptal',
     },
     orderNo:        'Sipariş',
+    noteSave:       'Notu kaydet',
+    noteSaved:      'Kaydedildi ✓',
+    noteSaving:     'Kaydediliyor...',
     workshop:       'Atölye ata',
     notAssigned:    '— Atanmamış —',
     whatsapp:       'WhatsApp\'a Yaz',
@@ -149,11 +155,22 @@ function OrderCard({ order, supabase, t, workshops, onWorkshopAssign }) {
   const [qcChecks, setQcChecks] = useState({});
   const qcDone = t.qcItems.every(i => qcChecks[i.key]);
   const [assignedWorkshop, setAssignedWorkshop] = useState(order.workshop_id || '');
+  const [notes, setNotes] = useState(order.notes || '');
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [notesSaved, setNotesSaved] = useState(false);
   const assignedWs = workshops?.find(w => w.id === assignedWorkshop) || null;
   const waPhone = assignedWs?.phone?.replace(/[\s\-\+\(\)]/g, '') || '';
   const waText = encodeURIComponent(
     `Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`
   );
+
+  const handleSaveNotes = async () => {
+    setSavingNotes(true);
+    await supabase.from('orders').update({ notes }).eq('id', order.id);
+    setSavingNotes(false);
+    setNotesSaved(true);
+    setTimeout(() => setNotesSaved(false), 2000);
+  };
 
   const handleLogoDownload = async () => {
     if (!order.logo_url) return;
@@ -227,14 +244,21 @@ function OrderCard({ order, supabase, t, workshops, onWorkshopAssign }) {
             )}
           </div>
 
-          {order.notes ? (
-            <div className="border-2 border-sun bg-sun/20 p-3">
+          <div className="border-2 border-ink/20 p-3 space-y-2 print:hidden">
+            <p className="text-[9px] font-black uppercase opacity-50">{t.note}</p>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)}
+              rows={3} placeholder={t.noNote}
+              className="w-full border-2 border-ink/20 p-2 text-[11px] outline-none focus:border-ink focus:bg-sun resize-none bg-white" />
+            <button onClick={handleSaveNotes} disabled={savingNotes}
+              className={`flex items-center gap-2 text-[10px] font-black uppercase px-3 py-1.5 border-2 border-ink transition-all disabled:opacity-50
+                ${notesSaved ? 'bg-olive text-white border-olive' : 'bg-white hover:bg-sun'}`}>
+              {notesSaved ? t.noteSaved : savingNotes ? t.noteSaving : t.noteSave}
+            </button>
+          </div>
+          {order.notes && (
+            <div className="hidden print:block border-2 border-sun bg-sun/20 p-3">
               <p className="text-[9px] font-black uppercase mb-1">{t.note}</p>
               <p className="text-[12px] font-bold whitespace-pre-wrap">{order.notes}</p>
-            </div>
-          ) : (
-            <div className="border-2 border-dashed border-ink/20 p-3 flex items-center justify-center">
-              <p className="text-[10px] opacity-30 uppercase font-black">{t.noNote}</p>
             </div>
           )}
         </div>
