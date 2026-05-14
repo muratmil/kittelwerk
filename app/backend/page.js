@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save, Download, Users, Plus, X, Wrench } from 'lucide-react';
+import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save, Download, Users, Plus, X, Wrench, Pencil } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: 'new',        label: 'Neu',                color: 'bg-sun text-ink' },
@@ -422,6 +422,73 @@ function AddWorkshopModal({ onClose, onSave }) {
   );
 }
 
+function EditWorkshopModal({ workshop, onClose, onSave }) {
+  const [form, setForm] = useState({
+    name: workshop.name || '',
+    contact_name: workshop.contact_name || '',
+    phone: workshop.phone || '',
+    active: workshop.active !== false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    const res = await fetch('/api/admin-workshop', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: workshop.id, ...form }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error || 'Fehler beim Speichern.'); setLoading(false); return; }
+    onSave();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-ink/60 z-50 flex items-center justify-center p-4">
+      <div className="bg-white border-4 border-ink shadow-brutalist w-full max-w-md">
+        <div className="bg-ink text-white px-5 py-4 flex justify-between items-center">
+          <h3 className="font-black uppercase text-sm">Werkstatt bearbeiten</h3>
+          <button onClick={onClose}><X size={18} /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {[
+            { key: 'name',         label: 'Werkstattname *', required: true },
+            { key: 'contact_name', label: 'Ansprechpartner', required: false },
+            { key: 'phone',        label: 'Telefon',         required: false },
+          ].map(f => (
+            <div key={f.key} className="flex flex-col gap-1">
+              <label className="text-[10px] font-black uppercase tracking-widest">{f.label}</label>
+              <input type="text" value={form[f.key]} required={f.required}
+                onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
+            </div>
+          ))}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase tracking-widest">E-Mail (Login)</label>
+            <p className="border-2 border-ink/30 p-3 text-sm opacity-40 bg-paper select-none">{workshop.email}</p>
+            <p className="text-[9px] opacity-40 uppercase">E-Mail kann nicht geändert werden</p>
+          </div>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" checked={form.active}
+              onChange={e => setForm(p => ({ ...p, active: e.target.checked }))}
+              className="w-4 h-4 border-2 border-ink accent-ink" />
+            <span className="text-[11px] font-black uppercase">Aktiv</span>
+          </label>
+          {error && <p className="text-tomato text-[11px] font-black uppercase">{error}</p>}
+          <button type="submit" disabled={loading}
+            className="w-full bg-ink text-white py-3 font-black uppercase hover:bg-tomato transition-all disabled:opacity-50">
+            {loading ? 'Wird gespeichert...' : 'Speichern'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function BackendPage() {
   const [tab, setTab] = useState('orders');
   const [orders, setOrders] = useState([]);
@@ -438,6 +505,7 @@ export default function BackendPage() {
 
   const [workshops, setWorkshops] = useState([]);
   const [showAddWorkshop, setShowAddWorkshop] = useState(false);
+  const [editingWorkshop, setEditingWorkshop] = useState(null);
 
   const router = useRouter();
   const supabase = createClient();
@@ -752,9 +820,15 @@ export default function BackendPage() {
                         <p className="text-[10px] opacity-50">{w.email}</p>
                         {w.phone && <p className="text-[10px] opacity-40">{w.phone}</p>}
                       </div>
-                      <span className={`text-[9px] font-black px-2 py-1 ${w.active ? 'bg-olive/20 text-olive' : 'bg-tomato/10 text-tomato'}`}>
-                        {w.active ? 'Aktiv' : 'Inaktiv'}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[9px] font-black px-2 py-1 ${w.active ? 'bg-olive/20 text-olive' : 'bg-tomato/10 text-tomato'}`}>
+                          {w.active ? 'Aktiv' : 'Inaktiv'}
+                        </span>
+                        <button onClick={() => setEditingWorkshop(w)}
+                          className="p-1.5 border-2 border-ink hover:bg-sun transition-all" title="Bearbeiten">
+                          <Pencil size={12} />
+                        </button>
+                      </div>
                     </div>
                     <div className="mt-3 pt-3 border-t border-ink/10 text-[10px]">
                       <span className="font-black">{assignedCount}</span> aktive Bestellung{assignedCount !== 1 ? 'en' : ''} zugewiesen
@@ -776,6 +850,13 @@ export default function BackendPage() {
       {showAddWorkshop && (
         <AddWorkshopModal
           onClose={() => setShowAddWorkshop(false)}
+          onSave={() => fetchWorkshops()}
+        />
+      )}
+      {editingWorkshop && (
+        <EditWorkshopModal
+          workshop={editingWorkshop}
+          onClose={() => setEditingWorkshop(null)}
           onSave={() => fetchWorkshops()}
         />
       )}
