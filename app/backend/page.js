@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save, Download, Users, Plus, X } from 'lucide-react';
+import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save, Download, Users, Plus, X, Wrench } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: 'new',        label: 'Neu',            color: 'bg-sun text-ink' },
@@ -22,13 +22,14 @@ function formatSizes(sizes) {
   return Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · ');
 }
 
-function OrderRow({ order, onStatusChange, onNotesSave, supabase }) {
+function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, workshops, supabase }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState(order.status || 'new');
   const [notes, setNotes] = useState(order.notes || '');
   const [updating, setUpdating] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
+  const [assignedWorkshop, setAssignedWorkshop] = useState(order.workshop_id || '');
 
   const handleStatus = async (newStatus) => {
     setUpdating(true);
@@ -89,6 +90,23 @@ function OrderRow({ order, onStatusChange, onNotesSave, supabase }) {
                 </button>
               ) : <span className="opacity-40">Kein Logo</span>}
             </div>
+            {workshops?.length > 0 && (
+              <div>
+                <span className="opacity-50 uppercase font-black">Atölye</span><br />
+                <select value={assignedWorkshop}
+                  onChange={async e => {
+                    const wid = e.target.value;
+                    setAssignedWorkshop(wid);
+                    await onWorkshopAssign(order.id, wid || null);
+                  }}
+                  className="border-2 border-ink p-1.5 text-[11px] bg-white focus:bg-sun outline-none mt-1 w-full max-w-[220px]">
+                  <option value="">— Nicht zugewiesen —</option>
+                  {workshops.map(w => (
+                    <option key={w.id} value={w.id}>{w.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <table className="w-full text-[11px] border-collapse">
@@ -315,6 +333,75 @@ function AddResellerModal({ onClose, onSave }) {
   );
 }
 
+function AddWorkshopModal({ onClose, onSave }) {
+  const [form, setForm] = useState({ name: '', contact_name: '', email: '', phone: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [tempPassword, setTempPassword] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    const res = await fetch('/api/admin-workshop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error || 'Fehler'); setLoading(false); return; }
+    setTempPassword(data.tempPassword);
+    onSave();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-ink/60 z-50 flex items-center justify-center p-4">
+      <div className="bg-white border-4 border-ink shadow-brutalist w-full max-w-md">
+        <div className="bg-ink text-white px-5 py-4 flex justify-between items-center">
+          <h3 className="font-black uppercase text-sm">Neue Werkstatt</h3>
+          <button onClick={onClose}><X size={18} /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {[
+            { key: 'name',         label: 'Werkstattname *', required: true },
+            { key: 'contact_name', label: 'Ansprechpartner', required: false },
+            { key: 'email',        label: 'E-Mail (Login) *', required: true, type: 'email' },
+            { key: 'phone',        label: 'Telefon',         required: false },
+          ].map(f => (
+            <div key={f.key} className="flex flex-col gap-1">
+              <label className="text-[10px] font-black uppercase tracking-widest">{f.label}</label>
+              <input type={f.type || 'text'} value={form[f.key]} required={f.required}
+                onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
+            </div>
+          ))}
+          {error && <p className="text-tomato text-[11px] font-black uppercase">{error}</p>}
+          {tempPassword ? (
+            <div className="bg-olive/10 border-2 border-olive p-4 space-y-2">
+              <p className="text-[10px] font-black uppercase text-olive">Werkstatt erstellt ✓</p>
+              <p className="text-[11px]">Login: <strong>{form.email}</strong></p>
+              <p className="text-[11px]">Passwort: <strong className="font-mono bg-white px-2 py-0.5">{tempPassword}</strong></p>
+              <p className="text-[10px] opacity-60">Zugangsdaten an die Werkstatt weiterleiten.</p>
+              <button type="button" onClick={onClose}
+                className="w-full bg-ink text-white py-2 font-black uppercase text-[10px] hover:bg-tomato transition-all mt-2">
+                Schließen
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-[10px] opacity-50">Ein temporäres Passwort wird automatisch generiert.</p>
+              <button type="submit" disabled={loading}
+                className="w-full bg-ink text-white py-3 font-black uppercase hover:bg-tomato transition-all disabled:opacity-50">
+                {loading ? 'Wird erstellt...' : 'Werkstatt erstellen'}
+              </button>
+            </>
+          )}
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function BackendPage() {
   const [tab, setTab] = useState('orders');
   const [orders, setOrders] = useState([]);
@@ -328,6 +415,9 @@ export default function BackendPage() {
   const [showAddReseller, setShowAddReseller] = useState(false);
   const [selectedReseller, setSelectedReseller] = useState(null);
   const [appLoading, setAppLoading] = useState({});
+
+  const [workshops, setWorkshops] = useState([]);
+  const [showAddWorkshop, setShowAddWorkshop] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -359,6 +449,11 @@ export default function BackendPage() {
     setApplications(data || []);
   };
 
+  const fetchWorkshops = async () => {
+    const { data } = await supabase.from('workshops').select('*').order('created_at', { ascending: false });
+    setWorkshops(data || []);
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { router.push('/backend/login'); return; }
@@ -368,6 +463,7 @@ export default function BackendPage() {
     fetchResellers();
     fetchResellerOrders();
     fetchApplications();
+    fetchWorkshops();
   }, []);
 
   const handleLogout = async () => {
@@ -385,6 +481,10 @@ export default function BackendPage() {
 
   const handleResellerOrderStatus = async (orderId, newStatus) => {
     await supabase.from('reseller_orders').update({ status: newStatus }).eq('id', orderId);
+  };
+
+  const handleWorkshopAssign = async (orderId, workshopId) => {
+    await supabase.from('orders').update({ workshop_id: workshopId }).eq('id', orderId);
   };
 
   const handleApplication = async (appId, action, discountRate = 15) => {
@@ -430,11 +530,15 @@ export default function BackendPage() {
                 </span>
               )}
             </button>
+            <button onClick={() => setTab('workshops')}
+              className={`flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 transition-all border-l-2 border-ink ${tab === 'workshops' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+              <Wrench size={13} /> Atölyeler {workshops.length > 0 && `(${workshops.length})`}
+            </button>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[10px] opacity-50 hidden sm:block">{userEmail}</span>
-          <button onClick={() => { fetchOrders(); fetchResellers(); fetchResellerOrders(); fetchApplications(); }}
+          <button onClick={() => { fetchOrders(); fetchResellers(); fetchResellerOrders(); fetchApplications(); fetchWorkshops(); }}
             className="p-2 border-2 border-ink hover:bg-sun transition-all" title="Aktualisieren">
             <RefreshCw size={14} />
           </button>
@@ -482,7 +586,7 @@ export default function BackendPage() {
           ) : (
             <div className="space-y-3">
               {filtered.map(order => (
-                <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} supabase={supabase} />
+                <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} onWorkshopAssign={handleWorkshopAssign} workshops={workshops} supabase={supabase} />
               ))}
             </div>
           )}
@@ -602,10 +706,57 @@ export default function BackendPage() {
         </div>
       )}
 
+      {/* ATÖLYELER SEKMESİ */}
+      {tab === 'workshops' && (
+        <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="font-black text-lg uppercase">Atölyeler ({workshops.length})</h2>
+            <button onClick={() => setShowAddWorkshop(true)}
+              className="flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 bg-ink text-white hover:bg-tomato transition-all shadow-brutalist">
+              <Plus size={14} /> Neue Werkstatt
+            </button>
+          </div>
+
+          {workshops.length === 0 ? (
+            <div className="text-center py-16 font-serif italic opacity-40 uppercase">Noch keine Werkstätten</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {workshops.map(w => {
+                const assignedCount = orders.filter(o => o.workshop_id === w.id && !['done','cancelled'].includes(o.status || 'new')).length;
+                return (
+                  <div key={w.id} className="bg-white border-2 border-ink p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-black text-sm uppercase">{w.name}</p>
+                        {w.contact_name && <p className="text-[10px] opacity-50 mt-0.5">{w.contact_name}</p>}
+                        <p className="text-[10px] opacity-50">{w.email}</p>
+                        {w.phone && <p className="text-[10px] opacity-40">{w.phone}</p>}
+                      </div>
+                      <span className={`text-[9px] font-black px-2 py-1 ${w.active ? 'bg-olive/20 text-olive' : 'bg-tomato/10 text-tomato'}`}>
+                        {w.active ? 'Aktiv' : 'Inaktiv'}
+                      </span>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-ink/10 text-[10px]">
+                      <span className="font-black">{assignedCount}</span> aktive Bestellung{assignedCount !== 1 ? 'en' : ''} zugewiesen
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {showAddReseller && (
         <AddResellerModal
           onClose={() => setShowAddReseller(false)}
           onSave={() => { fetchResellers(); fetchResellerOrders(); }}
+        />
+      )}
+      {showAddWorkshop && (
+        <AddWorkshopModal
+          onClose={() => setShowAddWorkshop(false)}
+          onSave={() => fetchWorkshops()}
         />
       )}
     </div>
