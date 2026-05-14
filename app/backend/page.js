@@ -31,6 +31,12 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
   const [assignedWorkshop, setAssignedWorkshop] = useState(order.workshop_id || '');
+  const assignedWs = workshops?.find(w => w.id === assignedWorkshop) || null;
+  const waPhone = assignedWs?.phone?.replace(/[\s\-\+\(\)]/g, '') || '';
+  const totalQty = order.items?.reduce((s, i) => s + i.qty, 0) || 0;
+  const waText = encodeURIComponent(
+    `Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`
+  );
 
   const handleStatus = async (newStatus) => {
     setUpdating(true);
@@ -91,14 +97,7 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
                 </button>
               ) : <span className="opacity-40">Kein Logo</span>}
             </div>
-            {workshops?.length > 0 && (() => {
-              const assignedWs = workshops.find(w => w.id === assignedWorkshop);
-              const waPhone = assignedWs?.phone?.replace(/[\s\-\+\(\)]/g, '');
-              const totalQty = order.items?.reduce((s, i) => s + i.qty, 0) || 0;
-              const waText = encodeURIComponent(
-                `Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`
-              );
-              return (
+            {workshops?.length > 0 && (
               <div className="col-span-2 space-y-2">
                 <span className="opacity-50 uppercase font-black">Atölye</span><br />
                 <select value={assignedWorkshop}
@@ -127,8 +126,7 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
                   </a>
                 )}
               </div>
-              );
-            })()}
+            )}
             )}
           </div>
 
