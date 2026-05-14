@@ -43,6 +43,7 @@ const TRANSLATIONS = {
     statusLabels: {
       new:        'Neu',
       processing: 'In Bearbeitung',
+      on_hold:    'Pausiert',
       shipped:    'Versandt',
       done:       'Abgeschlossen',
       cancelled:  'Storniert',
@@ -87,6 +88,7 @@ const TRANSLATIONS = {
     statusLabels: {
       new:        'Yeni',
       processing: 'İşlemde',
+      on_hold:    'Askıda',
       shipped:    'Gönderildi',
       done:       'Tamamlandı',
       cancelled:  'İptal',
@@ -98,6 +100,7 @@ const TRANSLATIONS = {
 const STATUS_COLORS = {
   new:        'bg-sun text-ink',
   processing: 'bg-blue-100 text-blue-800',
+  on_hold:    'bg-orange-100 text-orange-700',
   shipped:    'bg-olive/20 text-olive',
   done:       'bg-ink/10 text-ink/50',
   cancelled:  'bg-tomato/10 text-tomato',
@@ -276,7 +279,7 @@ export default function AtolyePage() {
     let q = supabase
       .from('orders')
       .select('*')
-      .not('status', 'in', '("done","cancelled")')
+      .not('status', 'in', '("done","cancelled","on_hold")')
       .order('created_at', { ascending: true });
     if (wid) q = q.eq('workshop_id', wid);
     const { data } = await q;

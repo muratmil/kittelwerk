@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { LogOut, Package, ChevronDown, ChevronUp, RefreshCw, Save, Download, Users, Plus, X, Wrench } from 'lucide-react';
 
 const STATUS_OPTIONS = [
-  { value: 'new',        label: 'Neu',            color: 'bg-sun text-ink' },
-  { value: 'processing', label: 'In Bearbeitung', color: 'bg-blue-100 text-blue-800' },
-  { value: 'shipped',    label: 'Versandt',        color: 'bg-olive/20 text-olive' },
-  { value: 'done',       label: 'Abgeschlossen',   color: 'bg-ink/10 text-ink/50' },
-  { value: 'cancelled',  label: 'Storniert',       color: 'bg-tomato/10 text-tomato' },
+  { value: 'new',        label: 'Neu',                color: 'bg-sun text-ink' },
+  { value: 'processing', label: 'In Bearbeitung',     color: 'bg-blue-100 text-blue-800' },
+  { value: 'on_hold',    label: 'Pausiert',            color: 'bg-orange-100 text-orange-700' },
+  { value: 'shipped',    label: 'Versandt',            color: 'bg-olive/20 text-olive' },
+  { value: 'done',       label: 'Abgeschlossen',       color: 'bg-ink/10 text-ink/50' },
+  { value: 'cancelled',  label: 'Storniert',           color: 'bg-tomato/10 text-tomato' },
 ];
 
 function StatusBadge({ status }) {
