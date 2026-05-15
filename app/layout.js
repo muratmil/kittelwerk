@@ -5,6 +5,7 @@ const fraunces = Fraunces({ subsets: ['latin'], weight: ['900'], style: ['italic
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-sans' });
 
 export const metadata = {
+  metadataBase: new URL('https://www.kittelwerk.de'),
   title: 'Kittelwerk | Gastro-Textilien Hannover & Niedersachsen',
   description: 'Gastro-Textilien direkt vom Hersteller — Schürzen, T-Shirts & Kappen inkl. kostenlosem Logo-Druck. Ab 10 Stück. Hannover & Niedersachsen.',
   keywords: 'Gastro Textilien Hannover, Schürzen kaufen Niedersachsen, Arbeitskleidung Gastronomie Hannover, Gastro T-Shirt bestellen, Kochschürze günstig, Berufskleidung Restaurant Hannover, Latzschürze Hannover',
@@ -15,6 +16,7 @@ export const metadata = {
     siteName: 'Kittelwerk',
     locale: 'de_DE',
     type: 'website',
+    images: [{ url: '/images/toplutshirt.png', width: 1200, height: 630, alt: 'Kittelwerk Gastro-Textilien' }],
   },
   robots: {
     index: true,
@@ -32,6 +34,10 @@ const localBusinessSchema = {
   description: 'Gastro-Textilien direkt vom Hersteller für Gastronomie in Hannover und Niedersachsen',
   url: 'https://www.kittelwerk.de',
   email: 'info@kittelwerk.de',
+  telephone: '+49-174-9623344',
+  openingHoursSpecification: [
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:00', closes: '17:00' },
+  ],
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Gleiwitzer Weg 1',
