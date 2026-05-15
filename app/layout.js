@@ -7,11 +7,11 @@ const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '700'], vari
 export const metadata = {
   metadataBase: new URL('https://www.kittelwerk.de'),
   title: 'Kittelwerk | Gastro-Textilien Hannover & Niedersachsen',
-  description: 'Gastro-Textilien direkt vom Hersteller — Schürzen, T-Shirts & Kappen inkl. kostenlosem Logo-Druck. Ab 10 Stück. Hannover & Niedersachsen.',
+  description: 'Gastro-Textilien direkt vom Hersteller — Schürzen, T-Shirts & Kappen inkl. kostenlosem Logo-Druck. Ab 10 Stück. Deutschlandweiter Versand.',
   keywords: 'Gastro Textilien Hannover, Schürzen kaufen Niedersachsen, Arbeitskleidung Gastronomie Hannover, Gastro T-Shirt bestellen, Kochschürze günstig, Berufskleidung Restaurant Hannover, Latzschürze Hannover',
   openGraph: {
     title: 'Kittelwerk | Gastro-Textilien Hannover & Niedersachsen',
-    description: 'Gastro-Textilien direkt vom Hersteller — Schürzen, T-Shirts & Kappen inkl. kostenlosem Logo-Druck. Ab 10 Stück.',
+    description: 'Gastro-Textilien direkt vom Hersteller — Schürzen, T-Shirts & Kappen inkl. kostenlosem Logo-Druck. Ab 10 Stück. Deutschlandweiter Versand.',
     url: 'https://www.kittelwerk.de',
     siteName: 'Kittelwerk',
     locale: 'de_DE',

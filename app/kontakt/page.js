@@ -2,7 +2,7 @@ import KontaktClient from './KontaktClient';
 
 export const metadata = {
   title: 'Kontakt | Kittelwerk — Gastro-Textilien Hannover',
-  description: 'Kontaktieren Sie Kittelwerk für Bestellungen, Großbestellungen oder Produktfragen. E-Mail oder WhatsApp — schnelle Antwort innerhalb von 24 Stunden.',
+  description: 'Kontaktieren Sie Kittelwerk für Bestellungen, Großbestellungen oder Produktfragen. Deutschlandweiter Versand. Antwort innerhalb von 24 Stunden.',
   alternates: { canonical: 'https://www.kittelwerk.de/kontakt' },
   openGraph: {
     title: 'Kontakt | Kittelwerk',
