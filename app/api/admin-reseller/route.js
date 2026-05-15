@@ -10,7 +10,7 @@ export async function POST(req) {
     .from('profiles').select('role').eq('id', user.id).single();
   if (profile?.role !== 'admin') return Response.json({ error: 'Kein Zugriff.' }, { status: 403 });
 
-  const { company, contact_name, email, phone, discount_rate } = await req.json();
+  const { company, contact_name, email, phone, discount_rate, steuer_id, gewerbe_info } = await req.json();
   if (!company || !contact_name || !email) {
     return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
   }
@@ -43,6 +43,8 @@ export async function POST(req) {
     profile_id: authUser.id,
     company, contact_name, email,
     phone: phone || null,
+    steuer_id: steuer_id || null,
+    gewerbe_info: gewerbe_info || null,
     discount_rate: parseFloat(discount_rate) || 15,
   }]);
 

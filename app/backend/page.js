@@ -278,7 +278,7 @@ function ResellerOrderRow({ order, onStatusChange }) {
 }
 
 function AddResellerModal({ onClose, onSave }) {
-  const [form, setForm] = useState({ company: '', contact_name: '', email: '', phone: '', discount_rate: '15' });
+  const [form, setForm] = useState({ company: '', contact_name: '', email: '', phone: '', discount_rate: '15', steuer_id: '', gewerbe_info: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -320,6 +320,20 @@ function AddResellerModal({ onClose, onSave }) {
                 className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
             </div>
           ))}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase tracking-widest">Steuernummer / Steuer-ID</label>
+            <input type="text" value={form.steuer_id}
+              onChange={e => setForm(p => ({ ...p, steuer_id: e.target.value }))}
+              placeholder="z.B. DE123456789"
+              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase tracking-widest">Gewerbeanmeldung</label>
+            <textarea value={form.gewerbe_info}
+              onChange={e => setForm(p => ({ ...p, gewerbe_info: e.target.value }))}
+              rows={2} placeholder="Gewerbe-Nr., Registergericht..."
+              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm resize-none" />
+          </div>
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-black uppercase tracking-widest">Rabatt %</label>
             <input type="number" min="0" max="100" value={form.discount_rate}
