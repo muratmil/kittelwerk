@@ -15,6 +15,7 @@ export default function Footer() {
             <li><a href="/impressum" className="hover:text-tomato transition-colors">Impressum</a></li>
             <li><a href="/datenschutz" className="hover:text-tomato transition-colors">Datenschutz</a></li>
             <li><a href="/agb" className="hover:text-tomato transition-colors">AGB</a></li>
+            <li><a href="/lieferbedingungen" className="hover:text-tomato transition-colors">Lieferbedingungen</a></li>
           </ul>
         </div>
         <div className="space-y-4 text-xs">
