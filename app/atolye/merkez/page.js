@@ -4,6 +4,119 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { RefreshCw, Printer, LogOut, Download, Tag, CheckSquare, Square, Send, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 
+const TRANSLATIONS = {
+  de: {
+    title:          'Atölye — Merkez',
+    lastUpdated:    'Zuletzt:',
+    refresh:        'Aktualisieren',
+    print:          'Drucken',
+    loading:        'Wird geladen...',
+    noOrders:       'Keine Bestellungen',
+    orders:         (n) => `${n} Bestellung${n !== 1 ? 'en' : ''}`,
+    newRequests:    'Neue Anfragen',
+    approve:        'Genehmigen',
+    all:            'Alle',
+    unassigned:     'Nicht zugewiesen',
+    workshop:       'Atölye:',
+    notAssigned:    '— Nicht zugewiesen —',
+    colProduct:     'Produkt',
+    colColor:       'Farbe',
+    colSizes:       'Größen',
+    colQty:         'Menge',
+    colPrint:       'Druck',
+    total:          'Gesamt',
+    logo:           'Logo',
+    logoDownload:   'Logo herunterladen',
+    noLogo:         'Kein Logo',
+    note:           'Notiz für Atölye',
+    notePlaceholder:'Anweisung für die Atölye...',
+    noteSave:       'Notiz speichern',
+    noteSaved:      'Gespeichert ✓',
+    noteSaving:     'Speichern...',
+    messages:       'Nachrichten vom Atölye',
+    noMessages:     'Noch keine Nachrichten',
+    msgPlaceholder: 'Nachricht an Atölye...',
+    qcTitle:        'Qualitätskontrolle',
+    qcDone:         '✓ Alle Kontrollen bestanden',
+    qcItems: [
+      { key: 'qty',   label: 'Menge stimmt' },
+      { key: 'color', label: 'Farbe stimmt' },
+      { key: 'sizes', label: 'Größen stimmt' },
+      { key: 'print', label: 'Druck OK' },
+    ],
+    inBearbeitung:  'In Bearbeitung',
+    versandt:       'Versandt',
+    labelPrint:     'Etikett',
+    statusLabels: {
+      new:        'Neu',
+      processing: 'In Bearbeitung',
+      on_hold:    'Pausiert',
+      shipped:    'Versandt',
+      done:       'Abgeschlossen',
+      cancelled:  'Storniert',
+    },
+    printLabels: {
+      none: 'Kein', front: 'Vorder', back: 'Rücken', both: 'V+R',
+    },
+    orderNo: 'Bestellung',
+  },
+  tr: {
+    title:          'Atölye — Merkez',
+    lastUpdated:    'Son:',
+    refresh:        'Yenile',
+    print:          'Yazdır',
+    loading:        'Yükleniyor...',
+    noOrders:       'Sipariş yok',
+    orders:         (n) => `${n} sipariş`,
+    newRequests:    'Yeni Talepler',
+    approve:        'Onayla',
+    all:            'Tümü',
+    unassigned:     'Atanmamış',
+    workshop:       'Atölye:',
+    notAssigned:    '— Atanmamış —',
+    colProduct:     'Ürün',
+    colColor:       'Renk',
+    colSizes:       'Bedenler',
+    colQty:         'Adet',
+    colPrint:       'Baskı',
+    total:          'Toplam',
+    logo:           'Logo',
+    logoDownload:   'Logoyu indir',
+    noLogo:         'Logo yok',
+    note:           'Atölye için not',
+    notePlaceholder:'Atölye için talimat...',
+    noteSave:       'Notu kaydet',
+    noteSaved:      'Kaydedildi ✓',
+    noteSaving:     'Kaydediliyor...',
+    messages:       'Atölye\'den mesajlar',
+    noMessages:     'Henüz mesaj yok',
+    msgPlaceholder: 'Atölye\'ye mesaj...',
+    qcTitle:        'Kalite Kontrol',
+    qcDone:         '✓ Tüm kontroller tamam',
+    qcItems: [
+      { key: 'qty',   label: 'Adet doğru' },
+      { key: 'color', label: 'Renk doğru' },
+      { key: 'sizes', label: 'Beden doğru' },
+      { key: 'print', label: 'Baskı OK' },
+    ],
+    inBearbeitung:  'İşleme Al',
+    versandt:       'Teslim Edildi',
+    labelPrint:     'Etiket',
+    statusLabels: {
+      new:        'Yeni',
+      processing: 'İşlemde',
+      on_hold:    'Askıda',
+      shipped:    'Gönderildi',
+      done:       'Tamamlandı',
+      cancelled:  'İptal',
+    },
+    printLabels: {
+      none: 'Yok', front: 'Ön', back: 'Arka', both: 'Ön+Arka',
+    },
+    orderNo: 'Sipariş',
+  },
+};
+
 const STATUS_COLORS = {
   new:        'bg-sun text-ink',
   processing: 'bg-blue-100 text-blue-800',
@@ -13,17 +126,12 @@ const STATUS_COLORS = {
   cancelled:  'bg-tomato/10 text-tomato',
 };
 
-const STATUS_LABELS = {
-  new: 'Neu', processing: 'In Bearbeitung', on_hold: 'Pausiert',
-  shipped: 'Versandt', done: 'Abgeschlossen', cancelled: 'Storniert',
-};
-
 function formatSizes(sizes) {
   if (!sizes || sizes['-'] !== undefined) return `${sizes?.['-'] ?? '—'} Stück`;
   return Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · ');
 }
 
-function printAddressLabel(order) {
+function printAddressLabel(order, t) {
   const win = window.open('', '_blank', 'width=520,height=420');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
     *{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:30px;background:#fff}
@@ -38,13 +146,13 @@ function printAddressLabel(order) {
       <div class="company">${order.company}</div>
       <div class="name">${order.name}</div>
       <div class="address">${order.street}<br>${order.plz} ${order.city}</div>
-      <div class="order-id">Bestellung #${order.id.slice(0,8)}</div>
+      <div class="order-id">${t.orderNo} #${order.id.slice(0,8)}</div>
     </div>
   </body></html>`);
   win.document.close();
 }
 
-function MessagesPanel({ orderId, supabase, senderName }) {
+function MessagesPanel({ orderId, supabase, senderName, t }) {
   const [messages, setMessages] = useState(null);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -79,7 +187,7 @@ function MessagesPanel({ orderId, supabase, senderName }) {
       <button onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-3 py-2 hover:bg-sun/40 transition-all">
         <span className="text-[9px] font-black uppercase opacity-50 flex items-center gap-2">
-          Nachrichten vom Atölye
+          {t.messages}
           {unread > 0 && <span className="bg-tomato text-white text-[8px] font-black px-1.5 py-0.5">{unread}</span>}
         </span>
         {open ? <ChevronUp size={12} className="opacity-40" /> : <ChevronDown size={12} className="opacity-40" />}
@@ -88,7 +196,7 @@ function MessagesPanel({ orderId, supabase, senderName }) {
       {open && (
         <div className="border-t-2 border-ink/20 p-3 space-y-3">
           {messages?.length === 0 && (
-            <p className="text-[10px] opacity-30 text-center py-2">Noch keine Nachrichten</p>
+            <p className="text-[10px] opacity-30 text-center py-2">{t.noMessages}</p>
           )}
           {messages?.map(m => (
             <div key={m.id} className={`flex ${m.is_merkez ? 'justify-end' : 'justify-start'}`}>
@@ -102,7 +210,7 @@ function MessagesPanel({ orderId, supabase, senderName }) {
           <div className="flex gap-2 mt-2">
             <input value={text} onChange={e => setText(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
-              placeholder="Nachricht an Atölye..."
+              placeholder={t.msgPlaceholder}
               className="flex-1 border-2 border-ink p-2 text-[11px] outline-none focus:bg-sun" />
             <button onClick={send} disabled={sending || !text.trim()}
               className="px-3 border-2 border-ink hover:bg-sun disabled:opacity-40 transition-all">
@@ -115,7 +223,7 @@ function MessagesPanel({ orderId, supabase, senderName }) {
   );
 }
 
-function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
+function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t }) {
   const date = new Date(order.created_at).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
   const [status, setStatus] = useState(order.status || 'new');
   const [workshopId, setWorkshopId] = useState(order.workshop_id || '');
@@ -126,8 +234,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
   const [assigning, setAssigning] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const totalQty = order.items?.reduce((sum, i) => sum + i.qty, 0) || 0;
-  const qcItems = [{ key:'qty', label:'Menge stimmt' }, { key:'color', label:'Farbe stimmt' }, { key:'sizes', label:'Größen stimmt' }, { key:'print', label:'Druck OK' }];
-  const qcDone = qcItems.every(i => qcChecks[i.key]);
+  const qcDone = t.qcItems.every(i => qcChecks[i.key]);
 
   const handleAssign = async (wid) => {
     setAssigning(true);
@@ -171,7 +278,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-black opacity-60">#{order.id.slice(0,8)}</span>
           <span className={`text-[9px] font-black uppercase px-2 py-1 ${STATUS_COLORS[status]}`}>
-            {STATUS_LABELS[status]}
+            {t.statusLabels[status]}
           </span>
         </div>
       </div>
@@ -179,11 +286,11 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
       <div className="p-5 space-y-4">
         {/* Atölye atama */}
         <div className="flex items-center gap-3 border-2 border-sun bg-sun/20 p-3 print:hidden">
-          <span className="text-[9px] font-black uppercase opacity-60 whitespace-nowrap">Atölye:</span>
+          <span className="text-[9px] font-black uppercase opacity-60 whitespace-nowrap">{t.workshop}</span>
           <select value={workshopId} onChange={e => handleAssign(e.target.value)}
             disabled={assigning}
             className="flex-1 border-2 border-ink p-2 text-[11px] font-bold bg-white outline-none focus:bg-sun cursor-pointer disabled:opacity-50">
-            <option value="">— Nicht zugewiesen —</option>
+            <option value="">{t.notAssigned}</option>
             {workshops.map(w => (
               <option key={w.id} value={w.id}>{w.name}</option>
             ))}
@@ -193,7 +300,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
         </div>
         {assignedWorkshop && (
           <div className="hidden print:block text-[11px] font-bold">
-            Atölye: {assignedWorkshop.name}
+            {t.workshop} {assignedWorkshop.name}
           </div>
         )}
 
@@ -201,7 +308,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
         <table className="w-full text-[12px] border-collapse">
           <thead>
             <tr className="border-b-2 border-ink">
-              {['Produkt','Farbe','Größen','Menge','Druck'].map(h => (
+              {[t.colProduct, t.colColor, t.colSizes, t.colQty, t.colPrint].map(h => (
                 <th key={h} className="pb-2 text-left text-[9px] font-black uppercase opacity-50">{h}</th>
               ))}
             </tr>
@@ -215,7 +322,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
                 <td className="py-2.5 font-black text-base">{item.qty}</td>
                 <td className="py-2.5">
                   <span className={`text-[9px] font-black uppercase px-2 py-0.5 ${item.printType && item.printType !== 'none' ? 'bg-tomato text-white' : 'bg-ink/10 text-ink/40'}`}>
-                    {item.printType === 'front' ? 'Vorder' : item.printType === 'back' ? 'Rücken' : item.printType === 'both' ? 'V+R' : 'Kein'}
+                    {t.printLabels[item.printType] || t.printLabels.none}
                   </span>
                 </td>
               </tr>
@@ -223,7 +330,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-ink">
-              <td colSpan={3} className="pt-2 text-[9px] font-black uppercase opacity-50">Gesamt</td>
+              <td colSpan={3} className="pt-2 text-[9px] font-black uppercase opacity-50">{t.total}</td>
               <td className="pt-2 font-black text-xl">{totalQty}</td>
               <td />
             </tr>
@@ -233,37 +340,37 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
         {/* Logo & Notiz */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="border-2 border-dashed border-ink/30 p-3 bg-paper">
-            <p className="text-[9px] font-black uppercase opacity-50 mb-1.5">Logo</p>
+            <p className="text-[9px] font-black uppercase opacity-50 mb-1.5">{t.logo}</p>
             {order.logo_url ? (
               <button onClick={handleLogoDownload}
                 className="flex items-center gap-1.5 text-tomato font-bold text-[11px] hover:underline">
-                <Download size={12} /> Logo herunterladen
+                <Download size={12} /> {t.logoDownload}
               </button>
             ) : (
-              <p className="text-[11px] font-bold opacity-40">Kein Logo</p>
+              <p className="text-[11px] font-bold opacity-40">{t.noLogo}</p>
             )}
           </div>
           <div className="border-2 border-ink/20 p-3 space-y-2 print:hidden">
-            <p className="text-[9px] font-black uppercase opacity-50">Notiz für Atölye</p>
+            <p className="text-[9px] font-black uppercase opacity-50">{t.note}</p>
             <textarea value={notes} onChange={e => setNotes(e.target.value)}
-              rows={3} placeholder="Anweisung für die Atölye..."
+              rows={3} placeholder={t.notePlaceholder}
               className="w-full border-2 border-ink/20 p-2 text-[11px] outline-none focus:border-ink focus:bg-sun resize-none bg-white" />
             <button onClick={handleSaveNotes} disabled={savingNotes}
               className={`text-[10px] font-black uppercase px-3 py-1.5 border-2 border-ink transition-all disabled:opacity-50
                 ${notesSaved ? 'bg-olive text-white border-olive' : 'bg-white hover:bg-sun'}`}>
-              {notesSaved ? 'Gespeichert ✓' : savingNotes ? 'Speichern...' : 'Notiz speichern'}
+              {notesSaved ? t.noteSaved : savingNotes ? t.noteSaving : t.noteSave}
             </button>
           </div>
         </div>
 
         {/* Nachrichten */}
-        <MessagesPanel orderId={order.id} supabase={supabase} senderName="Merkez" />
+        <MessagesPanel orderId={order.id} supabase={supabase} senderName="Merkez" t={t} />
 
         {/* QC */}
         <div className="border-2 border-ink/20 p-3 print:hidden">
-          <p className="text-[9px] font-black uppercase opacity-50 mb-2">Qualitätskontrolle</p>
+          <p className="text-[9px] font-black uppercase opacity-50 mb-2">{t.qcTitle}</p>
           <div className="grid grid-cols-2 gap-2">
-            {qcItems.map(item => (
+            {t.qcItems.map(item => (
               <button key={item.key}
                 onClick={() => setQcChecks(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
                 className={`flex items-center gap-2 text-[11px] font-bold px-2 py-1.5 border-2 transition-all
@@ -273,13 +380,13 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
               </button>
             ))}
           </div>
-          {qcDone && <p className="text-[10px] font-black uppercase text-olive mt-2">✓ Alle Kontrollen bestanden</p>}
+          {qcDone && <p className="text-[10px] font-black uppercase text-olive mt-2">{t.qcDone}</p>}
         </div>
 
         {/* Atölye WhatsApp */}
         {assignedWorkshop?.phone && (
           <div className="flex justify-start print:hidden">
-            <a href={`https://wa.me/${assignedWorkshop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Bestellung #${order.id.slice(0,8)} · ${order.company} · ${totalQty} Stk`)}`}
+            <a href={`https://wa.me/${assignedWorkshop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`${t.orderNo} #${order.id.slice(0,8)} · ${order.company} · ${totalQty} Stk`)}`}
               target="_blank" rel="noreferrer"
               className="inline-flex items-stretch border-2 border-ink shadow-brutalist hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
               <span className="bg-[#25D366] px-2.5 flex items-center justify-center">
@@ -298,8 +405,8 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
         <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
           <div className="flex flex-wrap gap-2">
             {[
-              { s: 'processing', label: 'In Bearbeitung', activeClass: 'bg-ink text-white' },
-              { s: 'shipped', label: 'Versandt', activeClass: 'bg-olive text-white border-olive' },
+              { s: 'processing', label: t.inBearbeitung, activeClass: 'bg-ink text-white' },
+              { s: 'shipped',    label: t.versandt,      activeClass: 'bg-olive text-white border-olive' },
             ].map(({ s, label, activeClass }) => (
               <button key={s} onClick={() => handleStatus(s)}
                 disabled={updatingStatus || status === s}
@@ -309,9 +416,9 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
               </button>
             ))}
           </div>
-          <button onClick={() => printAddressLabel(order)}
+          <button onClick={() => printAddressLabel(order, t)}
             className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-sun transition-all">
-            <Tag size={13} /> Etikett
+            <Tag size={13} /> {t.labelPrint}
           </button>
         </div>
       </div>
@@ -319,7 +426,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
   );
 }
 
-function PendingCard({ workshop, onApprove, approving }) {
+function PendingCard({ workshop, onApprove, approving, t }) {
   return (
     <div className="border-2 border-ink bg-white p-4 flex items-center justify-between gap-4">
       <div className="space-y-0.5">
@@ -329,7 +436,7 @@ function PendingCard({ workshop, onApprove, approving }) {
       </div>
       <button onClick={() => onApprove(workshop.id)} disabled={approving}
         className="shrink-0 text-[10px] font-black uppercase px-4 py-2 bg-olive text-white border-2 border-olive hover:bg-olive/80 disabled:opacity-50 transition-all flex items-center gap-2">
-        <CheckCircle size={13} /> Genehmigen
+        <CheckCircle size={13} /> {t.approve}
       </button>
     </div>
   );
@@ -343,8 +450,10 @@ export default function AtolyeMerkez() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [filterWorkshop, setFilterWorkshop] = useState('all');
   const [approvingId, setApprovingId] = useState(null);
+  const [lang, setLang] = useState('de');
   const router = useRouter();
   const supabase = createClient();
+  const t = TRANSLATIONS[lang];
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -427,16 +536,27 @@ export default function AtolyeMerkez() {
             <span className="text-ink">Atölye</span>
             <span className="text-[14px] normal-case not-italic font-sans opacity-40 ml-2">— Merkez</span>
           </h1>
-          {lastUpdated && <p className="text-[9px] opacity-40 uppercase mt-0.5">Zuletzt: {lastUpdated}</p>}
+          {lastUpdated && <p className="text-[9px] opacity-40 uppercase mt-0.5">{t.lastUpdated} {lastUpdated}</p>}
         </div>
         <div className="flex gap-2">
+          {/* Dil toggler */}
+          <div className="flex border-2 border-ink">
+            <button onClick={() => setLang('de')}
+              className={`text-[10px] font-black px-2.5 py-1.5 transition-all ${lang === 'de' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+              DE
+            </button>
+            <button onClick={() => setLang('tr')}
+              className={`text-[10px] font-black px-2.5 py-1.5 border-l-2 border-ink transition-all ${lang === 'tr' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+              TR
+            </button>
+          </div>
           <button onClick={loadAll}
-            className="p-2 border-2 border-ink hover:bg-sun transition-all" title="Aktualisieren">
+            className="p-2 border-2 border-ink hover:bg-sun transition-all" title={t.refresh}>
             <RefreshCw size={14} />
           </button>
           <button onClick={() => window.print()}
             className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-sun transition-all">
-            <Printer size={14} /> Drucken
+            <Printer size={14} /> {t.print}
           </button>
           <button onClick={handleLogout}
             className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-tomato hover:text-white transition-all">
@@ -447,19 +567,19 @@ export default function AtolyeMerkez() {
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {loading ? (
-          <div className="text-center py-20 font-serif italic opacity-40 uppercase">Wird geladen...</div>
+          <div className="text-center py-20 font-serif italic opacity-40 uppercase">{t.loading}</div>
         ) : (
           <>
             {/* Bekleyen kayıtlar */}
             {pending.length > 0 && (
               <div className="space-y-3 print:hidden">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-[11px] font-black uppercase tracking-widest">Neue Anfragen</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-widest">{t.newRequests}</h2>
                   <span className="bg-tomato text-white text-[9px] font-black px-2 py-0.5">{pending.length}</span>
                 </div>
                 <div className="border-4 border-sun bg-sun/10 divide-y-2 divide-sun">
                   {pending.map(w => (
-                    <PendingCard key={w.id} workshop={w}
+                    <PendingCard key={w.id} workshop={w} t={t}
                       onApprove={handleApprove}
                       approving={approvingId === w.id} />
                   ))}
@@ -471,13 +591,13 @@ export default function AtolyeMerkez() {
             <div className="space-y-4 print:hidden">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-black uppercase opacity-50">
-                  {filteredOrders.length} Bestellung{filteredOrders.length !== 1 ? 'en' : ''}
+                  {t.orders(filteredOrders.length)}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { key: 'all', label: 'Alle' },
-                  { key: 'unassigned', label: 'Nicht zugewiesen' },
+                  { key: 'all', label: t.all },
+                  { key: 'unassigned', label: t.unassigned },
                   ...workshops.map(w => ({ key: w.id, label: w.name })),
                 ].map(({ key, label }) => (
                   <button key={key} onClick={() => setFilterWorkshop(key)}
@@ -492,12 +612,12 @@ export default function AtolyeMerkez() {
             {/* Siparişler */}
             {filteredOrders.length === 0 ? (
               <div className="text-center py-20">
-                <p className="font-serif font-black text-2xl italic opacity-30 uppercase">Keine Bestellungen</p>
+                <p className="font-serif font-black text-2xl italic opacity-30 uppercase">{t.noOrders}</p>
               </div>
             ) : (
               <div className="space-y-6">
                 {filteredOrders.map(order => (
-                  <OrderCard key={order.id} order={order} supabase={supabase}
+                  <OrderCard key={order.id} order={order} supabase={supabase} t={t}
                     workshops={workshops} onStatusChange={handleStatusChange} onAssign={handleAssign} />
                 ))}
               </div>
