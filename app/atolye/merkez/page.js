@@ -299,10 +299,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign }) {
           <div className="flex flex-wrap gap-2">
             {[
               { s: 'processing', label: 'In Bearbeitung', activeClass: 'bg-ink text-white' },
-              { s: 'on_hold', label: 'Pausieren', activeClass: 'bg-orange-100 text-orange-700 border-orange-300' },
               { s: 'shipped', label: 'Versandt', activeClass: 'bg-olive text-white border-olive' },
-              { s: 'done', label: 'Abgeschlossen', activeClass: 'bg-ink/80 text-white' },
-              { s: 'cancelled', label: 'Stornieren', activeClass: 'bg-tomato text-white border-tomato' },
             ].map(({ s, label, activeClass }) => (
               <button key={s} onClick={() => handleStatus(s)}
                 disabled={updatingStatus || status === s}
@@ -359,7 +356,7 @@ export default function AtolyeMerkez() {
     try {
       const [ordersRes, workshopsRes, pendingRes] = await Promise.all([
         supabase.from('orders').select('*')
-          .not('status', 'in', '("done","cancelled")')
+          .not('status', 'in', '("done","cancelled","on_hold")')
           .order('created_at', { ascending: true }),
         supabase.from('workshops').select('*').eq('active', true).order('name'),
         supabase.from('workshops').select('*').eq('active', false).order('created_at'),
