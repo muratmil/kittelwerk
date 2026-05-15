@@ -70,7 +70,7 @@ export default function ResellerPage() {
         .eq('profile_id', user.id)
         .single();
 
-      if (!res) { router.push('/reseller/login'); return; }
+      if (!res) { await supabase.auth.signOut(); router.push('/reseller/login'); return; }
 
       if (res.active === false) {
         setIsPending(true);
