@@ -890,27 +890,37 @@ export default function BackendPage() {
                 const totalRevenue = rOrders.reduce((s, o) => s + Number(o.total), 0);
                 const isSelected = selectedReseller === r.id;
                 return (
-                  <div key={r.id} className={`border-2 border-ink p-4 transition-all bg-white`}>
-                    <div className="flex justify-between items-start">
-                      <button className="flex-1 text-left" onClick={() => setSelectedReseller(isSelected ? null : r.id)}>
-                        <p className="font-black text-sm uppercase">{r.company}</p>
-                        <p className="text-[10px] opacity-50 mt-0.5">{r.contact_name} · {r.email}</p>
-                        {r.steuer_id && <p className="text-[10px] opacity-40 mt-0.5">Steuer: {r.steuer_id}</p>}
-                        {r.gewerbe_info && <p className="text-[10px] opacity-40">Gewerbe: {r.gewerbe_info}</p>}
-                      </button>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-[9px] font-black bg-olive/20 text-olive px-2 py-1">{r.discount_rate}%</span>
+                  <div key={r.id} className={`border-4 border-ink bg-white transition-all ${isSelected ? 'shadow-brutalist bg-sun' : 'hover:shadow-brutalist'}`}>
+                    {/* Kart başlık */}
+                    <div className="flex items-center justify-between bg-ink px-4 py-2">
+                      <span className="font-black text-xs uppercase tracking-widest text-white truncate">{r.company}</span>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <span className="text-[9px] font-black bg-olive text-white px-2 py-0.5">{r.discount_rate}% Rabatt</span>
                         <button onClick={() => setEditingReseller(r)}
-                          className="p-1.5 border-2 border-ink hover:bg-sun transition-all" title="Bearbeiten">
-                          <Pencil size={12} />
+                          className="p-1 border border-white/30 hover:bg-white/20 transition-all" title="Bearbeiten">
+                          <Pencil size={11} className="text-white" />
                         </button>
                       </div>
                     </div>
-                    <div className="flex gap-4 mt-3 text-[10px] border-t border-ink/10 pt-3">
-                      <span><strong>{rOrders.length}</strong> Bestellungen</span>
-                      <span><strong>{totalRevenue.toFixed(2)}€</strong> Umsatz</span>
-                      {isSelected && <span className="font-black text-tomato">▼ gefiltert</span>}
-                    </div>
+                    {/* Kart içerik */}
+                    <button className="w-full text-left p-4 space-y-2" onClick={() => setSelectedReseller(isSelected ? null : r.id)}>
+                      <div>
+                        <p className="text-[11px] font-black opacity-70">{r.contact_name}</p>
+                        <p className="text-[10px] opacity-50">{r.email}</p>
+                        {r.phone && <p className="text-[10px] opacity-40">{r.phone}</p>}
+                      </div>
+                      {(r.steuer_id || r.gewerbe_info) && (
+                        <div className="border-t border-ink/10 pt-2 space-y-0.5">
+                          {r.steuer_id && <p className="text-[10px] opacity-50"><span className="font-black uppercase">Steuer:</span> {r.steuer_id}</p>}
+                          {r.gewerbe_info && <p className="text-[10px] opacity-50"><span className="font-black uppercase">Gewerbe:</span> {r.gewerbe_info}</p>}
+                        </div>
+                      )}
+                      <div className="flex gap-4 border-t border-ink/10 pt-2 text-[10px]">
+                        <span><strong>{rOrders.length}</strong> Bestellungen</span>
+                        <span><strong>{totalRevenue.toFixed(2)}€</strong> Umsatz</span>
+                        {isSelected && <span className="font-black text-tomato ml-auto">▼ aktiv</span>}
+                      </div>
+                    </button>
                   </div>
                 );
               })}
