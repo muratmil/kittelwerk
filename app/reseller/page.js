@@ -335,6 +335,18 @@ export default function ResellerPage() {
                 <span className="font-black text-sm uppercase">Ihr Preis</span>
                 <span className="font-black text-xl">{itemQty > 0 ? `${(itemQty * resellerPrice).toFixed(2)}€` : `ab ${resellerPrice.toFixed(2)}€/Stk`}</span>
               </div>
+              <div className="flex justify-between items-baseline border-t border-ink/10 pt-1.5 mt-1">
+                <span className="text-[10px] opacity-50">Verkaufspreis (Kunde)</span>
+                <span className="text-[10px] opacity-50">{itemQty > 0 ? `${(itemQty * basePrice).toFixed(2)}€` : `${basePrice.toFixed(2)}€/Stk`}</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="text-[10px] font-black text-tomato uppercase">Ihr Gewinn</span>
+                <span className="text-[10px] font-black text-tomato">
+                  {itemQty > 0
+                    ? `+${(itemQty * (basePrice - resellerPrice)).toFixed(2)}€ (${((basePrice - resellerPrice) / basePrice * 100).toFixed(0)}%)`
+                    : `+${(basePrice - resellerPrice).toFixed(2)}€/Stk`}
+                </span>
+              </div>
             </div>
 
             <button type="button" onClick={addItem} disabled={itemQty < 1}
