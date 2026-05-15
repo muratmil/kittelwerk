@@ -367,7 +367,8 @@ export default function AtolyeMerkez() {
 
       const isMerkez = profile?.role === 'seller' && !profile?.workshop_id;
       if (!isMerkez) {
-        router.push(profile?.role === 'admin' ? '/backend' : '/atolye/login');
+        await supabase.auth.signOut();
+        router.push('/atolye/login');
         return;
       }
 

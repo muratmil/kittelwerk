@@ -447,11 +447,15 @@ export default function AtolyePage() {
 
       const wid = profile?.workshop_id || null;
 
-      // Admin buraya gelmemeli
-      if (profile?.role === 'admin') { router.replace('/backend'); return; }
-
       // Ana atölye (seller, workshop_id yok) → merkez ekranına
-      if (!wid) { router.replace('/atolye/merkez'); return; }
+      if (profile?.role === 'seller' && !wid) { router.replace('/atolye/merkez'); return; }
+
+      // Seller değilse (admin vs.) → atölye login'e
+      if (profile?.role !== 'seller') {
+        await supabase.auth.signOut();
+        router.replace('/atolye/login');
+        return;
+      }
 
       // Sub-atölye ama henüz onaylanmamış
       if (profile?.workshops?.active === false) {
