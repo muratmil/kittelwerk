@@ -1,6 +1,17 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
+export const metadata = {
+  title: 'Über uns | Kittelwerk — Gastro-Textilien vom Hersteller',
+  description: 'Kittelwerk liefert Gastro-Textilien direkt vom Hersteller — ohne Zwischenhändler, faire Preise, kostenloser Logo-Druck. Unser Versprechen für Hannover & Niedersachsen.',
+  alternates: { canonical: 'https://www.kittelwerk.de/ueber-uns' },
+  openGraph: {
+    title: 'Über uns | Kittelwerk',
+    description: 'Gastro-Textilien direkt vom Hersteller — Hannover & Niedersachsen.',
+    url: 'https://www.kittelwerk.de/ueber-uns',
+  },
+};
+
 export default function AboutUs() {
   return (
     <main className="bg-paper min-h-screen">

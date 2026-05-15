@@ -1,6 +1,11 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
+export const metadata = {
+  title: 'AGB | Kittelwerk',
+  robots: { index: false, follow: false },
+};
+
 export default function AGB() {
   return (
     <main className="bg-paper min-h-screen">
