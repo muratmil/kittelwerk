@@ -73,9 +73,9 @@ export default function Lieferbedingungen() {
           <div className="border-l-8 border-ink pl-8">
             <h2 className="font-serif font-black text-2xl italic tracking-tight mb-4">Zahlung</h2>
             <div className="space-y-3 text-sm font-medium leading-relaxed opacity-80">
-              <p>Zahlung per <strong>SEPA-Überweisung</strong> auf deutsches Konto.</p>
+              <p>Zahlung per <strong>SEPA-Überweisung</strong>, Kreditkarte oder PayPal möglich.</p>
               <p>Nach Auftragsbestätigung erhalten Sie eine Rechnung mit USt. per E-Mail. Die Fertigung beginnt nach Zahlungseingang.</p>
-              <p>Keine Auslandsüberweisung. Keine Vorkasse per PayPal oder Kreditkarte.</p>
+              <p>Keine Barzahlung. Keine Zahlung aus dem Ausland.</p>
             </div>
           </div>
 
