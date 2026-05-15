@@ -62,12 +62,12 @@ export async function PATCH(req) {
     .from('profiles').select('role').eq('id', user.id).single();
   if (profile?.role !== 'admin') return Response.json({ error: 'Kein Zugriff.' }, { status: 403 });
 
-  const { id, discount_rate } = await req.json();
+  const { id, discount_rate, steuer_id, gewerbe_info } = await req.json();
   if (!id) return Response.json({ error: 'ID fehlt.' }, { status: 400 });
 
   const { error } = await supabaseAdmin
     .from('resellers')
-    .update({ discount_rate: parseFloat(discount_rate) || 15 })
+    .update({ discount_rate: parseFloat(discount_rate) || 15, steuer_id: steuer_id ?? undefined, gewerbe_info: gewerbe_info ?? undefined })
     .eq('id', id);
 
   if (error) return Response.json({ error: 'Fehler beim Speichern.' }, { status: 500 });

@@ -355,6 +355,8 @@ function AddResellerModal({ onClose, onSave }) {
 
 function EditResellerModal({ reseller, onClose, onSave }) {
   const [discountRate, setDiscountRate] = useState(String(reseller.discount_rate || 15));
+  const [steuerId, setSteuerId] = useState(reseller.steuer_id || '');
+  const [gewerbeInfo, setGewerbeInfo] = useState(reseller.gewerbe_info || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [resetting, setResetting] = useState(false);
@@ -368,7 +370,7 @@ function EditResellerModal({ reseller, onClose, onSave }) {
     const res = await fetch('/api/admin-reseller', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: reseller.id, discount_rate: parseFloat(discountRate) || 15 }),
+      body: JSON.stringify({ id: reseller.id, discount_rate: parseFloat(discountRate) || 15, steuer_id: steuerId || null, gewerbe_info: gewerbeInfo || null }),
     });
     const data = await res.json();
     setLoading(false);
@@ -412,6 +414,18 @@ function EditResellerModal({ reseller, onClose, onSave }) {
             <input type="number" min="0" max="100" value={discountRate}
               onChange={e => setDiscountRate(e.target.value)}
               className="w-24 border-2 border-ink p-3 focus:bg-sun outline-none text-sm font-black" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase tracking-widest">Steuernummer / Steuer-ID</label>
+            <input type="text" value={steuerId} onChange={e => setSteuerId(e.target.value)}
+              placeholder="z.B. DE123456789"
+              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase tracking-widest">Gewerbeanmeldung</label>
+            <textarea value={gewerbeInfo} onChange={e => setGewerbeInfo(e.target.value)}
+              rows={2} placeholder="Gewerbe-Nr., Registergericht..."
+              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm resize-none" />
           </div>
 
           {/* Şifre Sıfırlama */}
