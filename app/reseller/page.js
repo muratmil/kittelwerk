@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { PRODUCTS } from '@/data/products';
-import { Plus, Trash2, LogOut, CheckCircle, Clock, Clock3 } from 'lucide-react';
+import { Plus, Trash2, LogOut, CheckCircle, Clock } from 'lucide-react';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -199,7 +199,7 @@ export default function ResellerPage() {
             Kittel<span className="text-tomato">werk</span>.
           </h1>
           <div className="bg-white border-4 border-ink shadow-brutalist p-8 space-y-4">
-            <Clock3 size={40} className="mx-auto opacity-40" />
+            <Clock size={40} className="mx-auto opacity-40" />
             <h2 className="font-black text-xl uppercase">Anfrage wird geprüft</h2>
             <p className="text-[13px] opacity-60">Ihre Händleranfrage wird geprüft. Sie erhalten eine E-Mail, sobald Ihr Zugang freigeschaltet wurde.</p>
             <button onClick={async () => { await supabase.auth.signOut(); router.push('/reseller/login'); }}
