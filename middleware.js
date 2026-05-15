@@ -41,7 +41,8 @@ export async function middleware(request) {
   // /reseller koruması
   if (path.startsWith('/reseller')) {
     const isLoginPage = path === '/reseller/login'
-    if (!user && !isLoginPage) return NextResponse.redirect(new URL('/reseller/login', request.url))
+    const isRegisterPage = path === '/reseller/register'
+    if (!user && !isLoginPage && !isRegisterPage) return NextResponse.redirect(new URL('/reseller/login', request.url))
     if (user && isLoginPage) return NextResponse.redirect(new URL('/reseller', request.url))
   }
 

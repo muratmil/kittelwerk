@@ -1,0 +1,97 @@
+KITTELWERK.DE — SEO-MASSNAHMEN (DURCHGEFÜHRT)
+Datum: 15. Mai 2026
+==============================================
+
+1. DOMAIN-WEITERLEITUNG (301 Redirect)
+----------------------------------------
+- Problem: kittelwerk.de → www.kittelwerk.de leitete mit 307 (temporär) weiter
+- Maßnahme: Vercel Dashboard > Domains > auf 301 Moved Permanently umgestellt
+- Wirkung: Google erkennt www.kittelwerk.de als einzige Quelle, kein SEO-Punkteverlust durch Aufspaltung
+
+2. CANONICAL-URL-KORREKTUR
+----------------------------
+- Problem: Einige Seiten nutzten https://kittelwerk.de (ohne www), andere https://www.kittelwerk.de
+- Maßnahme: Alle Seiten einheitlich auf https://www.kittelwerk.de/... korrigiert
+- Betroffene Dateien: app/layout.js, app/produkte/[id]/page.js, app/sitemap.js, app/robots.js
+
+3. next.config.mjs — AUTOMATISCHE WEITERLEITUNG VON NON-WWW ZU WWW
+---------------------------------------------------------------------
+- Maßnahme: In next.config.mjs permanente Weiterleitungsregel von kittelwerk.de → www.kittelwerk.de eingefügt
+- Wirkung: Jeder Aufruf ohne www wird automatisch auf die www-Version weitergeleitet
+
+4. SEITENSPEZIFISCHE METADATEN
+--------------------------------
+- Problem: Viele Seiten hatten kein eigenes Title-Tag, keine Description und kein Canonical
+- Maßnahme:
+  - /produkte  → "Gastro-Textilien kaufen | Schürzen, T-Shirts & Kappen — Kittelwerk"
+  - /kontakt   → "Kontakt | Kittelwerk — Gastro-Textilien Hannover"
+  - /ueber-uns → "Über uns | Kittelwerk — Gastro-Textilien vom Hersteller"
+  - /agb, /datenschutz → noindex gesetzt (rechtliche Seiten schaden dem Ranking)
+- Technische Änderung: 'use client'-Seiten wurden in Server Component + Client Component aufgeteilt
+  (kontakt/page.js + KontaktClient.jsx, produkte/page.js + ProdukteClient.jsx, page.js + HomeClient.jsx)
+
+5. SITEMAP-OPTIMIERUNG
+------------------------
+- Problem: Sitemap enthielt 13 URLs, davon 0 indexiert; rechtliche Seiten waren enthalten
+- Maßnahme: agb, datenschutz, impressum aus der Sitemap entfernt (noindex-Seiten gehören nicht in die Sitemap)
+- Maßnahme: Sitemap erneut in der Google Search Console eingereicht
+- URL-Anzahl: 13 → 10
+
+6. STRUKTURIERTE DATEN (JSON-LD SCHEMA)
+-----------------------------------------
+A) FAQPage Schema (Startseite)
+   - In den Google-Suchergebnissen können aufklappbare Fragen und Antworten erscheinen
+   - 6 häufig gestellte Fragen hinterlegt
+
+B) Product + AggregateOffer Schema (jede Produktseite)
+   - Produktname, Beschreibung, Preisspanne (Min–Max), Verfügbarkeit, Marke
+   - Ermöglicht Rich Results (Preis-Snippets) in der Google-Suche
+
+C) BreadcrumbList Schema (jede Produktseite)
+   - Navigation: Kittelwerk > Produkte > [Produktname]
+   - In den Suchergebnissen kann statt der URL der Breadcrumb-Pfad angezeigt werden
+
+D) LocalBusiness Schema Erweiterung (Layout — gesamte Website)
+   - Telefonnummer hinzugefügt: +49-174-9623344
+   - Öffnungszeiten hinzugefügt: Montag–Freitag 09:00–17:00
+   - Wirkung: Stärkeres Signal für Google Maps und lokale Suchergebnisse
+
+7. OG:IMAGE (Open Graph Bild)
+-------------------------------
+- Problem: Keine Seite hatte ein Bild für Social-Media-Vorschau
+- Maßnahme: metadataBase hinzugefügt, og:image auf /images/toplutshirt.png gesetzt
+- Wirkung: Bei WhatsApp, LinkedIn, Twitter wird ein Vorschaubild angezeigt; Signal für Google Discover
+
+8. INDEXIERUNGSANFRAGEN (Google Search Console)
+-------------------------------------------------
+- Für folgende 9 Seiten wurde in der GSC URL-Prüfung "Indexierung beantragen" ausgelöst:
+  1. https://www.kittelwerk.de/produkte
+  2. https://www.kittelwerk.de/produkte/tshirt
+  3. https://www.kittelwerk.de/produkte/latz
+  4. https://www.kittelwerk.de/produkte/apron
+  5. https://www.kittelwerk.de/produkte/cap
+  6. https://www.kittelwerk.de/produkte/sweat
+  7. https://www.kittelwerk.de/produkte/fleece
+  8. https://www.kittelwerk.de/kontakt
+  9. https://www.kittelwerk.de/ueber-uns
+- Erwartete Bearbeitungszeit: 1–7 Tage bis zur Indexierung
+
+9. GSC-VERBINDUNG (MCP)
+-------------------------
+- Google Search Console per OAuth2 mit Claude Code verbunden
+- Abruf von Traffic-Daten, Keywords und Index-Status direkt über Claude möglich
+
+==============================================
+OFFENE MASSNAHMEN (NOCH NICHT UMGESETZT)
+==============================================
+A) Google Business Profile anlegen → business.google.com
+   (Pflicht für Sichtbarkeit in Google Maps und bei "Gastro Hannover"-Suchen)
+
+B) Verzeichniseinträge für Backlinks:
+   - Gelbe Seiten
+   - Wlw.de
+   - Yelp Deutschland
+   Jeder Eintrag sollte den Link www.kittelwerk.de enthalten
+
+C) Eigenes og:image erstellen (1200x630 px)
+   (Derzeit wird ein Produktfoto verwendet — ein Markenbild wäre wirkungsvoller)

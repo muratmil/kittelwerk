@@ -16,8 +16,8 @@ function Field({ label, value, onChange, type = 'text', required = false, placeh
 export default function ResellerRegister() {
   const [form, setForm] = useState({
     company: '', contact_name: '', email: '', phone: '',
-    street: '', plz: '', city: '',
-    steuer_id: '', gewerbe_info: '', message: '',
+    steuer_id: '', gewerbe_info: '',
+    password: '', password2: '',
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,18 +27,30 @@ export default function ResellerRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    if (form.password !== form.password2) {
+      setError('Passwörter stimmen nicht überein.');
+      return;
+    }
+    setLoading(true);
 
     const res = await fetch('/api/reseller-register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        company: form.company,
+        contact_name: form.contact_name,
+        email: form.email,
+        phone: form.phone || undefined,
+        steuer_id: form.steuer_id,
+        gewerbe_info: form.gewerbe_info || undefined,
+        password: form.password,
+      }),
     });
 
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+      setError(data.error || 'Ein Fehler ist aufgetreten.');
       setLoading(false);
       return;
     }
@@ -57,6 +69,10 @@ export default function ResellerRegister() {
             Vielen Dank für Ihre Händleranfrage. Wir prüfen Ihre Angaben und melden uns innerhalb von 1–2 Werktagen per E-Mail bei Ihnen.
           </p>
           <p className="text-[11px] opacity-50">{form.email}</p>
+          <a href="/reseller/login"
+            className="block w-full bg-ink text-white py-3 font-black uppercase text-[11px] hover:bg-tomato transition-all">
+            Zum Login
+          </a>
         </div>
       </div>
     );
@@ -71,13 +87,13 @@ export default function ResellerRegister() {
           </h1>
           <h2 className="font-black text-2xl uppercase mt-3">Händler werden</h2>
           <p className="text-sm opacity-60 mt-2 leading-relaxed">
-            Füllen Sie das Formular aus. Nach Prüfung Ihrer Angaben erhalten Sie Ihre Zugangsdaten per E-Mail.
+            Registrieren Sie sich mit Ihren Firmendaten. Nach Prüfung wird Ihr Konto freigeschaltet.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* Firmen-Daten */}
+          {/* Firmendaten */}
           <div className="bg-white border-4 border-ink shadow-brutalist p-6 space-y-4">
             <h3 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Firmendaten</h3>
             <Field label="Firma / Restaurant *" value={form.company} onChange={set('company')} required />
@@ -86,11 +102,6 @@ export default function ResellerRegister() {
               <Field label="Telefon" value={form.phone} onChange={set('phone')} />
             </div>
             <Field label="E-Mail *" type="email" value={form.email} onChange={set('email')} required />
-            <Field label="Straße & Hausnummer" value={form.street} onChange={set('street')} />
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="PLZ" value={form.plz} onChange={set('plz')} />
-              <Field label="Stadt" value={form.city} onChange={set('city')} />
-            </div>
           </div>
 
           {/* Steuer & Gewerbe */}
@@ -105,12 +116,11 @@ export default function ResellerRegister() {
             </div>
           </div>
 
-          {/* Nachricht */}
+          {/* Passwort */}
           <div className="bg-white border-4 border-ink shadow-brutalist p-6 space-y-4">
-            <h3 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Nachricht (optional)</h3>
-            <textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
-              rows={3} placeholder="Weitere Informationen zu Ihrem Betrieb, erwartetes Bestellvolumen..."
-              className="w-full border-2 border-ink p-3 focus:bg-sun outline-none text-sm resize-none" />
+            <h3 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Passwort wählen</h3>
+            <Field label="Passwort * (min. 8 Zeichen)" type="password" value={form.password} onChange={set('password')} required />
+            <Field label="Passwort bestätigen *" type="password" value={form.password2} onChange={set('password2')} required />
           </div>
 
           {error && (

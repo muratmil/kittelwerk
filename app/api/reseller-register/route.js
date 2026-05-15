@@ -4,89 +4,78 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
-  const { company, contact_name, email, phone, street, plz, city, steuer_id, gewerbe_info, message } = await req.json();
+  const { company, contact_name, email, phone, password, steuer_id, gewerbe_info } = await req.json();
 
-  if (!company || !contact_name || !email || !steuer_id) {
+  if (!company || !contact_name || !email || !password || !steuer_id) {
     return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
   }
-
-  // E-posta daha önce başvurmuş mu kontrol et
-  const { data: existing } = await supabaseAdmin
-    .from('reseller_applications')
-    .select('id, status')
-    .eq('email', email)
-    .single();
-
-  if (existing) {
-    if (existing.status === 'pending') {
-      return Response.json({ error: 'Eine Anfrage mit dieser E-Mail-Adresse ist bereits in Bearbeitung.' }, { status: 400 });
-    }
-    if (existing.status === 'approved') {
-      return Response.json({ error: 'Diese E-Mail-Adresse ist bereits als Händler registriert.' }, { status: 400 });
-    }
+  if (password.length < 8) {
+    return Response.json({ error: 'Passwort muss mindestens 8 Zeichen lang sein.' }, { status: 400 });
   }
 
-  const { error } = await supabaseAdmin.from('reseller_applications').insert([{
-    company, contact_name, email,
+  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+
+  if (authError) {
+    const msg = authError.message || '';
+    if (msg.includes('already registered') || msg.includes('already been registered')) {
+      return Response.json({ error: 'Diese E-Mail-Adresse ist bereits registriert.' }, { status: 400 });
+    }
+    return Response.json({ error: 'Fehler beim Erstellen des Accounts.' }, { status: 500 });
+  }
+
+  const { error: resellerError } = await supabaseAdmin.from('resellers').insert([{
+    profile_id: authData.user.id,
+    company,
+    contact_name,
+    email,
     phone: phone || null,
-    street: street || null,
-    plz: plz || null,
-    city: city || null,
     steuer_id,
     gewerbe_info: gewerbe_info || null,
-    message: message || null,
-    status: 'pending',
+    discount_rate: 15,
+    active: false,
   }]);
 
-  if (error) {
-    return Response.json({ error: 'Fehler beim Speichern der Anfrage.' }, { status: 500 });
+  if (resellerError) {
+    await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+    return Response.json({ error: 'Fehler beim Speichern der Registrierung.' }, { status: 500 });
   }
 
-  // Admin bildirimi
+  await supabaseAdmin.from('profiles').update({ role: 'reseller' }).eq('id', authData.user.id);
+
   await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
-    subject: `🏪 Neue Händleranfrage: ${company}`,
-    html: `
-      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
-        <h1 style="font-size:24px;font-weight:900;">Kittel<span style="color:#E63946">werk</span>.</h1>
-        <h2 style="margin-top:16px;">Neue Händleranfrage</h2>
-        <table style="width:100%;border-collapse:collapse;margin-top:16px;">
-          <tr><td style="padding:6px;color:#555;width:160px;">Firma</td><td><strong>${company}</strong></td></tr>
-          <tr><td style="padding:6px;color:#555;">Ansprechpartner</td><td>${contact_name}</td></tr>
-          <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${email}">${email}</a></td></tr>
-          ${phone ? `<tr><td style="padding:6px;color:#555;">Telefon</td><td>${phone}</td></tr>` : ''}
-          ${street ? `<tr><td style="padding:6px;color:#555;">Adresse</td><td>${street}, ${plz} ${city}</td></tr>` : ''}
-          <tr><td style="padding:6px;color:#555;">Steuernummer</td><td><strong>${steuer_id}</strong></td></tr>
-          ${gewerbe_info ? `<tr><td style="padding:6px;color:#555;">Gewerbe</td><td>${gewerbe_info}</td></tr>` : ''}
-          ${message ? `<tr><td style="padding:6px;color:#555;">Nachricht</td><td><em>${message}</em></td></tr>` : ''}
-        </table>
-        <p style="margin-top:24px;color:#555;font-size:13px;">
-          Anfrage im Backend prüfen und genehmigen oder ablehnen.
-        </p>
-        <hr style="margin:24px 0;border:none;border-top:2px solid #111;"/>
-        <p style="color:#999;font-size:11px;">© 2026 Kittelwerk · info@kittelwerk.de</p>
+    subject: `Neue Händleranfrage: ${company}`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#111">
+      <div style="background:#111;padding:24px 32px"><span style="font-family:Georgia,serif;font-style:italic;font-weight:900;font-size:22px;color:#fff;text-transform:uppercase">Kittel<span style="color:#E63946">werk</span>.</span></div>
+      <div style="padding:32px;border:3px solid #111;border-top:none">
+        <h2 style="margin:0 0 16px;font-size:16px;text-transform:uppercase">Neue Händleranfrage</h2>
+        <p><strong>${company}</strong> — ${contact_name}</p>
+        <p>${email}${phone ? ' · ' + phone : ''}</p>
+        <p>Steuer-ID: <strong>${steuer_id}</strong></p>
+        ${gewerbe_info ? `<p>Gewerbe: ${gewerbe_info}</p>` : ''}
+        <p style="margin-top:16px;font-size:12px;opacity:.6">Im Backend unter "Händler" prüfen und freischalten.</p>
       </div>
-    `,
-  });
+    </div>`,
+  }).catch(() => {});
 
-  // Başvuru sahibine onay maili
   await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: email,
-    subject: 'Ihre Händleranfrage bei Kittelwerk',
-    html: `
-      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
-        <h1 style="font-size:24px;font-weight:900;">Kittel<span style="color:#E63946">werk</span>.</h1>
-        <h2 style="margin-top:16px;">Danke, ${contact_name}!</h2>
-        <p>Wir haben Ihre Händleranfrage für <strong>${company}</strong> erhalten und prüfen Ihre Angaben.</p>
-        <p style="margin-top:12px;">In der Regel melden wir uns <strong>innerhalb von 1–2 Werktagen</strong> per E-Mail bei Ihnen.</p>
-        <p style="margin-top:12px;color:#555;">Bei Fragen erreichen Sie uns unter <a href="mailto:info@kittelwerk.de">info@kittelwerk.de</a>.</p>
-        <hr style="margin:32px 0;border:none;border-top:2px solid #111;"/>
-        <p style="color:#999;font-size:11px;">© 2026 Kittelwerk · info@kittelwerk.de</p>
+    subject: 'Ihre Händleranfrage — Kittelwerk',
+    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#111">
+      <div style="background:#111;padding:24px 32px"><span style="font-family:Georgia,serif;font-style:italic;font-weight:900;font-size:22px;color:#fff;text-transform:uppercase">Kittel<span style="color:#E63946">werk</span>.</span></div>
+      <div style="padding:32px;border:3px solid #111;border-top:none">
+        <h2 style="margin:0 0 8px;font-size:18px;text-transform:uppercase">Anfrage eingegangen!</h2>
+        <p>Vielen Dank, <strong>${contact_name}</strong>. Ihre Händleranfrage für <strong>${company}</strong> wird geprüft.</p>
+        <p style="margin-top:12px;opacity:.6;font-size:13px">In der Regel melden wir uns innerhalb von 1–2 Werktagen per E-Mail bei Ihnen.</p>
       </div>
-    `,
-  });
+    </div>`,
+  }).catch(() => {});
 
   return Response.json({ success: true });
 }

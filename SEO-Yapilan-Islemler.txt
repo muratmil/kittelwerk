@@ -1,0 +1,98 @@
+KITTELWERK.DE — SEO YAPILAN İŞLEMLER
+Tarih: 15 Mayıs 2026
+=====================================
+
+1. DOMAIN YÖNLENDİRME (301 Redirect)
+--------------------------------------
+- Sorun: kittelwerk.de → www.kittelwerk.de yönlendirmesi 307 (geçici) idi
+- Yapılan: Vercel Dashboard > Domains > 301 Moved Permanently olarak güncellendi
+- Etki: Google artık www.kittelwerk.de'yi tek kaynak olarak tanıyor, SEO puanı bölünmüyor
+
+2. CANONICAL URL DÜZELTMESİ
+------------------------------
+- Sorun: Bazı sayfalar https://kittelwerk.de (www'suz), bazıları https://www.kittelwerk.de (www'lu) canonical kullanıyordu
+- Yapılan: Tüm sayfalar https://www.kittelwerk.de/... olarak düzeltildi
+- Etkilenen dosyalar: app/layout.js, app/produkte/[id]/page.js, app/sitemap.js, app/robots.js
+
+3. next.config.mjs — NON-WWW'DEN WWW'YE OTOMATİK YÖNLENDİRME
+----------------------------------------------------------------
+- Yapılan: next.config.mjs'e kittelwerk.de → www.kittelwerk.de kalıcı yönlendirme kuralı eklendi
+- Etki: Her türlü non-www girişi otomatik olarak www'ya yönlendiriliyor
+
+4. SAYFA BAZLI METADATA
+-------------------------
+- Sorun: Birçok sayfada sayfa özelinde title, description, canonical yoktu
+- Yapılan:
+  - /produkte → "Gastro-Textilien kaufen | Schürzen, T-Shirts & Kappen — Kittelwerk"
+  - /kontakt  → "Kontakt | Kittelwerk — Gastro-Textilien Hannover"
+  - /ueber-uns → "Über uns | Kittelwerk — Gastro-Textilien vom Hersteller"
+  - /agb, /datenschutz → noindex yapıldı (hukuki sayfalar sıralamayı olumsuz etkiler)
+- Yapılan teknik değişiklik: 'use client' olan sayfalar server component + client component olarak ayrıldı
+  (kontakt/page.js + KontaktClient.jsx, produkte/page.js + ProdukteClient.jsx, page.js + HomeClient.jsx)
+
+5. SİTEMAP OPTİMİZASYONU
+--------------------------
+- Sorun: Sitemap'te 13 URL vardı, 0 tanesi indexlenmişti; hukuki sayfalar da dahildi
+- Yapılan: agb, datenschutz, impressum sitemap'ten çıkarıldı (noindex sayfalar sitemap'te olmaz)
+- Yapılan: Sitemap Google Search Console'a yeniden gönderildi
+- URL sayısı: 13 → 10
+
+6. STRUCTURED DATA (JSON-LD SCHEMA)
+-------------------------------------
+A) FAQPage Schema (Ana sayfa)
+   - Google arama sonucunda altında genişleyen soru-cevaplar görünebilir
+   - 6 sık sorulan soru eklendi
+
+B) Product + AggregateOffer Schema (Her ürün sayfası)
+   - Ürün adı, açıklama, fiyat aralığı (min-max), stok durumu, marka bilgisi
+   - Google'da fiyatlı zengin snippet (rich result) görünebilir
+
+C) BreadcrumbList Schema (Her ürün sayfası)
+   - Kittelwerk > Produkte > [Ürün Adı] şeklinde navigasyon
+   - Arama sonucunda URL yerine ekmek kırıntısı yolu gösterilebilir
+
+D) LocalBusiness Schema Güncellemesi (Layout — tüm site)
+   - Telefon numarası eklendi: +49-174-9623344
+   - Çalışma saatleri eklendi: Pazartesi–Cuma 09:00–17:00
+   - Etki: Google Haritalar ve yerel arama sonuçları için daha güçlü sinyal
+
+7. OG:IMAGE (Open Graph Görseli)
+----------------------------------
+- Sorun: Hiçbir sayfada sosyal paylaşım görseli yoktu
+- Yapılan: metadataBase eklendi, og:image olarak /images/toplutshirt.png ayarlandı
+- Etki: WhatsApp, LinkedIn, Twitter paylaşımlarında görsel çıkar; Google Discover sinyali
+
+8. INDEX İSTEKLERİ (Google Search Console)
+--------------------------------------------
+- Aşağıdaki 9 sayfa için GSC URL İnceleme > "Indexierung beantragen" gönderildi:
+  1. https://www.kittelwerk.de/produkte
+  2. https://www.kittelwerk.de/produkte/tshirt
+  3. https://www.kittelwerk.de/produkte/latz
+  4. https://www.kittelwerk.de/produkte/apron
+  5. https://www.kittelwerk.de/produkte/cap
+  6. https://www.kittelwerk.de/produkte/sweat
+  7. https://www.kittelwerk.de/produkte/fleece
+  8. https://www.kittelwerk.de/kontakt
+  9. https://www.kittelwerk.de/ueber-uns
+- Beklenen süre: 1–7 gün içinde indexleme
+
+9. MCP / GSC BAĞLANTISI
+-------------------------
+- Google Search Console MCP bağlantısı kuruldu (OAuth2 refresh token)
+- Credentials: C:\Users\murat\.claude\gsc-credentials.json
+- Artık GSC verileri (trafik, keyword, index durumu) Claude üzerinden sorgulanabilir
+
+=====================================
+BEKLEYEN İŞLER (Yapılmadı)
+=====================================
+A) Google Business Profile oluştur → business.google.com
+   (Haritada ve "Gastro Hannover" aramalarında çıkmak için şart)
+
+B) Dizin kayıtları (backlink için):
+   - Gelbe Seiten
+   - Wlw.de
+   - Yelp Deutschland
+   Her kayıtta www.kittelwerk.de linki olmalı
+
+C) Özel og:image görseli (1200x630px) tasarla
+   (Şu an ürün fotoğrafı kullanılıyor, branded görsel daha etkili olur)

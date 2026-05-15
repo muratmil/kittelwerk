@@ -52,3 +52,24 @@ export async function POST(req) {
 
   return Response.json({ success: true, tempPassword });
 }
+
+export async function PATCH(req) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return Response.json({ error: 'Nicht autorisiert.' }, { status: 401 });
+
+  const { data: profile } = await supabaseAdmin
+    .from('profiles').select('role').eq('id', user.id).single();
+  if (profile?.role !== 'admin') return Response.json({ error: 'Kein Zugriff.' }, { status: 403 });
+
+  const { id, discount_rate } = await req.json();
+  if (!id) return Response.json({ error: 'ID fehlt.' }, { status: 400 });
+
+  const { error } = await supabaseAdmin
+    .from('resellers')
+    .update({ discount_rate: parseFloat(discount_rate) || 15 })
+    .eq('id', id);
+
+  if (error) return Response.json({ error: 'Fehler beim Speichern.' }, { status: 500 });
+  return Response.json({ success: true });
+}

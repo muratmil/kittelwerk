@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { PRODUCTS } from '@/data/products';
-import { Plus, Trash2, LogOut, CheckCircle, Clock } from 'lucide-react';
+import { Plus, Trash2, LogOut, CheckCircle, Clock, Clock3 } from 'lucide-react';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -43,6 +43,7 @@ export default function ResellerPage() {
   const [reseller, setReseller] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loadingInit, setLoadingInit] = useState(true);
+  const [isPending, setIsPending] = useState(false);
 
   const [items, setItems] = useState([]);
   const [selProd, setSelProd] = useState(PRODUCTS[0].id);
@@ -70,6 +71,13 @@ export default function ResellerPage() {
         .single();
 
       if (!res) { router.push('/reseller/login'); return; }
+
+      if (res.active === false) {
+        setIsPending(true);
+        setLoadingInit(false);
+        return;
+      }
+
       setReseller(res);
 
       const { data: ord } = await supabase
@@ -179,6 +187,27 @@ export default function ResellerPage() {
     return (
       <div className="min-h-screen bg-paper flex items-center justify-center">
         <p className="font-serif italic opacity-40 uppercase">Wird geladen...</p>
+      </div>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-paper flex items-center justify-center p-6">
+        <div className="w-full max-w-sm text-center space-y-6">
+          <h1 className="font-serif font-black text-4xl italic uppercase">
+            Kittel<span className="text-tomato">werk</span>.
+          </h1>
+          <div className="bg-white border-4 border-ink shadow-brutalist p-8 space-y-4">
+            <Clock3 size={40} className="mx-auto opacity-40" />
+            <h2 className="font-black text-xl uppercase">Anfrage wird geprüft</h2>
+            <p className="text-[13px] opacity-60">Ihre Händleranfrage wird geprüft. Sie erhalten eine E-Mail, sobald Ihr Zugang freigeschaltet wurde.</p>
+            <button onClick={async () => { await supabase.auth.signOut(); router.push('/reseller/login'); }}
+              className="w-full bg-ink text-white py-3 font-black uppercase text-[11px] tracking-wider hover:bg-tomato transition-all flex items-center justify-center gap-2">
+              <LogOut size={14} /> Ausloggen
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
