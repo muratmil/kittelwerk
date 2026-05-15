@@ -32,7 +32,7 @@ const faqSchema = {
     {
       '@type': 'Question',
       name: 'Wie lange dauert die Lieferung?',
-      acceptedAnswer: { '@type': 'Answer', text: '1–2 Wochen ab Zahlungseingang. Versand per DHL oder DPD mit Sendungsverfolgung.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'T-Shirts und Schürzen: 1–2 Wochen ab Zahlungseingang. Sweatshirts, Fleece-Jacken und Kappen: 3–4 Wochen. Versand per DHL oder DPD mit Sendungsverfolgung.' },
     },
   ],
 };

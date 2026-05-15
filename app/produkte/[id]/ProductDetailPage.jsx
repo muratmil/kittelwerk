@@ -163,6 +163,17 @@ export default function ProductDetailPage({ product }) {
               )}
             </div>
 
+            {/* Teslimat süresi */}
+            {product.deliveryTime && (
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest border-2 border-ink px-4 py-2.5">
+                <span className="opacity-50">Lieferzeit:</span>
+                <span className={`px-2 py-0.5 ${product.deliveryTime.startsWith('1') ? 'bg-olive text-white' : 'bg-sun text-ink'}`}>
+                  {product.deliveryTime}
+                </span>
+                <span className="opacity-40 normal-case font-medium text-[9px]">ab Zahlungseingang</span>
+              </div>
+            )}
+
             {/* Renk */}
             <div>
               <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">

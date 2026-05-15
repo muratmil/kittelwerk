@@ -142,6 +142,16 @@ export default function ProductCard({ product }) {
           )}
         </div>
 
+        {/* Teslimat süresi */}
+        {product.deliveryTime && (
+          <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest">
+            <span className="opacity-50">Lieferzeit:</span>
+            <span className={`px-2 py-0.5 ${product.deliveryTime.startsWith('1') ? 'bg-olive text-white' : 'bg-sun text-ink'}`}>
+              {product.deliveryTime}
+            </span>
+          </div>
+        )}
+
         {/* Renk */}
         <div>
           <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Farbe</p>
