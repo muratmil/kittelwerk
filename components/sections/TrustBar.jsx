@@ -3,9 +3,9 @@ export default function TrustBar() {
     { num: '24/1', lbl: 'Supreme Baumwolle' },
     { num: '5', lbl: 'Produkte' },
     { num: '10+', lbl: 'Stück Mindestmenge' },
-    { num: '1–2W', lbl: 'Lieferzeit' },
+    { num: '1–4W', lbl: 'Lieferzeit' },
     { num: 'GRATIS', lbl: 'Logo-Druck' },
-    { num: '5,90 €', lbl: 'Versandkosten' },
+    { num: 'ab 9,90€', lbl: 'Versandkosten' },
   ];
   return (
     <div className="bg-ink text-white py-5 border-b-4 border-sun">

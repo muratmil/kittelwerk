@@ -13,8 +13,13 @@ const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0, bestickung: 0 
 
 export const DISCOUNT_CODES = { 'KITTEL10': 5 };
 
-export const SHIPPING_COST = 5.90;
 export const FREE_SHIPPING_THRESHOLD = 300;
+
+export function calcShipping(subtotal) {
+  if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
+  if (subtotal >= 100) return 14.90;
+  return 9.90;
+}
 
 export const useCartStore = create((set, get) => ({
   items: [],
@@ -63,10 +68,7 @@ export const useCartStore = create((set, get) => ({
     const subtotal = get().getSubtotal();
     return subtotal * get().discountPercent / 100;
   },
-  getShippingCost: () => {
-    const subtotal = get().getSubtotal();
-    return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  },
+  getShippingCost: () => calcShipping(get().getSubtotal()),
   getFinalTotal: () => {
     const subtotal = get().getSubtotal();
     const discount = get().getDiscountAmount();
