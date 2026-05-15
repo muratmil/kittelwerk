@@ -431,6 +431,9 @@ function EditWorkshopModal({ workshop, onClose, onSave }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetting, setResetting] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetError, setResetError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -445,6 +448,21 @@ function EditWorkshopModal({ workshop, onClose, onSave }) {
     if (!res.ok) { setError(data.error || 'Fehler beim Speichern.'); setLoading(false); return; }
     onSave();
     onClose();
+  };
+
+  const handleResetPassword = async () => {
+    setResetting(true);
+    setResetError('');
+    setNewPassword('');
+    const res = await fetch('/api/admin-reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workshop_id: workshop.id }),
+    });
+    const data = await res.json();
+    setResetting(false);
+    if (!res.ok) { setResetError(data.error || 'Fehler beim Zurücksetzen.'); return; }
+    setNewPassword(data.newPassword);
   };
 
   return (
@@ -478,6 +496,27 @@ function EditWorkshopModal({ workshop, onClose, onSave }) {
               className="w-4 h-4 border-2 border-ink accent-ink" />
             <span className="text-[11px] font-black uppercase">Aktiv</span>
           </label>
+
+          {/* Şifre Sıfırlama */}
+          <div className="border-t-2 border-ink/20 pt-4 space-y-2">
+            <p className="text-[9px] font-black uppercase opacity-50">Passwort</p>
+            {newPassword ? (
+              <div className="bg-olive/10 border-2 border-olive p-3 space-y-1">
+                <p className="text-[10px] font-black uppercase text-olive">Neues Passwort generiert ✓</p>
+                <p className="text-[11px]">Passwort: <strong className="font-mono bg-white px-2 py-0.5">{newPassword}</strong></p>
+                <p className="text-[9px] opacity-50">Bitte dem Atölye mitteilen.</p>
+              </div>
+            ) : (
+              <>
+                {resetError && <p className="text-tomato text-[10px] font-black">{resetError}</p>}
+                <button type="button" onClick={handleResetPassword} disabled={resetting}
+                  className="w-full border-2 border-ink py-2.5 font-black uppercase text-[10px] hover:bg-sun transition-all disabled:opacity-50">
+                  {resetting ? 'Wird zurückgesetzt...' : 'Passwort zurücksetzen'}
+                </button>
+              </>
+            )}
+          </div>
+
           {error && <p className="text-tomato text-[11px] font-black uppercase">{error}</p>}
           <button type="submit" disabled={loading}
             className="w-full bg-ink text-white py-3 font-black uppercase hover:bg-tomato transition-all disabled:opacity-50">
