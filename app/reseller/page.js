@@ -283,13 +283,21 @@ export default function ResellerPage() {
             {product.hasSizes ? (
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase tracking-widest">Größen</label>
-                <div className="grid grid-cols-6 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {SIZES.map(s => (
                     <div key={s} className="flex flex-col items-center gap-1">
                       <span className="text-[9px] font-black opacity-50">{s}</span>
-                      <input type="number" min="0" value={sizes[s]}
-                        onChange={e => setSizes(prev => ({ ...prev, [s]: parseInt(e.target.value) || 0 }))}
-                        className="w-full border-2 border-ink p-2 text-center text-sm font-black focus:bg-sun outline-none" />
+                      <div className="flex items-center border-2 border-ink w-full">
+                        <button type="button"
+                          onClick={() => setSizes(prev => ({ ...prev, [s]: Math.max(0, (prev[s] || 0) - 1) }))}
+                          className="px-1.5 py-1.5 text-sm font-black hover:bg-sun transition-all leading-none select-none">−</button>
+                        <input type="number" min="0" value={sizes[s]}
+                          onChange={e => setSizes(prev => ({ ...prev, [s]: parseInt(e.target.value) || 0 }))}
+                          className="flex-1 w-0 min-w-0 py-1.5 text-center text-sm font-black focus:bg-sun outline-none border-x-2 border-ink" />
+                        <button type="button"
+                          onClick={() => setSizes(prev => ({ ...prev, [s]: (prev[s] || 0) + 1 }))}
+                          className="px-1.5 py-1.5 text-sm font-black hover:bg-sun transition-all leading-none select-none">+</button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -298,25 +306,40 @@ export default function ResellerPage() {
             ) : (
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-black uppercase tracking-widest">Menge</label>
-                <input type="number" min="1" value={qty}
-                  onChange={e => setQty(e.target.value)}
-                  className="w-32 border-2 border-ink p-3 text-center font-black focus:bg-sun outline-none" />
+                <div className="flex items-center border-2 border-ink w-32">
+                  <button type="button"
+                    onClick={() => setQty(q => Math.max(1, (parseInt(q) || 1) - 1))}
+                    className="px-3 py-3 font-black hover:bg-sun transition-all leading-none select-none">−</button>
+                  <input type="number" min="1" value={qty}
+                    onChange={e => setQty(e.target.value)}
+                    className="flex-1 w-0 min-w-0 py-3 text-center font-black focus:bg-sun outline-none border-x-2 border-ink" />
+                  <button type="button"
+                    onClick={() => setQty(q => (parseInt(q) || 1) + 1)}
+                    className="px-3 py-3 font-black hover:bg-sun transition-all leading-none select-none">+</button>
+                </div>
               </div>
             )}
 
-            {itemQty > 0 && (
-              <div className="bg-olive/10 border border-olive/30 px-3 py-2 space-y-0.5">
-                <p className="text-[10px] opacity-50 line-through">{itemQty} × {basePrice.toFixed(2)}€ = {(itemQty * basePrice).toFixed(2)}€</p>
-                <p className="text-[11px] font-bold text-olive">
-                  → {itemQty} × {resellerPrice.toFixed(2)}€ = <strong>{(itemQty * resellerPrice).toFixed(2)}€</strong>
-                  <span className="ml-2 text-[9px] opacity-70">({discountRate}% Händlerrabatt)</span>
-                </p>
+            {/* Fiyat önizleme — her zaman görünür */}
+            <div className={`border-4 p-4 space-y-2 transition-all ${itemQty > 0 ? 'border-olive bg-olive/10' : 'border-ink/20 bg-paper'}`}>
+              <p className="text-[9px] font-black uppercase opacity-50 tracking-widest">Preisvorschau</p>
+              <div className="flex justify-between items-baseline">
+                <span className="text-[11px] opacity-50">Listenpreis</span>
+                <span className="text-[11px] line-through opacity-40">{itemQty > 0 ? `${itemQty} × ${basePrice.toFixed(2)}€ = ${(itemQty * basePrice).toFixed(2)}€` : `— × ${basePrice.toFixed(2)}€`}</span>
               </div>
-            )}
+              <div className="flex justify-between items-baseline">
+                <span className="text-[11px] font-black text-olive">{discountRate}% Händlerrabatt</span>
+                <span className="text-[11px] font-black text-olive">{itemQty > 0 ? `−${(itemQty * (basePrice - resellerPrice)).toFixed(2)}€` : '—'}</span>
+              </div>
+              <div className="flex justify-between items-baseline border-t-2 border-ink/20 pt-2">
+                <span className="font-black text-sm uppercase">Ihr Preis</span>
+                <span className="font-black text-xl">{itemQty > 0 ? `${(itemQty * resellerPrice).toFixed(2)}€` : `ab ${resellerPrice.toFixed(2)}€/Stk`}</span>
+              </div>
+            </div>
 
             <button type="button" onClick={addItem} disabled={itemQty < 1}
               className="w-full bg-ink text-white py-3 font-black uppercase flex items-center justify-center gap-2 hover:bg-tomato transition-all shadow-brutalist disabled:opacity-30">
-              <Plus size={16} /> Hinzufügen
+              <Plus size={16} /> In den Warenkorb
             </button>
           </div>
 
