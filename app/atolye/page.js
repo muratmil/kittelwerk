@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { RefreshCw, Printer, LogOut, Download, Tag, CheckSquare, Square } from 'lucide-react';
+import { RefreshCw, Printer, LogOut, Download, Tag, CheckSquare, Square, Send, ChevronDown, ChevronUp } from 'lucide-react';
 
 const TRANSLATIONS = {
   de: {
@@ -152,6 +152,71 @@ function printAddressLabel(order, t) {
 
 const ADMIN_WHATSAPP = '491749623344';
 
+function MessagesPanel({ orderId, supabase, senderName, t }) {
+  const [messages, setMessages] = useState(null);
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const load = async () => {
+    const { data } = await supabase
+      .from('workshop_messages').select('*').eq('order_id', orderId).order('created_at');
+    setMessages(data || []);
+  };
+
+  useEffect(() => { if (open && messages === null) load(); }, [open]);
+
+  const send = async () => {
+    if (!text.trim()) return;
+    setSending(true);
+    await supabase.from('workshop_messages').insert([{
+      order_id: orderId,
+      sender_name: senderName,
+      is_merkez: false,
+      message: text.trim(),
+    }]);
+    setText('');
+    await load();
+    setSending(false);
+  };
+
+  return (
+    <div className="border-2 border-ink/20 print:hidden">
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-3 py-2 hover:bg-sun/40 transition-all">
+        <span className="text-[9px] font-black uppercase opacity-50">Nachricht an Merkez</span>
+        {open ? <ChevronUp size={12} className="opacity-40" /> : <ChevronDown size={12} className="opacity-40" />}
+      </button>
+      {open && (
+        <div className="border-t-2 border-ink/20 p-3 space-y-3">
+          {messages?.length === 0 && (
+            <p className="text-[10px] opacity-30 text-center py-2">Noch keine Nachrichten</p>
+          )}
+          {messages?.map(m => (
+            <div key={m.id} className={`flex ${m.is_merkez ? 'justify-start' : 'justify-end'}`}>
+              <div className={`max-w-[80%] px-3 py-2 border-2 ${m.is_merkez ? 'bg-sun border-ink' : 'bg-ink text-white border-ink'}`}>
+                <p className="text-[9px] font-black uppercase opacity-60 mb-0.5">{m.sender_name}</p>
+                <p className="text-[12px] font-medium">{m.message}</p>
+                <p className="text-[8px] opacity-40 mt-1">{new Date(m.created_at).toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' })}</p>
+              </div>
+            </div>
+          ))}
+          <div className="flex gap-2 mt-2">
+            <input value={text} onChange={e => setText(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
+              placeholder="Nachricht schreiben..."
+              className="flex-1 border-2 border-ink p-2 text-[11px] outline-none focus:bg-sun" />
+            <button onClick={send} disabled={sending || !text.trim()}
+              className="px-3 border-2 border-ink hover:bg-sun disabled:opacity-40 transition-all">
+              <Send size={13} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function WhatsAppBtn({ waPhone, waText, label }) {
   return (
     <a href={`https://wa.me/${waPhone}?text=${waText}`} target="_blank" rel="noreferrer"
@@ -166,7 +231,7 @@ function WhatsAppBtn({ waPhone, waText, label }) {
   );
 }
 
-function OrderCard({ order, supabase, t, isWorkshop, onStatusChange }) {
+function OrderCard({ order, supabase, t, isWorkshop, workshopName, onStatusChange }) {
   const date = new Date(order.created_at).toLocaleDateString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
@@ -174,9 +239,7 @@ function OrderCard({ order, supabase, t, isWorkshop, onStatusChange }) {
   const totalQty = order.items?.reduce((sum, i) => sum + i.qty, 0) || 0;
   const [qcChecks, setQcChecks] = useState({});
   const qcDone = t.qcItems.every(i => qcChecks[i.key]);
-  const [notes, setNotes] = useState(order.notes || '');
-  const [savingNotes, setSavingNotes] = useState(false);
-  const [notesSaved, setNotesSaved] = useState(false);
+  const [notes] = useState(order.notes || '');
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const waPhone = ADMIN_WHATSAPP;
@@ -187,14 +250,6 @@ function OrderCard({ order, supabase, t, isWorkshop, onStatusChange }) {
     await onStatusChange(order.id, newStatus);
     setStatus(newStatus);
     setUpdatingStatus(false);
-  };
-
-  const handleSaveNotes = async () => {
-    setSavingNotes(true);
-    await supabase.from('orders').update({ notes }).eq('id', order.id);
-    setSavingNotes(false);
-    setNotesSaved(true);
-    setTimeout(() => setNotesSaved(false), 2000);
   };
 
   const handleLogoDownload = async () => {
@@ -269,16 +324,13 @@ function OrderCard({ order, supabase, t, isWorkshop, onStatusChange }) {
             )}
           </div>
 
-          <div className="border-2 border-ink/20 p-3 space-y-2 print:hidden">
-            <p className="text-[9px] font-black uppercase opacity-50">{t.note}</p>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)}
-              rows={3} placeholder={t.noNote}
-              className="w-full border-2 border-ink/20 p-2 text-[11px] outline-none focus:border-ink focus:bg-sun resize-none bg-white" />
-            <button onClick={handleSaveNotes} disabled={savingNotes}
-              className={`flex items-center gap-2 text-[10px] font-black uppercase px-3 py-1.5 border-2 border-ink transition-all disabled:opacity-50
-                ${notesSaved ? 'bg-olive text-white border-olive' : 'bg-white hover:bg-sun'}`}>
-              {notesSaved ? t.noteSaved : savingNotes ? t.noteSaving : t.noteSave}
-            </button>
+          <div className="border-2 border-ink/20 p-3 print:hidden">
+            <p className="text-[9px] font-black uppercase opacity-50 mb-2">{t.note}</p>
+            {notes ? (
+              <p className="text-[12px] font-medium whitespace-pre-wrap">{notes}</p>
+            ) : (
+              <p className="text-[11px] font-bold opacity-30">{t.noNote}</p>
+            )}
           </div>
           {order.notes && (
             <div className="hidden print:block border-2 border-sun bg-sun/20 p-3">
@@ -325,6 +377,11 @@ function OrderCard({ order, supabase, t, isWorkshop, onStatusChange }) {
           </div>
         )}
 
+        {/* Merkez'e mesaj */}
+        {isWorkshop && (
+          <MessagesPanel orderId={order.id} supabase={supabase} senderName={workshopName} t={t} />
+        )}
+
         {/* Admin'e WhatsApp */}
         <div className="flex justify-start print:hidden">
           <WhatsAppBtn waPhone={waPhone} waText={waText} label={t.whatsapp} />
@@ -345,6 +402,7 @@ function OrderCard({ order, supabase, t, isWorkshop, onStatusChange }) {
 export default function AtolyePage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, setIsPending] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [workshopId, setWorkshopId] = useState(undefined);
   const [workshopName, setWorkshopName] = useState('');
@@ -383,11 +441,22 @@ export default function AtolyePage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('workshop_id, workshops(name)')
+        .select('role, workshop_id, workshops(name, active)')
         .eq('id', user.id)
         .single();
 
       const wid = profile?.workshop_id || null;
+
+      // Ana atölye (seller, workshop_id yok) → merkez ekranına
+      if (!wid) { router.replace('/atolye/merkez'); return; }
+
+      // Sub-atölye ama henüz onaylanmamış
+      if (profile?.workshops?.active === false) {
+        setIsPending(true);
+        setLoading(false);
+        return;
+      }
+
       setWorkshopId(wid);
       if (profile?.workshops?.name) setWorkshopName(profile.workshops.name);
 
@@ -403,6 +472,27 @@ export default function AtolyePage() {
     };
     init();
   }, []);
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-paper flex items-center justify-center p-6">
+        <div className="w-full max-w-sm text-center space-y-6">
+          <h1 className="font-serif font-black text-4xl italic uppercase">
+            Kittel<span className="text-tomato">werk</span>.
+          </h1>
+          <div className="bg-white border-4 border-ink shadow-brutalist p-8 space-y-4">
+            <p className="text-4xl">⏳</p>
+            <h2 className="font-black text-xl uppercase">Anfrage wird geprüft</h2>
+            <p className="text-[13px] opacity-60">Ihr Atölye-Konto wird noch freigegeben. Sie erhalten eine E-Mail, sobald Ihr Zugang aktiviert wurde.</p>
+            <button onClick={async () => { await supabase.auth.signOut(); router.push('/atolye/login'); }}
+              className="w-full border-2 border-ink py-3 font-black uppercase text-[11px] tracking-wider hover:bg-sun transition-all">
+              Abmelden
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-paper print:bg-white">
@@ -471,7 +561,7 @@ export default function AtolyePage() {
             </div>
             {orders.map(order => (
               <OrderCard key={order.id} order={order} supabase={supabase} t={t}
-                isWorkshop={!!workshopId} onStatusChange={handleStatusChange} />
+                isWorkshop={!!workshopId} workshopName={workshopName} onStatusChange={handleStatusChange} />
             ))}
           </>
         )}

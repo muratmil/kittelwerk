@@ -33,7 +33,8 @@ export async function middleware(request) {
   // /atolye koruması
   if (path.startsWith('/atolye')) {
     const isLoginPage = path === '/atolye/login'
-    if (!user && !isLoginPage) return NextResponse.redirect(new URL('/atolye/login', request.url))
+    const isKayitPage = path === '/atolye/kayit'
+    if (!user && !isLoginPage && !isKayitPage) return NextResponse.redirect(new URL('/atolye/login', request.url))
     if (user && isLoginPage) return NextResponse.redirect(new URL('/atolye', request.url))
   }
 
