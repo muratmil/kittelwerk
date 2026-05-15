@@ -386,7 +386,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t }) 
         {/* Atölye WhatsApp */}
         {assignedWorkshop?.phone && (
           <div className="flex justify-start print:hidden">
-            <a href={`https://wa.me/${assignedWorkshop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`${t.orderNo} #${order.id.slice(0,8)} · ${order.company} · ${totalQty} Stk`)}`}
+            <a href={`https://wa.me/${assignedWorkshop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`)}`}
               target="_blank" rel="noreferrer"
               className="inline-flex items-stretch border-2 border-ink shadow-brutalist hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
               <span className="bg-[#25D366] px-2.5 flex items-center justify-center">
