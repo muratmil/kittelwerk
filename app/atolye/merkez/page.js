@@ -338,20 +338,23 @@ export default function AtolyeMerkez() {
 
   const loadAll = async () => {
     setLoading(true);
-
-    const [ordersRes, workshopsRes, pendingRes] = await Promise.all([
-      supabase.from('orders').select('*')
-        .not('status', 'in', '("done","cancelled")')
-        .order('created_at', { ascending: true }),
-      supabase.from('workshops').select('*').eq('active', true).order('name'),
-      supabase.from('workshops').select('*').eq('active', false).order('created_at'),
-    ]);
-
-    setOrders(ordersRes.data || []);
-    setWorkshops(workshopsRes.data || []);
-    setPending(pendingRes.data || []);
-    setLastUpdated(new Date().toLocaleTimeString('de-DE'));
-    setLoading(false);
+    try {
+      const [ordersRes, workshopsRes, pendingRes] = await Promise.all([
+        supabase.from('orders').select('*')
+          .not('status', 'in', '("done","cancelled")')
+          .order('created_at', { ascending: true }),
+        supabase.from('workshops').select('*').eq('active', true).order('name'),
+        supabase.from('workshops').select('*').eq('active', false).order('created_at'),
+      ]);
+      setOrders(ordersRes.data || []);
+      setWorkshops(workshopsRes.data || []);
+      setPending(pendingRes.data || []);
+      setLastUpdated(new Date().toLocaleTimeString('de-DE'));
+    } catch (e) {
+      console.error('loadAll error:', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -363,7 +366,10 @@ export default function AtolyeMerkez() {
         .from('profiles').select('role, workshop_id').eq('id', user.id).single();
 
       const isMerkez = profile?.role === 'seller' && !profile?.workshop_id;
-      if (!isMerkez) { router.push('/atolye'); return; }
+      if (!isMerkez) {
+        router.push(profile?.role === 'admin' ? '/backend' : '/atolye/login');
+        return;
+      }
 
       await loadAll();
     };

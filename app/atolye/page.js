@@ -447,6 +447,9 @@ export default function AtolyePage() {
 
       const wid = profile?.workshop_id || null;
 
+      // Admin buraya gelmemeli
+      if (profile?.role === 'admin') { router.replace('/backend'); return; }
+
       // Ana atölye (seller, workshop_id yok) → merkez ekranına
       if (!wid) { router.replace('/atolye/merkez'); return; }
 
