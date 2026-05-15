@@ -40,16 +40,16 @@ const localBusinessSchema = {
   ],
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Gleiwitzer Weg 1',
-    addressLocality: 'Sarstedt',
-    postalCode: '31157',
+    streetAddress: 'Lange Str. 21',
+    addressLocality: 'Ronnenberg',
+    postalCode: '30952',
     addressRegion: 'Niedersachsen',
     addressCountry: 'DE',
   },
   geo: {
     '@type': 'GeoCoordinates',
-    latitude: 52.2359,
-    longitude: 9.8576,
+    latitude: 52.3197,
+    longitude: 9.6558,
   },
   areaServed: [
     { '@type': 'City', name: 'Hannover' },
