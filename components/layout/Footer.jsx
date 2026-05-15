@@ -36,7 +36,6 @@ export default function Footer() {
       </div>
       <div className="container mx-auto px-6 border-t border-white/15 pt-6 flex flex-wrap justify-between gap-4 text-[10px] opacity-50">
         <span>info@kittelwerk.de</span>
-        <span>Zahlung an deutsches Konto · Lieferung 1–4 Wochen · Deutschlandweiter Versand</span>
       </div>
     </footer>
   );
