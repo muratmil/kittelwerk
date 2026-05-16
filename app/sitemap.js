@@ -17,9 +17,7 @@ export default function sitemap() {
     { url: `${base}/kontakt`,            lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/ueber-uns`,          lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/lieferbedingungen`,  lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${base}/agb`,               lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${base}/impressum`,          lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
-    { url: `${base}/datenschutz`,        lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
     ...productPages,
   ];
 }
