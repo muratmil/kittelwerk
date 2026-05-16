@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { PRODUCTS } from '@/data/products';
-import { Plus, Trash2, LogOut, CheckCircle, Clock } from 'lucide-react';
+import { Plus, Trash2, LogOut, CheckCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -22,6 +22,13 @@ const STATUS_COLORS = {
   new: 'bg-sun text-ink', processing: 'bg-blue-100 text-blue-800',
   shipped: 'bg-olive/20 text-olive', done: 'bg-ink/10 text-ink/50',
   cancelled: 'bg-tomato/10 text-tomato',
+};
+const STATUS_DESCRIPTIONS = {
+  new: 'Ihre Bestellung ist eingegangen und wird geprüft.',
+  processing: 'Ihre Bestellung wird aktuell produziert.',
+  shipped: 'Ihre Bestellung ist unterwegs zu Ihnen.',
+  done: 'Ihre Bestellung wurde abgeschlossen.',
+  cancelled: 'Diese Bestellung wurde storniert.',
 };
 
 function getTierPrice(product, qty) {
@@ -55,6 +62,7 @@ export default function ResellerPage() {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [expandedOrders, setExpandedOrders] = useState({});
   const [error, setError] = useState('');
 
   const product = PRODUCTS.find(p => p.id === selProd);
@@ -444,18 +452,68 @@ export default function ResellerPage() {
                 {orders.map(ord => {
                   const date = new Date(ord.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
                   const totalQty = ord.items?.reduce((s, i) => s + i.qty, 0) || 0;
+                  const isOpen = !!expandedOrders[ord.id];
+                  const status = ord.status || 'new';
                   return (
-                    <div key={ord.id} className="px-5 py-3 flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-[11px] font-black">{date} · {totalQty} Stück</p>
-                        <p className="text-[10px] opacity-50">{ord.items?.map(i => i.name).join(', ')}</p>
-                      </div>
-                      <div className="text-right flex-shrink-0 space-y-1">
-                        <p className="font-black text-sm">{Number(ord.total).toFixed(2)}€</p>
-                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 ${STATUS_COLORS[ord.status] || STATUS_COLORS.new}`}>
-                          {STATUS_LABELS[ord.status] || 'Neu'}
-                        </span>
-                      </div>
+                    <div key={ord.id} className="border-b-2 border-ink/10 last:border-b-0">
+                      {/* Header row — always visible, clickable */}
+                      <button
+                        type="button"
+                        onClick={() => setExpandedOrders(prev => ({ ...prev, [ord.id]: !prev[ord.id] }))}
+                        className="w-full px-5 py-4 flex items-center justify-between gap-3 text-left hover:bg-paper/50 transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-[11px] font-black uppercase px-2 py-1 ${STATUS_COLORS[status]}`}>
+                              {STATUS_LABELS[status]}
+                            </span>
+                            <span className="text-[11px] font-black text-ink/50">{date}</span>
+                          </div>
+                          <p className="text-[11px] text-ink/60 mt-1">{STATUS_DESCRIPTIONS[status]}</p>
+                        </div>
+                        <div className="flex-shrink-0 flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="font-black text-sm">{Number(ord.total).toFixed(2)}€</p>
+                            <p className="text-[10px] text-ink/50">{totalQty} Stück</p>
+                          </div>
+                          {isOpen ? <ChevronUp size={16} className="opacity-50" /> : <ChevronDown size={16} className="opacity-50" />}
+                        </div>
+                      </button>
+
+                      {/* Expanded detail */}
+                      {isOpen && (
+                        <div className="px-5 pb-4 bg-paper/30 border-t border-ink/10">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-ink/40 pt-3 pb-2">Artikel</p>
+                          <div className="space-y-2">
+                            {ord.items?.map((item, idx) => {
+                              const sizeEntries = Object.entries(item.sizes || {}).filter(([, v]) => v > 0);
+                              return (
+                                <div key={idx} className="text-[11px]">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="font-black">{item.name}</span>
+                                    <span className="font-black">{(item.unitPrice * item.qty).toFixed(2)}€</span>
+                                  </div>
+                                  <div className="text-ink/50 flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+                                    {item.color && <span>{item.color}</span>}
+                                    {sizeEntries.length > 0 && (
+                                      <span>{sizeEntries.map(([s, v]) => `${s}×${v}`).join(' ')}</span>
+                                    )}
+                                    <span>{item.qty} Stk. · {item.unitPrice?.toFixed(2)}€/Stk.</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-ink/10 flex justify-between items-center">
+                            <span className="text-[11px] font-black uppercase tracking-widest">Gesamt</span>
+                            <span className="font-black text-base">{Number(ord.total).toFixed(2)}€</span>
+                          </div>
+                          {ord.note && (
+                            <p className="mt-2 text-[10px] text-ink/50 italic">Notiz: {ord.note}</p>
+                          )}
+                          <p className="mt-2 text-[9px] text-ink/30 font-mono">#{ord.id.slice(0, 8).toUpperCase()}</p>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
