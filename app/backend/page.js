@@ -189,7 +189,7 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
   );
 }
 
-function ResellerOrderRow({ order, onStatusChange }) {
+function ResellerOrderRow({ order, onStatusChange, showBadge = false }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState(order.status || 'new');
   const [updating, setUpdating] = useState(false);
@@ -203,13 +203,15 @@ function ResellerOrderRow({ order, onStatusChange }) {
 
   const date = new Date(order.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const totalQty = order.items?.reduce((s, i) => s + i.qty, 0) || 0;
+  const companyName = order.resellers?.company || order.company;
 
   return (
     <div className={`border-2 border-ink bg-white transition-all ${open ? 'shadow-brutalist' : ''}`}>
       <div className="flex items-center gap-4 p-4 cursor-pointer" onClick={() => setOpen(o => !o)}>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="font-black text-sm uppercase">{order.resellers?.company}</span>
+            <span className="font-black text-sm uppercase">{companyName}</span>
+            {showBadge && <span className="text-[9px] font-black bg-olive text-white px-1.5 py-0.5 uppercase">Händler</span>}
             <span className="text-[10px] opacity-40">{date}</span>
           </div>
           <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -715,15 +717,21 @@ export default function BackendPage() {
   };
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { router.push('/backend/login'); return; }
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+      if (!profile || profile.role !== 'admin') {
+        await supabase.auth.signOut();
+        router.push('/backend/login');
+        return;
+      }
       setUserEmail(user.email);
+      fetchOrders();
+      fetchResellers();
+      fetchResellerOrders();
+      fetchApplications();
+      fetchWorkshops();
     });
-    fetchOrders();
-    fetchResellers();
-    fetchResellerOrders();
-    fetchApplications();
-    fetchWorkshops();
   }, []);
 
   const handleLogout = async () => {
@@ -759,9 +767,14 @@ export default function BackendPage() {
     setAppLoading(p => ({ ...p, [appId]: false }));
   };
 
-  const filtered = filter === 'all' ? orders : orders.filter(o => (o.status || 'new') === filter);
+  const allOrders = [
+    ...orders.map(o => ({ ...o, _type: 'regular' })),
+    ...resellerOrders.map(o => ({ ...o, _type: 'reseller', company: o.resellers?.company })),
+  ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const filtered = filter === 'all' ? allOrders : allOrders.filter(o => (o.status || 'new') === filter);
   const counts = STATUS_OPTIONS.reduce((acc, opt) => {
-    acc[opt.value] = orders.filter(o => (o.status || 'new') === opt.value).length;
+    acc[opt.value] = allOrders.filter(o => (o.status || 'new') === opt.value).length;
     return acc;
   }, {});
 
@@ -771,40 +784,40 @@ export default function BackendPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <div className="bg-white border-b-4 border-ink px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
+      <div className="bg-white border-b-4 border-ink">
+        <div className="px-4 py-3 flex justify-between items-center">
           <span className="font-serif font-black text-xl italic uppercase">
             Kittel<span className="text-tomato">werk</span>. Backend
           </span>
-          <div className="flex border-2 border-ink">
-            <button onClick={() => setTab('orders')}
-              className={`flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 transition-all ${tab === 'orders' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
-              <Package size={13} /> Bestellungen {orders.length > 0 && `(${orders.length})`}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] opacity-50 hidden sm:block">{userEmail}</span>
+            <button onClick={() => { fetchOrders(); fetchResellers(); fetchResellerOrders(); fetchApplications(); fetchWorkshops(); }}
+              className="p-2 border-2 border-ink hover:bg-sun transition-all" title="Aktualisieren">
+              <RefreshCw size={14} />
             </button>
-            <button onClick={() => setTab('reseller')}
-              className={`relative flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 transition-all border-l-2 border-ink ${tab === 'reseller' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
-              <Users size={13} /> Händler {resellers.filter(r => r.active).length > 0 && `(${resellers.filter(r => r.active).length})`}
-              {resellers.filter(r => !r.active).length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-tomato text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
-                  {resellers.filter(r => !r.active).length}
-                </span>
-              )}
-            </button>
-            <button onClick={() => setTab('workshops')}
-              className={`flex items-center gap-2 text-[10px] font-black uppercase px-4 py-2 transition-all border-l-2 border-ink ${tab === 'workshops' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
-              <Wrench size={13} /> Atölyeler {workshops.length > 0 && `(${workshops.length})`}
+            <button onClick={handleLogout}
+              className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-tomato hover:text-white transition-all">
+              <LogOut size={14} /> <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-[10px] opacity-50 hidden sm:block">{userEmail}</span>
-          <button onClick={() => { fetchOrders(); fetchResellers(); fetchResellerOrders(); fetchApplications(); fetchWorkshops(); }}
-            className="p-2 border-2 border-ink hover:bg-sun transition-all" title="Aktualisieren">
-            <RefreshCw size={14} />
+        <div className="flex border-t-2 border-ink">
+          <button onClick={() => setTab('orders')}
+            className={`flex-1 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase px-2 py-2.5 transition-all ${tab === 'orders' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+            <Package size={13} /> <span className="hidden xs:inline">Bestellungen</span><span className="xs:hidden">Bestellg.</span> {allOrders.length > 0 && `(${allOrders.length})`}
           </button>
-          <button onClick={handleLogout}
-            className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-tomato hover:text-white transition-all">
-            <LogOut size={14} /> Logout
+          <button onClick={() => setTab('reseller')}
+            className={`relative flex-1 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase px-2 py-2.5 transition-all border-l-2 border-ink ${tab === 'reseller' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+            <Users size={13} /> Händler {resellers.filter(r => r.active).length > 0 && `(${resellers.filter(r => r.active).length})`}
+            {resellers.filter(r => !r.active).length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-tomato text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                {resellers.filter(r => !r.active).length}
+              </span>
+            )}
+          </button>
+          <button onClick={() => setTab('workshops')}
+            className={`flex-1 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase px-2 py-2.5 transition-all border-l-2 border-ink ${tab === 'workshops' ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+            <Wrench size={13} /> Atölyeler {workshops.length > 0 && `(${workshops.length})`}
           </button>
         </div>
       </div>
@@ -814,7 +827,7 @@ export default function BackendPage() {
         <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Gesamt',         value: orders.length,          color: 'bg-ink text-white' },
+              { label: 'Gesamt',         value: allOrders.length,       color: 'bg-ink text-white' },
               { label: 'Neu',            value: counts.new || 0,        color: 'bg-sun text-ink' },
               { label: 'In Bearbeitung', value: counts.processing || 0, color: 'bg-blue-100 text-blue-800' },
               { label: 'Versandt',       value: counts.shipped || 0,    color: 'bg-olive/20 text-olive' },
@@ -829,7 +842,7 @@ export default function BackendPage() {
           <div className="flex flex-wrap gap-2">
             <button onClick={() => setFilter('all')}
               className={`text-[9px] font-black uppercase px-3 py-2 border-2 border-ink transition-all ${filter === 'all' ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
-              Alle ({orders.length})
+              Alle ({allOrders.length})
             </button>
             {STATUS_OPTIONS.map(opt => (
               <button key={opt.value} onClick={() => setFilter(opt.value)}
@@ -845,9 +858,10 @@ export default function BackendPage() {
             <div className="text-center py-20 font-serif italic opacity-40 uppercase">Keine Bestellungen</div>
           ) : (
             <div className="space-y-3">
-              {filtered.map(order => (
-                <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} onWorkshopAssign={handleWorkshopAssign} workshops={workshops} supabase={supabase} />
-              ))}
+              {filtered.map(order => order._type === 'reseller'
+                ? <ResellerOrderRow key={`r-${order.id}`} order={order} onStatusChange={handleResellerOrderStatus} showBadge />
+                : <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} onWorkshopAssign={handleWorkshopAssign} workshops={workshops} supabase={supabase} />
+              )}
             </div>
           )}
         </div>
