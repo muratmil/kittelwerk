@@ -22,9 +22,6 @@ export const metadata = {
     index: true,
     follow: true,
   },
-  alternates: {
-    canonical: 'https://www.kittelwerk.de',
-  },
 };
 
 const localBusinessSchema = {

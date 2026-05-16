@@ -12,11 +12,14 @@ export default function sitemap() {
   }));
 
   return [
-    { url: base,                    lastModified: now, changeFrequency: 'weekly',  priority: 1.0 },
-    { url: `${base}/produkte`,      lastModified: now, changeFrequency: 'weekly',  priority: 0.95 },
+    { url: base,                         lastModified: now, changeFrequency: 'weekly',  priority: 1.0 },
+    { url: `${base}/produkte`,           lastModified: now, changeFrequency: 'weekly',  priority: 0.95 },
     { url: `${base}/kontakt`,            lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/lieferbedingungen`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/ueber-uns`,     lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/ueber-uns`,          lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/lieferbedingungen`,  lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/agb`,               lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${base}/impressum`,          lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${base}/datenschutz`,        lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
     ...productPages,
   ];
 }
