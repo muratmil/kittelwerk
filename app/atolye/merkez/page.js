@@ -223,7 +223,7 @@ function MessagesPanel({ orderId, supabase, senderName, t }) {
   );
 }
 
-function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t }) {
+function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t, isReseller = false }) {
   const date = new Date(order.created_at).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
   const [status, setStatus] = useState(order.status || 'new');
   const [workshopId, setWorkshopId] = useState(order.workshop_id || '');
@@ -235,11 +235,12 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t }) 
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const totalQty = order.items?.reduce((sum, i) => sum + i.qty, 0) || 0;
   const qcDone = t.qcItems.every(i => qcChecks[i.key]);
+  const table = isReseller ? 'reseller_orders' : 'orders';
 
   const handleAssign = async (wid) => {
     setAssigning(true);
     setWorkshopId(wid);
-    await supabase.from('orders').update({ workshop_id: wid || null }).eq('id', order.id);
+    await supabase.from(table).update({ workshop_id: wid || null }).eq('id', order.id);
     onAssign(order.id, wid || null);
     setAssigning(false);
   };
@@ -253,7 +254,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t }) 
 
   const handleSaveNotes = async () => {
     setSavingNotes(true);
-    await supabase.from('orders').update({ notes }).eq('id', order.id);
+    await supabase.from(table).update({ notes }).eq('id', order.id);
     setSavingNotes(false);
     setNotesSaved(true);
     setTimeout(() => setNotesSaved(false), 2000);
@@ -273,6 +274,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t }) 
       <div className="bg-ink text-white px-5 py-3 flex justify-between items-center">
         <div>
           <span className="font-black text-lg uppercase">{order.company}</span>
+          {isReseller && <span className="text-[9px] font-black bg-olive text-white px-1.5 py-0.5 ml-2 uppercase">Händler</span>}
           <span className="text-[10px] opacity-60 ml-3">{date}</span>
         </div>
         <div className="flex items-center gap-3">
@@ -416,10 +418,12 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t }) 
               </button>
             ))}
           </div>
-          <button onClick={() => printAddressLabel(order, t)}
-            className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-sun transition-all">
-            <Tag size={13} /> {t.labelPrint}
-          </button>
+          {!isReseller && (
+            <button onClick={() => printAddressLabel(order, t)}
+              className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-sun transition-all">
+              <Tag size={13} /> {t.labelPrint}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -463,14 +467,21 @@ export default function AtolyeMerkez() {
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [ordersRes, workshopsRes, pendingRes] = await Promise.all([
+      const [ordersRes, workshopsRes, pendingRes, resellerRes] = await Promise.all([
         supabase.from('orders').select('*')
           .not('status', 'in', '("done","cancelled","on_hold")')
           .order('created_at', { ascending: true }),
         supabase.from('workshops').select('*').eq('active', true).order('name'),
         supabase.from('workshops').select('*').eq('active', false).order('created_at'),
+        supabase.from('reseller_orders').select('*, resellers(company)')
+          .not('status', 'in', '("done","cancelled","on_hold")')
+          .order('created_at', { ascending: true }),
       ]);
-      setOrders(ordersRes.data || []);
+      const all = [
+        ...(ordersRes.data || []).map(o => ({ ...o, _type: 'regular' })),
+        ...(resellerRes.data || []).map(o => ({ ...o, _type: 'reseller', company: o.resellers?.company })),
+      ].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      setOrders(all);
       setWorkshops(workshopsRes.data || []);
       setPending(pendingRes.data || []);
       setLastUpdated(new Date().toLocaleTimeString('de-DE'));
@@ -512,8 +523,9 @@ export default function AtolyeMerkez() {
     setApprovingId(null);
   };
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
+  const handleStatusChange = async (orderId, newStatus, isReseller = false) => {
+    const table = isReseller ? 'reseller_orders' : 'orders';
+    await supabase.from(table).update({ status: newStatus }).eq('id', orderId);
   };
 
   const handleAssign = (orderId, workshopId) => {
@@ -618,7 +630,10 @@ export default function AtolyeMerkez() {
               <div className="space-y-6">
                 {filteredOrders.map(order => (
                   <OrderCard key={order.id} order={order} supabase={supabase} t={t}
-                    workshops={workshops} onStatusChange={handleStatusChange} onAssign={handleAssign} />
+                    workshops={workshops}
+                    onStatusChange={(id, status) => handleStatusChange(id, status, order._type === 'reseller')}
+                    onAssign={handleAssign}
+                    isReseller={order._type === 'reseller'} />
                 ))}
               </div>
             )}

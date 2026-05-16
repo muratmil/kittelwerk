@@ -189,10 +189,11 @@ function OrderRow({ order, onStatusChange, onNotesSave, onWorkshopAssign, worksh
   );
 }
 
-function ResellerOrderRow({ order, onStatusChange, showBadge = false }) {
+function ResellerOrderRow({ order, onStatusChange, onWorkshopAssign, workshops, supabase, showBadge = false }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState(order.status || 'new');
   const [updating, setUpdating] = useState(false);
+  const [assignedWorkshop, setAssignedWorkshop] = useState(order.workshop_id || '');
 
   const handleStatus = async (newStatus) => {
     setUpdating(true);
@@ -204,6 +205,11 @@ function ResellerOrderRow({ order, onStatusChange, showBadge = false }) {
   const date = new Date(order.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const totalQty = order.items?.reduce((s, i) => s + i.qty, 0) || 0;
   const companyName = order.resellers?.company || order.company;
+  const assignedWs = workshops?.find(w => w.id === assignedWorkshop) || null;
+  const waPhone = assignedWs?.phone?.replace(/[\s\-\+\(\)]/g, '') || '';
+  const waText = encodeURIComponent(
+    `Neue Händlerbestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nHändler: ${companyName}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`
+  );
 
   return (
     <div className={`border-2 border-ink bg-white transition-all ${open ? 'shadow-brutalist' : ''}`}>
@@ -260,6 +266,33 @@ function ResellerOrderRow({ order, onStatusChange, showBadge = false }) {
             <div className="border-2 border-sun bg-sun/20 p-3 text-[11px]">
               <p className="font-black uppercase text-[9px] opacity-50 mb-1">Notiz</p>
               <p>{order.notes}</p>
+            </div>
+          )}
+
+          {workshops?.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-[9px] font-black uppercase opacity-50">Atölye</span>
+              <select value={assignedWorkshop}
+                onChange={async e => {
+                  const wid = e.target.value;
+                  setAssignedWorkshop(wid);
+                  if (onWorkshopAssign) await onWorkshopAssign(order.id, wid || null);
+                }}
+                className="border-2 border-ink p-1.5 text-[11px] bg-white focus:bg-sun outline-none w-full max-w-[220px]">
+                <option value="">— Nicht zugewiesen —</option>
+                {workshops.map(w => (
+                  <option key={w.id} value={w.id}>{w.name}</option>
+                ))}
+              </select>
+              {assignedWs && waPhone && (
+                <a href={`https://wa.me/${waPhone}?text=${waText}`} target="_blank" rel="noreferrer"
+                  className="inline-flex items-stretch border-2 border-ink shadow-brutalist hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+                  <span className="bg-[#25D366] px-2.5 flex items-center justify-center">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  </span>
+                  <span className="px-3 py-1.5 text-[10px] font-black uppercase bg-white tracking-wider">WhatsApp — {assignedWs.name}</span>
+                </a>
+              )}
             </div>
           )}
 
@@ -751,6 +784,10 @@ export default function BackendPage() {
     await supabase.from('reseller_orders').update({ status: newStatus }).eq('id', orderId);
   };
 
+  const handleResellerWorkshopAssign = async (orderId, workshopId) => {
+    await supabase.from('reseller_orders').update({ workshop_id: workshopId }).eq('id', orderId);
+  };
+
   const handleWorkshopAssign = async (orderId, workshopId) => {
     await supabase.from('orders').update({ workshop_id: workshopId }).eq('id', orderId);
   };
@@ -859,7 +896,7 @@ export default function BackendPage() {
           ) : (
             <div className="space-y-3">
               {filtered.map(order => order._type === 'reseller'
-                ? <ResellerOrderRow key={`r-${order.id}`} order={order} onStatusChange={handleResellerOrderStatus} showBadge />
+                ? <ResellerOrderRow key={`r-${order.id}`} order={order} onStatusChange={handleResellerOrderStatus} onWorkshopAssign={handleResellerWorkshopAssign} workshops={workshops} supabase={supabase} showBadge />
                 : <OrderRow key={order.id} order={order} onStatusChange={handleStatusChange} onNotesSave={handleNotesSave} onWorkshopAssign={handleWorkshopAssign} workshops={workshops} supabase={supabase} />
               )}
             </div>
@@ -976,7 +1013,7 @@ export default function BackendPage() {
                 {selectedReseller ? `Bestellungen: ${resellers.find(r => r.id === selectedReseller)?.company}` : 'Alle Händlerbestellungen'}
               </h3>
               {filteredResellerOrders.map(order => (
-                <ResellerOrderRow key={order.id} order={order} onStatusChange={handleResellerOrderStatus} />
+                <ResellerOrderRow key={order.id} order={order} onStatusChange={handleResellerOrderStatus} onWorkshopAssign={handleResellerWorkshopAssign} workshops={workshops} supabase={supabase} />
               ))}
             </div>
           )}

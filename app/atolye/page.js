@@ -231,7 +231,7 @@ function WhatsAppBtn({ waPhone, waText, label }) {
   );
 }
 
-function OrderCard({ order, supabase, t, isWorkshop, workshopName, onStatusChange }) {
+function OrderCard({ order, supabase, t, isWorkshop, workshopName, onStatusChange, isReseller = false }) {
   const date = new Date(order.created_at).toLocaleDateString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
@@ -264,6 +264,7 @@ function OrderCard({ order, supabase, t, isWorkshop, workshopName, onStatusChang
       <div className="bg-ink text-white px-5 py-3 flex justify-between items-center">
         <div>
           <span className="font-black text-lg uppercase">{order.company}</span>
+          {isReseller && <span className="text-[9px] font-black bg-olive text-white px-1.5 py-0.5 ml-2 uppercase">Händler</span>}
           <span className="text-[10px] opacity-60 ml-3">{date}</span>
         </div>
         <div className="flex items-center gap-3">
@@ -387,13 +388,15 @@ function OrderCard({ order, supabase, t, isWorkshop, workshopName, onStatusChang
           <WhatsAppBtn waPhone={waPhone} waText={waText} label={t.whatsapp} />
         </div>
 
-        {/* Adres etiketi */}
-        <div className="flex justify-end print:hidden">
-          <button onClick={() => printAddressLabel(order, t)}
-            className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-sun transition-all">
-            <Tag size={13} /> {t.labelPrint}
-          </button>
-        </div>
+        {/* Adres etiketi (sadece normal siparişlerde) */}
+        {!isReseller && (
+          <div className="flex justify-end print:hidden">
+            <button onClick={() => printAddressLabel(order, t)}
+              className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-sun transition-all">
+              <Tag size={13} /> {t.labelPrint}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -418,20 +421,35 @@ export default function AtolyePage() {
 
   const fetchOrders = async (wid) => {
     setLoading(true);
-    let q = supabase
+    let regularQ = supabase
       .from('orders')
       .select('*')
       .not('status', 'in', '("done","cancelled","on_hold")')
       .order('created_at', { ascending: true });
-    if (wid) q = q.eq('workshop_id', wid);
-    const { data } = await q;
-    setOrders(data || []);
+    if (wid) regularQ = regularQ.eq('workshop_id', wid);
+
+    let resellerQ = supabase
+      .from('reseller_orders')
+      .select('*, resellers(company)')
+      .not('status', 'in', '("done","cancelled","on_hold")')
+      .order('created_at', { ascending: true });
+    if (wid) resellerQ = resellerQ.eq('workshop_id', wid);
+
+    const [{ data: regular }, { data: reseller }] = await Promise.all([regularQ, resellerQ]);
+
+    const all = [
+      ...(regular || []).map(o => ({ ...o, _type: 'regular' })),
+      ...(reseller || []).map(o => ({ ...o, _type: 'reseller', company: o.resellers?.company })),
+    ].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    setOrders(all);
     setLoading(false);
     setLastUpdated(new Date().toLocaleTimeString('de-DE'));
   };
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
+  const handleStatusChange = async (orderId, newStatus, isReseller = false) => {
+    const table = isReseller ? 'reseller_orders' : 'orders';
+    await supabase.from(table).update({ status: newStatus }).eq('id', orderId);
   };
 
   useEffect(() => {
@@ -568,7 +586,9 @@ export default function AtolyePage() {
             </div>
             {orders.map(order => (
               <OrderCard key={order.id} order={order} supabase={supabase} t={t}
-                isWorkshop={!!workshopId} workshopName={workshopName} onStatusChange={handleStatusChange} />
+                isWorkshop={!!workshopId} workshopName={workshopName}
+                onStatusChange={(id, status) => handleStatusChange(id, status, order._type === 'reseller')}
+                isReseller={order._type === 'reseller'} />
             ))}
           </>
         )}
