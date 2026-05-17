@@ -63,7 +63,7 @@ export const PRODUCTS = [
         sublabel: '3-fädig, flauschig angeraut',
         weight: '310 g/m²',
         desc: 'Flauschig angeraute Innenseite, besonders wärmend – für kalte Arbeitstage.',
-        careNote: '⚠ Vor dem Waschen auf links drehen – schützt die angeraute Innenseite.',
+        careNote: '⚠ Vor dem ersten Tragen einmal waschen – angeraute Stoffe können beim ersten Kontakt leicht tassen. Beim Waschen stets auf links drehen.',
       },
     ],
     washing: [

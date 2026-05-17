@@ -9,12 +9,13 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const MIN_QTY = 10;
 
 const PRINT_OPTIONS = [
-  { value: 'none',       label: 'Kein Druck',                  price: 0,  minQty: 0   },
-  { value: 'front',      label: 'DTF Vorderdruck',             price: 5,  minQty: 0   },
-  { value: 'back',       label: 'DTF Rückendruck',             price: 5,  minQty: 0   },
-  { value: 'both',       label: 'DTF Vorder- & Rückendruck',   price: 8,  minQty: 0   },
-  { value: 'siebdruck',  label: 'Siebdruck (ab 100 Stk)',      price: 0,  minQty: 100 },
-  { value: 'bestickung', label: 'Bestickung',                  price: 0,  minQty: 0   },
+  { value: 'none',             label: 'Kein Druck',                  price: 0, minQty: 0   },
+  { value: 'front',            label: 'DTF Vorderdruck',             price: 5, minQty: 0   },
+  { value: 'back',             label: 'DTF Rückendruck',             price: 5, minQty: 0   },
+  { value: 'both',             label: 'DTF Vorder- & Rückendruck',   price: 8, minQty: 0   },
+  { value: 'siebdruck',        label: 'Siebdruck (ab 100 Stk)',      price: 0, minQty: 100 },
+  { value: 'bestickung_front', label: 'Bestickung Vorne',            price: 2, minQty: 0   },
+  { value: 'bestickung_back',  label: 'Bestickung Hinten',           price: 3, minQty: 0   },
 ];
 
 export default function ProductCard({ product }) {
@@ -24,7 +25,7 @@ export default function ProductCard({ product }) {
       ? Object.fromEntries(SIZES.map(s => [s, 0]))
       : { '-': MIN_QTY }
   );
-  const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung' : 'none');
+  const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung_front' : 'none');
   const [selectedFabric, setSelectedFabric] = useState(
     product.fabricOptions ? product.fabricOptions[0].value : null
   );
@@ -40,14 +41,15 @@ export default function ProductCard({ product }) {
     }
   }, [totalQty]);
 
+  const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back';
   const byQty = (o) => totalQty >= o.minQty;
   const availablePrints = product.bestickungOnly
-    ? PRINT_OPTIONS.filter(o => o.value === 'bestickung')
+    ? PRINT_OPTIONS.filter(o => isBestickung(o.value))
     : product.hasBackPrint
-      ? PRINT_OPTIONS.filter(o => o.value !== 'bestickung' && byQty(o))
+      ? PRINT_OPTIONS.filter(o => !isBestickung(o.value) && byQty(o))
       : product.hasBestickung
         ? PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && byQty(o))
-        : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung' && byQty(o));
+        : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && !isBestickung(o.value) && byQty(o));
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const isFree = FREE_PRINT_TYPES.includes(printType);
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
@@ -113,7 +115,7 @@ export default function ProductCard({ product }) {
           {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
               <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">
-                {product.bestickungOnly ? 'Staffelpreise inkl. Bestickung'
+                {isBestickung(printType) ? 'Staffelpreise zzgl. Bestickung'
                   : printType === 'siebdruck' ? 'Staffelpreise inkl. Siebdruck'
                   : printType === 'none' ? 'Staffelpreise (ohne Druck)'
                   : 'Staffelpreise inkl. DTF-Druck'}
@@ -234,7 +236,7 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Baskı boyut notu */}
-        {printType !== 'none' && printType !== 'bestickung' && (
+        {printType !== 'none' && !isBestickung(printType) && (
           <div className="text-[8px] leading-relaxed bg-sun/50 border border-ink/20 px-3 py-2 space-y-1">
             <p className="font-black uppercase tracking-widest">Standardmaße</p>
             <p>Brust: <strong>10×10 cm</strong> · Rücken: <strong>max. 24 cm Breite</strong></p>

@@ -15,7 +15,8 @@ function formatPrintType(printType) {
     back: 'DTF Rückendruck',
     both: 'DTF Vorder- & Rückendruck',
     siebdruck: 'Siebdruck',
-    bestickung: 'Bestickung',
+    bestickung_front: 'Bestickung Vorne (+2,00€/Stk)',
+    bestickung_back: 'Bestickung Hinten (+3,00€/Stk)',
   };
   return labels[printType] || printType;
 }
