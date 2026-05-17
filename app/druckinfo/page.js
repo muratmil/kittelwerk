@@ -230,7 +230,7 @@ export default function DruckInfo() {
                 </div>
                 <div className="space-y-2">
                   <p className="text-[9px] font-black uppercase tracking-widest opacity-50">Hinweise</p>
-                  {['Mindestmenge: 100 Stück', 'Pro Farbe eine Schablone — ideal für 1–3 Farben', '+3,00€/Stk auf allen Produkten außer T-Shirt'].map(t => (
+                  {['Mindestmenge: 150 Stück', 'Pro Farbe eine Schablone — ideal für 1–3 Farben', '+3,00€/Stk auf allen Produkten außer T-Shirt'].map(t => (
                     <div key={t} className="flex items-start gap-2 text-sm"><WarnIcon /><span>{t}</span></div>
                   ))}
                 </div>
@@ -249,7 +249,7 @@ export default function DruckInfo() {
                   </div>
                   <div className="flex justify-between text-[10px] font-black uppercase mt-1">
                     <span className="opacity-50">Ab Menge</span>
-                    <span>100 Stück</span>
+                    <span>150 Stück</span>
                   </div>
                 </div>
               </div>
