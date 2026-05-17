@@ -7,7 +7,7 @@ const faqSchema = {
     {
       '@type': 'Question',
       name: 'Wie funktioniert die Bestellung?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Produkte und Mengen wählen, Anfrage absenden. Logo als Vektor (Ai/EPS/PDF) per Mail an info@kittelwerk.de. Verbindliches Angebot binnen 24 h. Nach Zahlung: Fertigung und Versand.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'Produkte und Mengen wählen, Anfrage absenden und Logo hochladen. Wir senden einen digitalen Korrekturabzug zur Freigabe. Produktion startet erst nach Ihrer Freigabe.' },
     },
     {
       '@type': 'Question',
@@ -16,23 +16,28 @@ const faqSchema = {
     },
     {
       '@type': 'Question',
-      name: 'Wie läuft die Zahlung ab?',
-      acceptedAnswer: { '@type': 'Answer', text: 'SEPA-Überweisung auf deutsches Konto. Keine Auslandsüberweisung. Rechnung mit USt. per Mail.' },
+      name: 'Welche Drucktechniken gibt es?',
+      acceptedAnswer: { '@type': 'Answer', text: 'DTF-Druck: kostenlos, vollfarbig, ab 10 Stück. Siebdruck: ab 100 Stück, auf T-Shirts kostenlos. Bestickung: ab 10 Stück, +2€/Stk vorne. Alle Details auf kittelwerk.de/druckinfo.' },
     },
     {
       '@type': 'Question',
-      name: 'Welche Druckoptionen gibt es?',
-      acceptedAnswer: { '@type': 'Answer', text: 'DTF-Druck auf Front, Rückseite oder beides. Weich, dehnbar, waschmaschinenfest 60°C. Logo als Vektordatei einsenden — wir übernehmen den Rest.' },
+      name: 'Sehe ich das Logo vor der Produktion?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Ja — immer. Nach der Bestellung erhalten Sie einen kostenlosen digitalen Korrekturabzug. Produktion startet erst nach Ihrer Freigabe.' },
     },
     {
       '@type': 'Question',
       name: 'Welche Größen gibt es?',
-      acceptedAnswer: { '@type': 'Answer', text: 'T-Shirts und Sweatshirts in S, M, L, XL und 2XL. Schürzen und Kappen sind One-Size.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'T-Shirts und Sweatshirts in XS, S, M, L, XL und 2XL. Schürzen und Kappen sind One-Size.' },
     },
     {
       '@type': 'Question',
       name: 'Wie lange dauert die Lieferung?',
-      acceptedAnswer: { '@type': 'Answer', text: 'T-Shirts und Schürzen: 1–2 Wochen ab Zahlungseingang. Sweatshirts, Fleece-Jacken und Kappen: 3–4 Wochen. Versand per DHL oder DPD mit Sendungsverfolgung.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'T-Shirts und Schürzen: 1–2 Wochen. Sweatshirts, Fleece-Jacken und Kappen: 3–4 Wochen. Deutschlandweiter Versand per DHL oder DPD mit Sendungsverfolgung.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Was ist, wenn ich kein Vektorlogo habe?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Logo-Erstellungsservice für 50€ dazubuchbar — wir vermitteln einen Partner-Grafiker zur professionellen Vektorisierung.' },
     },
   ],
 };
