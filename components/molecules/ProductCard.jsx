@@ -43,16 +43,16 @@ export default function ProductCard({ product }) {
   }, [totalQty]);
 
   const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back' || v === 'bestickung_both';
-  const byQty = (o) => totalQty >= o.minQty;
 
   // tshirt: DTF+Siebdruck, kein Bestickung
   // sweat/fleece: alles
   // cap/apron/latz: kein Rücken, kein Bestickung Hinten
+  // Siebdruck ist immer sichtbar, aber disabled wenn qty < 150
   const availablePrints = (() => {
     const id = product.id;
-    if (id === 'tshirt') return PRINT_OPTIONS.filter(o => !isBestickung(o.value) && byQty(o));
-    if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS.filter(o => byQty(o));
-    return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && o.value !== 'bestickung_both' && byQty(o));
+    if (id === 'tshirt') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
+    if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS;
+    return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && o.value !== 'bestickung_both');
   })();
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const isOptFree = (opt) => FREE_PRINT_TYPES.includes(opt.value) || (opt.value === 'siebdruck' && product.id === 'tshirt');
@@ -221,11 +221,19 @@ export default function ProductCard({ product }) {
               onChange={(e) => setPrintType(e.target.value)}
               className="w-full border-2 border-ink bg-paper px-3 py-3 text-[10px] font-black uppercase appearance-none cursor-pointer focus:outline-none focus:bg-sun pr-8 tracking-widest"
             >
-              {availablePrints.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}{isOptFree(opt) ? (opt.price === 0 ? ' — Kostenlos' : ' — GRATIS') : ` — +${opt.price.toFixed(2)}€/Stk`}
-                </option>
-              ))}
+              {availablePrints.map((opt) => {
+                const locked = totalQty < opt.minQty;
+                const suffix = locked
+                  ? ` — ab ${opt.minQty} Stk`
+                  : isOptFree(opt)
+                    ? (opt.price === 0 ? ' — Kostenlos' : ' — GRATIS')
+                    : ` — +${opt.price.toFixed(2)}€/Stk`;
+                return (
+                  <option key={opt.value} value={opt.value} disabled={locked}>
+                    {opt.label}{suffix}
+                  </option>
+                );
+              })}
             </select>
             <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none font-black text-[10px]">▾</span>
           </div>
