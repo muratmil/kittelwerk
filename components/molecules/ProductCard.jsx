@@ -13,7 +13,7 @@ const PRINT_OPTIONS = [
   { value: 'front',            label: 'DTF Vorderdruck',             price: 5, minQty: 0   },
   { value: 'back',             label: 'DTF Rückendruck',             price: 5, minQty: 0   },
   { value: 'both',             label: 'DTF Vorder- & Rückendruck',   price: 8, minQty: 0   },
-  { value: 'siebdruck',        label: 'Siebdruck (ab 100 Stk)',      price: 0, minQty: 100 },
+  { value: 'siebdruck',        label: 'Siebdruck (ab 100 Stk)',      price: 3, minQty: 100 },
   { value: 'bestickung_front', label: 'Bestickung Vorne',            price: 2, minQty: 0   },
   { value: 'bestickung_back',  label: 'Bestickung Hinten',           price: 3, minQty: 0   },
 ];
@@ -25,7 +25,7 @@ export default function ProductCard({ product }) {
       ? Object.fromEntries(SIZES.map(s => [s, 0]))
       : { '-': MIN_QTY }
   );
-  const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung_front' : 'none');
+  const [printType, setPrintType] = useState('none');
   const [selectedFabric, setSelectedFabric] = useState(
     product.fabricOptions ? product.fabricOptions[0].value : null
   );
@@ -43,13 +43,16 @@ export default function ProductCard({ product }) {
 
   const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back';
   const byQty = (o) => totalQty >= o.minQty;
-  const availablePrints = product.bestickungOnly
-    ? PRINT_OPTIONS.filter(o => isBestickung(o.value))
-    : product.hasBackPrint
-      ? PRINT_OPTIONS.filter(o => !isBestickung(o.value) && byQty(o))
-      : product.hasBestickung
-        ? PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && byQty(o))
-        : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && !isBestickung(o.value) && byQty(o));
+
+  // tshirt: DTF+Siebdruck, kein Bestickung
+  // sweat/fleece: alles
+  // cap/apron/latz: kein Rücken, kein Bestickung Hinten
+  const availablePrints = (() => {
+    const id = product.id;
+    if (id === 'tshirt') return PRINT_OPTIONS.filter(o => !isBestickung(o.value) && byQty(o));
+    if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS.filter(o => byQty(o));
+    return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && byQty(o));
+  })();
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const isFree = FREE_PRINT_TYPES.includes(printType);
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
@@ -116,7 +119,7 @@ export default function ProductCard({ product }) {
             <div className="border-t border-ink/20 pt-2 mt-1">
               <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">
                 {isBestickung(printType) ? 'Staffelpreise zzgl. Bestickung'
-                  : printType === 'siebdruck' ? 'Staffelpreise inkl. Siebdruck'
+                  : printType === 'siebdruck' ? 'Staffelpreise zzgl. Siebdruck'
                   : printType === 'none' ? 'Staffelpreise (ohne Druck)'
                   : 'Staffelpreise inkl. DTF-Druck'}
               </p>
