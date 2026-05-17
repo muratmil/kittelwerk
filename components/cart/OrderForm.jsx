@@ -17,12 +17,15 @@ const Field = ({ label, type = 'text', value, onChange, required = true, placeho
   </div>
 );
 
+const LOGO_SERVICE_FEE = 50;
+
 export default function OrderForm({ items, totalPrice, onBack }) {
   const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode } = useCartStore();
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('idle');
+  const [needsLogoHelp, setNeedsLogoHelp] = useState(false);
   const [form, setForm] = useState({
-    name: '', company: '', email: '', phone: '', street: '', plz: '', city: '',
+    name: '', company: '', email: '', phone: '', street: '', plz: '', city: '', notes: '',
   });
 
   const setField = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -34,7 +37,9 @@ export default function OrderForm({ items, totalPrice, onBack }) {
     const subtotal = getSubtotal();
     const discountAmount = getDiscountAmount();
     const shippingCost = getShippingCost();
-    const total = getFinalTotal();
+    const baseTotal = getFinalTotal();
+    const logoServiceFee = needsLogoHelp ? LOGO_SERVICE_FEE : 0;
+    const total = baseTotal + logoServiceFee;
 
     let logoUrl = null;
 
@@ -67,6 +72,9 @@ export default function OrderForm({ items, totalPrice, onBack }) {
         })),
         subtotal, discountCode: appliedCode, discountAmount, shippingCost, total,
         logoUrl,
+        logoService: needsLogoHelp,
+        logoServiceFee,
+        customerNotes: form.notes,
       }),
     });
 
@@ -117,6 +125,14 @@ export default function OrderForm({ items, totalPrice, onBack }) {
           </div>
         </div>
 
+        {/* Mockup bilgi kutusu */}
+        <div className="bg-sun/40 border-2 border-ink p-4 text-[9px] leading-relaxed space-y-1">
+          <p className="font-black uppercase tracking-widest">Druckvorschau vor der Produktion</p>
+          <p>Nach Ihrer Bestellung senden wir Ihnen einen digitalen <strong>Korrekturabzug</strong> (Druckvorschau) zur Freigabe. Die Produktion startet erst nach Ihrer ausdrücklichen Freigabe.</p>
+          <p className="opacity-70">Standard-Druckflächen: Brust <strong>10×10 cm</strong> · Rücken <strong>max. 24 cm Breite</strong>. Abweichende Maße bitte unten als Notiz angeben.</p>
+        </div>
+
+        {/* Logo yükleme */}
         <div className={`border-2 border-dashed p-5 bg-paper flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${file ? 'border-olive bg-olive/5' : 'border-ink hover:border-tomato'}`}>
           <input type="file" id="logo-upload" className="hidden"
             accept=".pdf,.png,.svg,.ai,.eps,.jpg,.jpeg"
@@ -129,6 +145,49 @@ export default function OrderForm({ items, totalPrice, onBack }) {
             {!file && <span className="text-[8px] opacity-50 mt-1">Optional — oder per E-Mail nachsenden</span>}
           </label>
         </div>
+
+        {/* Logo-Erstellungsservice */}
+        <div className="border-2 border-ink bg-paper p-4 space-y-2">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={needsLogoHelp}
+              onChange={(e) => setNeedsLogoHelp(e.target.checked)}
+              className="mt-0.5 w-4 h-4 border-2 border-ink accent-ink flex-shrink-0"
+            />
+            <span className="text-[9px] font-black uppercase leading-tight">
+              Mein Logo liegt nicht vektoriell vor — Logo-Erstellungsservice gewünscht
+              <span className="block font-bold text-tomato mt-0.5">+50,00 €</span>
+            </span>
+          </label>
+          {needsLogoHelp && (
+            <p className="text-[8px] opacity-60 leading-relaxed pl-7">
+              Wir vermitteln Ihnen einen Partner-Grafiker, der Ihr Logo professionell vektorisiert. Dieser Betrag wird separat in Rechnung gestellt. Kittelwerk erbringt diese Leistung nicht in Eigenregie.
+            </p>
+          )}
+        </div>
+
+        {/* Anmerkungen */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-black uppercase tracking-widest">
+            Anmerkungen <span className="opacity-40 normal-case font-normal">(optional)</span>
+          </label>
+          <textarea
+            value={form.notes}
+            onChange={setField('notes')}
+            rows={3}
+            placeholder="z. B. abweichende Druckgröße, Positionswunsch, besondere Hinweise zum Logo..."
+            className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm resize-none"
+          />
+        </div>
+
+        {/* Logo servis dahil toplam */}
+        {needsLogoHelp && (
+          <div className="border-2 border-ink bg-paper px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase">
+            <span>Logo-Erstellungsservice</span>
+            <span className="text-tomato">+{LOGO_SERVICE_FEE.toFixed(2)} €</span>
+          </div>
+        )}
 
         {status === 'error' && (
           <p className="text-[11px] text-tomato font-bold uppercase">Ein Fehler ist aufgetreten. Bitte versuche es erneut.</p>

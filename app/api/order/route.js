@@ -8,9 +8,21 @@ function formatSizes(sizes) {
   return Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · ');
 }
 
+function formatPrintType(printType) {
+  const labels = {
+    none: 'Kein Druck',
+    front: 'DTF Vorderdruck',
+    back: 'DTF Rückendruck',
+    both: 'DTF Vorder- & Rückendruck',
+    siebdruck: 'Siebdruck',
+    bestickung: 'Bestickung',
+  };
+  return labels[printType] || printType;
+}
+
 export async function POST(req) {
   const body = await req.json();
-  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoUrl } = body;
+  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoUrl, logoService, logoServiceFee, customerNotes } = body;
 
   const { data: order, error } = await supabaseAdmin
     .from('orders')
@@ -42,6 +54,7 @@ export async function POST(req) {
     `<tr>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.name}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.color} · ${formatSizes(i.sizes)}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${formatPrintType(i.printType)}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.qty} Stück</td>
       <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${(i.price * i.qty).toFixed(2)}€</td>
     </tr>`
@@ -57,11 +70,15 @@ export async function POST(req) {
         <h1 style="font-size:28px;font-weight:900;">Kittel<span style="color:#E63946">werk</span>.</h1>
         <h2 style="margin-top:24px;">Danke, ${name}!</h2>
         <p>Wir haben deine Bestellanfrage erhalten und melden uns bald bei dir.</p>
+        <p style="background:#FFF8D4;border:1px solid #111;padding:12px;font-size:12px;margin:16px 0;">
+          <strong>Druckvorschau:</strong> Vor der Produktion erhalten Sie einen digitalen Korrekturabzug zur Freigabe. Die Produktion startet erst nach Ihrer ausdrücklichen Freigabe.
+        </p>
         <table style="width:100%;border-collapse:collapse;margin:24px 0;">
           <thead>
             <tr style="background:#111;color:#fff;">
               <th style="padding:10px;text-align:left;">Produkt</th>
               <th style="padding:10px;text-align:left;">Variante</th>
+              <th style="padding:10px;text-align:left;">Druck</th>
               <th style="padding:10px;">Menge</th>
               <th style="padding:10px;text-align:right;">Preis</th>
             </tr>
@@ -72,8 +89,10 @@ export async function POST(req) {
           <tr><td style="padding:4px;color:#555;">Zwischensumme</td><td style="text-align:right;">${subtotal.toFixed(2)}€</td></tr>
           ${discountAmount > 0 ? `<tr><td style="padding:4px;color:#3D6B4F;">Rabatt (${discountCode})</td><td style="text-align:right;color:#3D6B4F;">−${discountAmount.toFixed(2)}€</td></tr>` : ''}
           <tr><td style="padding:4px;color:#555;">Versandkosten</td><td style="text-align:right;">${shippingCost === 0 ? 'GRATIS' : shippingCost.toFixed(2) + '€'}</td></tr>
+          ${logoService ? `<tr><td style="padding:4px;color:#E63946;">Logo-Erstellungsservice</td><td style="text-align:right;color:#E63946;">+${(logoServiceFee || 0).toFixed(2)}€</td></tr>` : ''}
           <tr style="font-weight:900;font-size:18px;border-top:2px solid #111;"><td style="padding:8px 4px;">TOTAL</td><td style="text-align:right;">${total.toFixed(2)}€</td></tr>
         </table>
+        ${customerNotes ? `<p style="background:#f5f5f5;border-left:3px solid #111;padding:10px 14px;font-size:12px;margin:16px 0;"><strong>Ihre Anmerkungen:</strong><br/>${customerNotes}</p>` : ''}
         <hr style="margin:32px 0;border:none;border-top:2px solid #111;"/>
         <p style="color:#999;font-size:11px;">© 2026 Kittelwerk · info@kittelwerk.de</p>
       </div>
@@ -97,10 +116,12 @@ export async function POST(req) {
           <tr><td style="padding:6px;color:#555;">Bestellwert</td><td><strong>${total.toFixed(2)}€</strong></td></tr>
           ${discountCode ? `<tr><td style="padding:6px;color:#555;">Rabattcode</td><td>${discountCode} (−${discountAmount.toFixed(2)}€)</td></tr>` : ''}
           ${logoDownloadUrl ? `<tr><td style="padding:6px;color:#555;">Logo</td><td><a href="${logoDownloadUrl}" style="color:#E63946;font-weight:bold;">📎 Logo herunterladen (48h)</a></td></tr>` : '<tr><td style="padding:6px;color:#555;">Logo</td><td style="color:#999;">Kein Logo hochgeladen</td></tr>'}
+          ${logoService ? `<tr><td style="padding:6px;color:#E63946;font-weight:bold;">Logo-Service</td><td style="color:#E63946;font-weight:bold;">Ja — Partner-Grafiker erforderlich (+${(logoServiceFee || 0).toFixed(2)}€)</td></tr>` : ''}
+          ${customerNotes ? `<tr><td style="padding:6px;color:#555;vertical-align:top;">Anmerkungen</td><td style="white-space:pre-wrap;">${customerNotes}</td></tr>` : ''}
         </table>
         <h3 style="margin-top:24px;">Bestellpositionen</h3>
         <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="background:#111;color:#fff;"><th style="padding:8px;text-align:left;">Produkt</th><th style="padding:8px;text-align:left;">Variante</th><th style="padding:8px;text-align:center;">Menge</th><th style="padding:8px;text-align:right;">Preis</th></tr></thead>
+          <thead><tr style="background:#111;color:#fff;"><th style="padding:8px;text-align:left;">Produkt</th><th style="padding:8px;text-align:left;">Variante</th><th style="padding:8px;text-align:left;">Druck</th><th style="padding:8px;text-align:center;">Menge</th><th style="padding:8px;text-align:right;">Preis</th></tr></thead>
           <tbody>${itemsHtml}</tbody>
         </table>
         <p style="margin-top:16px;color:#555;font-size:13px;">Bestellung #${order.id}</p>

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, Plus, Minus } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
@@ -9,11 +9,12 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const MIN_QTY = 10;
 
 const PRINT_OPTIONS = [
-  { value: 'none',       label: 'Kein Druck',           price: 0 },
-  { value: 'front',      label: 'Vorderdruck',           price: 5 },
-  { value: 'back',       label: 'Rückendruck',           price: 5 },
-  { value: 'both',       label: 'Vorder- + Rückendruck', price: 8 },
-  { value: 'bestickung', label: 'Bestickung',            price: 0 },
+  { value: 'none',       label: 'Kein Druck',                  price: 0,  minQty: 0   },
+  { value: 'front',      label: 'DTF Vorderdruck',             price: 5,  minQty: 0   },
+  { value: 'back',       label: 'DTF Rückendruck',             price: 5,  minQty: 0   },
+  { value: 'both',       label: 'DTF Vorder- & Rückendruck',   price: 8,  minQty: 0   },
+  { value: 'siebdruck',  label: 'Siebdruck (ab 100 Stk)',      price: 0,  minQty: 100 },
+  { value: 'bestickung', label: 'Bestickung',                  price: 0,  minQty: 0   },
 ];
 
 export default function ProductCard({ product }) {
@@ -33,13 +34,20 @@ export default function ProductCard({ product }) {
   const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
   const isValid = totalQty >= MIN_QTY;
 
+  useEffect(() => {
+    if (printType === 'siebdruck' && totalQty < 100) {
+      setPrintType('none');
+    }
+  }, [totalQty]);
+
+  const byQty = (o) => totalQty >= o.minQty;
   const availablePrints = product.bestickungOnly
     ? PRINT_OPTIONS.filter(o => o.value === 'bestickung')
     : product.hasBackPrint
-      ? PRINT_OPTIONS.filter(o => o.value !== 'bestickung')
+      ? PRINT_OPTIONS.filter(o => o.value !== 'bestickung' && byQty(o))
       : product.hasBestickung
-        ? PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both')
-        : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung');
+        ? PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && byQty(o))
+        : PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung' && byQty(o));
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const isFree = FREE_PRINT_TYPES.includes(printType);
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
@@ -104,7 +112,12 @@ export default function ProductCard({ product }) {
           )}
           {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">{product.bestickungOnly ? 'Staffelpreise inkl. Bestickung' : 'Staffelpreise inkl. Logo-Druck'}</p>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">
+                {product.bestickungOnly ? 'Staffelpreise inkl. Bestickung'
+                  : printType === 'siebdruck' ? 'Staffelpreise inkl. Siebdruck'
+                  : printType === 'none' ? 'Staffelpreise (ohne Druck)'
+                  : 'Staffelpreise inkl. DTF-Druck'}
+              </p>
               <div className="grid grid-cols-5 gap-x-1 gap-y-0.5">
                 {product.tiers.slice(0, -1).map((tier, i, arr) => {
                   const isLastVisible = i === arr.length - 1;
@@ -219,6 +232,25 @@ export default function ProductCard({ product }) {
             ))}
           </div>
         </div>
+
+        {/* Baskı boyut notu */}
+        {printType !== 'none' && printType !== 'bestickung' && (
+          <div className="text-[8px] leading-relaxed bg-sun/50 border border-ink/20 px-3 py-2 space-y-1">
+            <p className="font-black uppercase tracking-widest">Standardmaße</p>
+            <p>Brust: <strong>10×10 cm</strong> · Rücken: <strong>max. 24 cm Breite</strong></p>
+            <p className="opacity-70">Abweichende Maße? Bitte im Bestellformular als Notiz angeben.</p>
+            {printType !== 'siebdruck' && (
+              <p className="opacity-60 border-t border-ink/10 pt-1">
+                DTF-Druck: Hohe Waschbeständigkeit. Nach ca. 20+ Wäschen kann die Farbintensität leicht nachlassen — Richtlinie der Technik.
+              </p>
+            )}
+            {printType === 'siebdruck' && (
+              <p className="opacity-60 border-t border-ink/10 pt-1">
+                Siebdruck: Langlebig & industriewaschfest. Voraussetzt mind. 100 Stk. pro Farbstoff.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Beden & Adet */}
         {product.hasSizes ? (
