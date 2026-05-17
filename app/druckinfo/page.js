@@ -1,6 +1,7 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Link from 'next/link';
+import { LogoServiceButton, FileCheckButton } from '@/components/cart/ServiceCartButtons';
 
 export const metadata = {
   title: 'Drucktechniken & Veredelung | Kittelwerk',
@@ -461,14 +462,23 @@ export default function DruckInfo() {
               <div className="border-4 border-sun bg-sun/20 p-6 shadow-brutalist space-y-3">
                 <p className="font-black text-sm uppercase tracking-widest">Kein Vektorlogo?</p>
                 <p className="text-sm leading-relaxed">
-                  Falls Ihr Logo nur als Foto, Screenshot oder niedrig aufgelöstes JPEG vorliegt, können Sie beim Bestellen unseren <strong>Logo-Erstellungsservice</strong> für <strong>100 €</strong> dazubuchen.
+                  Falls Ihr Logo nur als Foto, Screenshot oder niedrig aufgelöstes JPEG vorliegt, können Sie unseren <strong>Logo-Erstellungsservice</strong> direkt zum Warenkorb hinzufügen.
                 </p>
                 <p className="text-[11px] opacity-60">
                   Wir vermitteln Ihnen einen Partner-Grafiker, der Ihr Logo professionell vektorisiert. Die Vektorisierung wird direkt im Bestellprozess abgewickelt. Kittelwerk erbringt diese Leistung nicht in Eigenregie.
                 </p>
-                <Link href="/produkte" className="inline-block mt-2 bg-ink text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 hover:bg-tomato transition-all shadow-brutalist">
-                  Zum Bestellen →
-                </Link>
+                <LogoServiceButton />
+              </div>
+
+              <div className="border-4 border-olive/30 bg-olive/5 p-6 shadow-brutalist space-y-3">
+                <p className="font-black text-sm uppercase tracking-widest">Logo bereits vorhanden?</p>
+                <p className="text-sm leading-relaxed">
+                  Sie haben bereits eine Druckdatei? Mit unserer <strong>Professionellen Datei-Kontrolle</strong> prüfen wir Auflösung, Farbprofil und Drucktauglichkeit — bevor die Produktion startet.
+                </p>
+                <p className="text-[11px] opacity-60">
+                  Empfohlen bei JPEG- oder PNG-Dateien ohne Vektorursprung. Verhindert Qualitätsverluste im Druck. Einmalige Pauschale pro Bestellung.
+                </p>
+                <FileCheckButton />
               </div>
             </div>
           </div>

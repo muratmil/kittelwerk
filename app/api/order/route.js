@@ -24,7 +24,7 @@ function formatPrintType(printType) {
 
 export async function POST(req) {
   const body = await req.json();
-  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoUrl, logoService, logoServiceFee, customerNotes } = body;
+  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoUrl, logoService, logoServiceFee, fileCheck, fileCheckFee, customerNotes } = body;
 
   const { data: order, error } = await supabaseAdmin
     .from('orders')
@@ -92,6 +92,7 @@ export async function POST(req) {
           ${discountAmount > 0 ? `<tr><td style="padding:4px;color:#3D6B4F;">Rabatt (${discountCode})</td><td style="text-align:right;color:#3D6B4F;">−${discountAmount.toFixed(2)}€</td></tr>` : ''}
           <tr><td style="padding:4px;color:#555;">Versandkosten</td><td style="text-align:right;">${shippingCost === 0 ? 'GRATIS' : shippingCost.toFixed(2) + '€'}</td></tr>
           ${logoService ? `<tr><td style="padding:4px;color:#E63946;">Logo-Erstellungsservice</td><td style="text-align:right;color:#E63946;">+${(logoServiceFee || 0).toFixed(2)}€</td></tr>` : ''}
+          ${fileCheck ? `<tr><td style="padding:4px;color:#3D6B4F;">Professionelle Datei-Kontrolle</td><td style="text-align:right;color:#3D6B4F;">+${(fileCheckFee || 0).toFixed(2)}€</td></tr>` : ''}
           <tr style="font-weight:900;font-size:18px;border-top:2px solid #111;"><td style="padding:8px 4px;">TOTAL</td><td style="text-align:right;">${total.toFixed(2)}€</td></tr>
         </table>
         ${customerNotes ? `<p style="background:#f5f5f5;border-left:3px solid #111;padding:10px 14px;font-size:12px;margin:16px 0;"><strong>Ihre Anmerkungen:</strong><br/>${customerNotes}</p>` : ''}
@@ -119,6 +120,7 @@ export async function POST(req) {
           ${discountCode ? `<tr><td style="padding:6px;color:#555;">Rabattcode</td><td>${discountCode} (−${discountAmount.toFixed(2)}€)</td></tr>` : ''}
           ${logoDownloadUrl ? `<tr><td style="padding:6px;color:#555;">Logo</td><td><a href="${logoDownloadUrl}" style="color:#E63946;font-weight:bold;">📎 Logo herunterladen (48h)</a></td></tr>` : '<tr><td style="padding:6px;color:#555;">Logo</td><td style="color:#999;">Kein Logo hochgeladen</td></tr>'}
           ${logoService ? `<tr><td style="padding:6px;color:#E63946;font-weight:bold;">Logo-Service</td><td style="color:#E63946;font-weight:bold;">Ja — Partner-Grafiker erforderlich (+${(logoServiceFee || 0).toFixed(2)}€)</td></tr>` : ''}
+          ${fileCheck ? `<tr><td style="padding:6px;color:#3D6B4F;font-weight:bold;">Datei-Kontrolle</td><td style="color:#3D6B4F;font-weight:bold;">Ja — Professionelle Druckdateiprüfung (+${(fileCheckFee || 0).toFixed(2)}€)</td></tr>` : ''}
           ${customerNotes ? `<tr><td style="padding:6px;color:#555;vertical-align:top;">Anmerkungen</td><td style="white-space:pre-wrap;">${customerNotes}</td></tr>` : ''}
         </table>
         <h3 style="margin-top:24px;">Bestellpositionen</h3>

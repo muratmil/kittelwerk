@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Upload, Send, ChevronLeft, CheckCircle } from 'lucide-react';
-import { useCartStore, LOGO_SERVICE_FEE } from '@/store/cartStore';
+import { useCartStore, LOGO_SERVICE_FEE, FILE_CHECK_FEE } from '@/store/cartStore';
 import { createClient } from '@/utils/supabase/client';
 
 const Field = ({ label, type = 'text', value, onChange, required = true, placeholder = '' }) => (
@@ -18,7 +18,7 @@ const Field = ({ label, type = 'text', value, onChange, required = true, placeho
 );
 
 export default function OrderForm({ items, totalPrice, onBack }) {
-  const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode, logoService } = useCartStore();
+  const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode, logoService, fileCheck } = useCartStore();
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('idle');
   const [form, setForm] = useState({
@@ -36,6 +36,7 @@ export default function OrderForm({ items, totalPrice, onBack }) {
     const shippingCost = getShippingCost();
     const total = getFinalTotal();
     const logoServiceFee = logoService ? LOGO_SERVICE_FEE : 0;
+    const fileCheckFee = fileCheck ? FILE_CHECK_FEE : 0;
 
     let logoUrl = null;
 
@@ -66,6 +67,8 @@ export default function OrderForm({ items, totalPrice, onBack }) {
         logoUrl,
         logoService,
         logoServiceFee,
+        fileCheck,
+        fileCheckFee,
         customerNotes: form.notes,
       }),
     });
@@ -138,11 +141,16 @@ export default function OrderForm({ items, totalPrice, onBack }) {
           </label>
         </div>
 
-        {/* Logo servisi göster (CartDrawer'dan eklendiyse) */}
         {logoService && (
           <div className="border-2 border-tomato bg-tomato/5 px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase">
             <span>Logo-Erstellungsservice</span>
             <span className="text-tomato">+{LOGO_SERVICE_FEE.toFixed(2)} €</span>
+          </div>
+        )}
+        {fileCheck && (
+          <div className="border-2 border-olive bg-olive/5 px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase">
+            <span>Professionelle Datei-Kontrolle</span>
+            <span className="text-olive">+{FILE_CHECK_FEE.toFixed(2)} €</span>
           </div>
         )}
 

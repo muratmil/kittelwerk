@@ -44,15 +44,24 @@ export default function HomeClient() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-          <div className="mt-10 border-4 border-ink bg-ink text-white p-6 shadow-brutalist flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Großbestellung</p>
-              <p className="font-serif font-black text-2xl italic tracking-tight leading-none">Händleranfragen & Kooperationen</p>
-              <p className="text-sm text-white/50 mt-1">Ab 100 Stück — individuelles Angebot mit Staffelpreisen.</p>
+          <div className="mt-10 border-4 border-ink bg-sun p-6 shadow-brutalist">
+            <p className="text-[10px] font-black uppercase tracking-widest text-ink/50 mb-3">Zusatzleistungen</p>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 border-2 border-ink bg-white p-5 space-y-2">
+                <p className="font-serif font-black text-lg italic uppercase leading-tight">Kein Vektorlogo?</p>
+                <p className="text-[11px] opacity-60 leading-relaxed">Wir vermitteln einen Partner-Grafiker — professionelle Vektorisierung Ihres Logos.</p>
+                <a href="/druckinfo#logo" className="inline-block text-[10px] font-black uppercase tracking-widest text-tomato hover:underline">
+                  Logo-Erstellungsservice — 100,00 € →
+                </a>
+              </div>
+              <div className="flex-1 border-2 border-ink bg-white p-5 space-y-2">
+                <p className="font-serif font-black text-lg italic uppercase leading-tight">Datei bereits vorbereitet?</p>
+                <p className="text-[11px] opacity-60 leading-relaxed">Professionelle Prüfung Ihrer Druckdatei auf Auflösung, Farbe und Drucktauglichkeit.</p>
+                <a href="/druckinfo#logo" className="inline-block text-[10px] font-black uppercase tracking-widest text-olive hover:underline">
+                  Professionelle Datei-Kontrolle — 20,00 € →
+                </a>
+              </div>
             </div>
-            <a href="/kontakt" className="flex-shrink-0 bg-tomato text-white font-black uppercase px-8 py-4 hover:bg-white hover:text-ink transition-all shadow-[4px_4px_0px_0px_#FAFBF7] hover:shadow-none hover:translate-x-1 hover:translate-y-1 whitespace-nowrap">
-              Jetzt anfragen →
-            </a>
           </div>
         </div>
       </section>

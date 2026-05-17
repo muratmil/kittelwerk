@@ -1,7 +1,7 @@
 'use client';
-import { useCartStore, FREE_SHIPPING_THRESHOLD, LOGO_SERVICE_FEE } from '@/store/cartStore';
+import { useCartStore, FREE_SHIPPING_THRESHOLD, LOGO_SERVICE_FEE, FILE_CHECK_FEE } from '@/store/cartStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Tag, CheckCircle, PenLine } from 'lucide-react';
+import { X, Trash2, Tag, CheckCircle, PenLine, ScanSearch } from 'lucide-react';
 import OrderForm from './OrderForm';
 import { useState } from 'react';
 
@@ -20,6 +20,7 @@ export default function CartDrawer({ isOpen, onClose }) {
     appliedCode, discountPercent, applyCode, removeCode,
     getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal,
     logoService, setLogoService,
+    fileCheck, setFileCheck,
   } = useCartStore();
 
   const [showForm, setShowForm] = useState(false);
@@ -32,6 +33,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   const finalTotal = getFinalTotal();
   const remainingForFreeShipping = FREE_SHIPPING_THRESHOLD - subtotal;
   const totalQty = items.reduce((acc, item) => acc + item.qty, 0);
+  const hasAnyService = logoService || fileCheck;
 
   const handleApplyCode = () => {
     const result = applyCode(codeInput);
@@ -65,7 +67,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                 <OrderForm items={items} totalPrice={finalTotal} onBack={() => setShowForm(false)} />
               ) : (
                 <>
-                  {items.length === 0 && !logoService ? (
+                  {items.length === 0 && !hasAnyService ? (
                     <div className="text-center py-20 font-serif italic opacity-40 uppercase">Dein Warenkorb ist noch leer...</div>
                   ) : (
                     <>
@@ -123,13 +125,43 @@ export default function CartDrawer({ isOpen, onClose }) {
                           </span>
                         </button>
                       )}
+
+                      {/* Professionelle Datei-Kontrolle */}
+                      {fileCheck ? (
+                        <div className="flex gap-4 p-4 border-2 border-olive bg-white shadow-brutalist">
+                          <div className="w-20 h-20 bg-olive flex items-center justify-center flex-shrink-0">
+                            <ScanSearch size={28} className="text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-sm uppercase">Professionelle Datei-Kontrolle</h4>
+                            <p className="text-[10px] uppercase opacity-60">Druckfreigabe · Qualitätsprüfung</p>
+                            <div className="flex justify-between items-end mt-2">
+                              <span className="font-black text-lg">{FILE_CHECK_FEE.toFixed(2)}€</span>
+                              <button onClick={() => setFileCheck(false)} className="text-tomato">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <button onClick={() => setFileCheck(true)}
+                          className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-olive hover:text-olive transition-all group">
+                          <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                            <ScanSearch size={14} />
+                            Datei-Kontrolle hinzufügen
+                          </span>
+                          <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
+                            Professionelle Prüfung Ihrer Druckdatei — {FILE_CHECK_FEE.toFixed(2)}€
+                          </span>
+                        </button>
+                      )}
                     </>
                   )}
                 </>
               )}
             </div>
 
-            {!showForm && (items.length > 0 || logoService) && (
+            {!showForm && (items.length > 0 || hasAnyService) && (
               <div className="p-6 border-t-4 border-ink bg-sun space-y-3">
                 {totalQty > 50 && (
                   <div className="bg-tomato text-white px-3 py-3 text-[11px] font-bold uppercase leading-tight border-2 border-ink">
@@ -197,6 +229,12 @@ export default function CartDrawer({ isOpen, onClose }) {
                     <div className="flex justify-between text-[11px] font-bold uppercase text-tomato">
                       <span>Logo-Erstellungsservice</span>
                       <span>+{LOGO_SERVICE_FEE.toFixed(2)}€</span>
+                    </div>
+                  )}
+                  {fileCheck && (
+                    <div className="flex justify-between text-[11px] font-bold uppercase text-olive">
+                      <span>Datei-Kontrolle</span>
+                      <span>+{FILE_CHECK_FEE.toFixed(2)}€</span>
                     </div>
                   )}
                 </div>
