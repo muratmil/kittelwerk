@@ -1,7 +1,7 @@
 'use client';
-import { useCartStore, SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '@/store/cartStore';
+import { useCartStore, FREE_SHIPPING_THRESHOLD, LOGO_SERVICE_FEE } from '@/store/cartStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Tag, CheckCircle } from 'lucide-react';
+import { X, Trash2, Tag, CheckCircle, PenLine } from 'lucide-react';
 import OrderForm from './OrderForm';
 import { useState } from 'react';
 
@@ -19,6 +19,7 @@ export default function CartDrawer({ isOpen, onClose }) {
     items, removeItem,
     appliedCode, discountPercent, applyCode, removeCode,
     getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal,
+    logoService, setLogoService,
   } = useCartStore();
 
   const [showForm, setShowForm] = useState(false);
@@ -64,39 +65,71 @@ export default function CartDrawer({ isOpen, onClose }) {
                 <OrderForm items={items} totalPrice={finalTotal} onBack={() => setShowForm(false)} />
               ) : (
                 <>
-                  {items.length === 0 ? (
+                  {items.length === 0 && !logoService ? (
                     <div className="text-center py-20 font-serif italic opacity-40 uppercase">Dein Warenkorb ist noch leer...</div>
                   ) : (
-                    items.map((item, idx) => (
-                      <div key={idx} className="flex gap-4 p-4 border-2 border-ink bg-white shadow-brutalist">
-                        <div className="w-20 h-20 bg-ink flex items-center justify-center flex-shrink-0">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-screen" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-sm uppercase">{item.name}</h4>
-                          <p className="text-[10px] uppercase opacity-60">{item.color}</p>
-                          {item.fabric && (() => {
-                            const opt = item.fabricOptions?.find(o => o.value === item.fabric);
-                            return opt ? (
-                              <p className="text-[10px] uppercase opacity-60">{opt.label} · {opt.weight}</p>
-                            ) : null;
-                          })()}
-                          <SizeBreakdown sizes={item.sizes} />
-                          <div className="flex justify-between items-end mt-2">
-                            <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
-                            <button onClick={() => removeItem(item.id, item.color, item.printType, item.fabric)} className="text-tomato">
-                              <Trash2 size={16} />
-                            </button>
+                    <>
+                      {items.map((item, idx) => (
+                        <div key={idx} className="flex gap-4 p-4 border-2 border-ink bg-white shadow-brutalist">
+                          <div className="w-20 h-20 bg-ink flex items-center justify-center flex-shrink-0">
+                            <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-screen" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-sm uppercase">{item.name}</h4>
+                            <p className="text-[10px] uppercase opacity-60">{item.color}</p>
+                            {item.fabric && (() => {
+                              const opt = item.fabricOptions?.find(o => o.value === item.fabric);
+                              return opt ? (
+                                <p className="text-[10px] uppercase opacity-60">{opt.label} · {opt.weight}</p>
+                              ) : null;
+                            })()}
+                            <SizeBreakdown sizes={item.sizes} />
+                            <div className="flex justify-between items-end mt-2">
+                              <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
+                              <button onClick={() => removeItem(item.id, item.color, item.printType, item.fabric)} className="text-tomato">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      ))}
+
+                      {/* Logo-Erstellungsservice */}
+                      {logoService ? (
+                        <div className="flex gap-4 p-4 border-2 border-tomato bg-white shadow-brutalist">
+                          <div className="w-20 h-20 bg-tomato flex items-center justify-center flex-shrink-0">
+                            <PenLine size={28} className="text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-sm uppercase">Logo-Erstellungsservice</h4>
+                            <p className="text-[10px] uppercase opacity-60">Vektorisierung · Partner-Grafiker</p>
+                            <div className="flex justify-between items-end mt-2">
+                              <span className="font-black text-lg">{LOGO_SERVICE_FEE.toFixed(2)}€</span>
+                              <button onClick={() => setLogoService(false)} className="text-tomato">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <button onClick={() => setLogoService(true)}
+                          className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-tomato hover:text-tomato transition-all group">
+                          <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                            <PenLine size={14} />
+                            Logo-Erstellungsservice hinzufügen
+                          </span>
+                          <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
+                            Kein Vektorlogo? Wir vermitteln einen Partner-Grafiker — {LOGO_SERVICE_FEE.toFixed(2)}€
+                          </span>
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               )}
             </div>
 
-            {!showForm && items.length > 0 && (
+            {!showForm && (items.length > 0 || logoService) && (
               <div className="p-6 border-t-4 border-ink bg-sun space-y-3">
                 {totalQty > 50 && (
                   <div className="bg-tomato text-white px-3 py-3 text-[11px] font-bold uppercase leading-tight border-2 border-ink">
@@ -160,6 +193,12 @@ export default function CartDrawer({ isOpen, onClose }) {
                       <span>{shippingCost.toFixed(2)}€</span>
                     )}
                   </div>
+                  {logoService && (
+                    <div className="flex justify-between text-[11px] font-bold uppercase text-tomato">
+                      <span>Logo-Erstellungsservice</span>
+                      <span>+{LOGO_SERVICE_FEE.toFixed(2)}€</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-between items-baseline font-serif font-black text-3xl italic border-t-2 border-ink pt-3">

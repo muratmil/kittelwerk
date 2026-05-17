@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Upload, Send, ChevronLeft, CheckCircle } from 'lucide-react';
-import { useCartStore } from '@/store/cartStore';
+import { useCartStore, LOGO_SERVICE_FEE } from '@/store/cartStore';
 import { createClient } from '@/utils/supabase/client';
 
 const Field = ({ label, type = 'text', value, onChange, required = true, placeholder = '' }) => (
@@ -17,13 +17,10 @@ const Field = ({ label, type = 'text', value, onChange, required = true, placeho
   </div>
 );
 
-const LOGO_SERVICE_FEE = 50;
-
 export default function OrderForm({ items, totalPrice, onBack }) {
-  const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode } = useCartStore();
+  const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode, logoService } = useCartStore();
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('idle');
-  const [needsLogoHelp, setNeedsLogoHelp] = useState(false);
   const [form, setForm] = useState({
     name: '', company: '', email: '', phone: '', street: '', plz: '', city: '', notes: '',
   });
@@ -37,9 +34,8 @@ export default function OrderForm({ items, totalPrice, onBack }) {
     const subtotal = getSubtotal();
     const discountAmount = getDiscountAmount();
     const shippingCost = getShippingCost();
-    const baseTotal = getFinalTotal();
-    const logoServiceFee = needsLogoHelp ? LOGO_SERVICE_FEE : 0;
-    const total = baseTotal + logoServiceFee;
+    const total = getFinalTotal();
+    const logoServiceFee = logoService ? LOGO_SERVICE_FEE : 0;
 
     let logoUrl = null;
 
@@ -47,14 +43,10 @@ export default function OrderForm({ items, totalPrice, onBack }) {
       const supabase = createClient();
       const ext = file.name.split('.').pop();
       const filename = `${Date.now()}_${form.company.replace(/\s+/g, '_') || 'logo'}.${ext}`;
-
       const { data, error } = await supabase.storage
         .from('logos')
         .upload(filename, file, { upsert: false });
-
-      if (!error && data) {
-        logoUrl = data.path;
-      }
+      if (!error && data) logoUrl = data.path;
     }
 
     const res = await fetch('/api/order', {
@@ -72,7 +64,7 @@ export default function OrderForm({ items, totalPrice, onBack }) {
         })),
         subtotal, discountCode: appliedCode, discountAmount, shippingCost, total,
         logoUrl,
-        logoService: needsLogoHelp,
+        logoService,
         logoServiceFee,
         customerNotes: form.notes,
       }),
@@ -146,26 +138,13 @@ export default function OrderForm({ items, totalPrice, onBack }) {
           </label>
         </div>
 
-        {/* Logo-Erstellungsservice */}
-        <div className="border-2 border-ink bg-paper p-4 space-y-2">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={needsLogoHelp}
-              onChange={(e) => setNeedsLogoHelp(e.target.checked)}
-              className="mt-0.5 w-4 h-4 border-2 border-ink accent-ink flex-shrink-0"
-            />
-            <span className="text-[9px] font-black uppercase leading-tight">
-              Mein Logo liegt nicht vektoriell vor — Logo-Erstellungsservice gewünscht
-              <span className="block font-bold text-tomato mt-0.5">+50,00 €</span>
-            </span>
-          </label>
-          {needsLogoHelp && (
-            <p className="text-[8px] opacity-60 leading-relaxed pl-7">
-              Wir vermitteln Ihnen einen Partner-Grafiker, der Ihr Logo professionell vektorisiert. Dieser Betrag wird separat in Rechnung gestellt. Kittelwerk erbringt diese Leistung nicht in Eigenregie.
-            </p>
-          )}
-        </div>
+        {/* Logo servisi göster (CartDrawer'dan eklendiyse) */}
+        {logoService && (
+          <div className="border-2 border-tomato bg-tomato/5 px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase">
+            <span>Logo-Erstellungsservice</span>
+            <span className="text-tomato">+{LOGO_SERVICE_FEE.toFixed(2)} €</span>
+          </div>
+        )}
 
         {/* Anmerkungen */}
         <div className="flex flex-col gap-1">
@@ -180,14 +159,6 @@ export default function OrderForm({ items, totalPrice, onBack }) {
             className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm resize-none"
           />
         </div>
-
-        {/* Logo servis dahil toplam */}
-        {needsLogoHelp && (
-          <div className="border-2 border-ink bg-paper px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase">
-            <span>Logo-Erstellungsservice</span>
-            <span className="text-tomato">+{LOGO_SERVICE_FEE.toFixed(2)} €</span>
-          </div>
-        )}
 
         {status === 'error' && (
           <p className="text-[11px] text-tomato font-bold uppercase">Ein Fehler ist aufgetreten. Bitte versuche es erneut.</p>

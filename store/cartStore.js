@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 export const FREE_PRINT_TYPES = ['none', 'front', 'back', 'both'];
+export const LOGO_SERVICE_FEE = 100;
 
 export function getTieredPrice(product, qty) {
   if (!product.tiers || product.tiers.length === 0) return product.newPrice;
@@ -25,6 +26,8 @@ export const useCartStore = create((set, get) => ({
   items: [],
   appliedCode: null,
   discountPercent: 0,
+  logoService: false,
+  setLogoService: (val) => set({ logoService: val }),
 
   // sizes: { XS: 2, S: 3, M: 5 } veya { '-': 10 } (bedensiz ürünler için)
   addItem: (product, color, sizes, qty, printType = 'none', fabric = null) => {
@@ -70,11 +73,13 @@ export const useCartStore = create((set, get) => ({
     return subtotal * get().discountPercent / 100;
   },
   getShippingCost: () => calcShipping(get().getSubtotal()),
+  getLogoServiceFee: () => get().logoService ? LOGO_SERVICE_FEE : 0,
   getFinalTotal: () => {
     const subtotal = get().getSubtotal();
     const discount = get().getDiscountAmount();
     const shipping = get().getShippingCost();
-    return subtotal - discount + shipping;
+    const logoFee = get().logoService ? LOGO_SERVICE_FEE : 0;
+    return subtotal - discount + shipping + logoFee;
   },
 
   getTotalPrice: () => get().items.reduce((acc, item) => acc + (item.price * item.qty), 0),

@@ -41,7 +41,7 @@ const druckSchema = {
     {
       '@type': 'Question',
       name: 'Was tue ich, wenn ich kein Vektorlogo habe?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Wir empfehlen, ein Vektorlogo (Ai, EPS, PDF) zu verwenden. Falls Ihr Logo nicht vektoriell vorliegt, können Sie beim Bestellen unseren Logo-Erstellungsservice für 50€ dazubuchen — wir vermitteln einen Partner-Grafiker.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'Wir empfehlen, ein Vektorlogo (Ai, EPS, PDF) zu verwenden. Falls Ihr Logo nicht vektoriell vorliegt, können Sie beim Bestellen unseren Logo-Erstellungsservice für 100€ dazubuchen — wir vermitteln einen Partner-Grafiker.' },
     },
   ],
 };
@@ -461,7 +461,7 @@ export default function DruckInfo() {
               <div className="border-4 border-sun bg-sun/20 p-6 shadow-brutalist space-y-3">
                 <p className="font-black text-sm uppercase tracking-widest">Kein Vektorlogo?</p>
                 <p className="text-sm leading-relaxed">
-                  Falls Ihr Logo nur als Foto, Screenshot oder niedrig aufgelöstes JPEG vorliegt, können Sie beim Bestellen unseren <strong>Logo-Erstellungsservice</strong> für <strong>50 €</strong> dazubuchen.
+                  Falls Ihr Logo nur als Foto, Screenshot oder niedrig aufgelöstes JPEG vorliegt, können Sie beim Bestellen unseren <strong>Logo-Erstellungsservice</strong> für <strong>100 €</strong> dazubuchen.
                 </p>
                 <p className="text-[11px] opacity-60">
                   Wir vermitteln Ihnen einen Partner-Grafiker, der Ihr Logo professionell vektorisiert. Die Vektorisierung wird direkt im Bestellprozess abgewickelt. Kittelwerk erbringt diese Leistung nicht in Eigenregie.
@@ -619,7 +619,7 @@ export default function DruckInfo() {
               },
               {
                 q: 'Ich habe nur ein Foto meines Logos — was tun?',
-                a: 'Kein Problem. Sie können beim Bestellen unseren Logo-Erstellungsservice für 50 € dazubuchen. Wir vermitteln einen Partner-Grafiker, der Ihr Logo professionell in eine skalierbare Vektordatei umwandelt. Kittelwerk übernimmt die Koordination.',
+                a: 'Kein Problem. Sie können beim Bestellen unseren Logo-Erstellungsservice für 100 € dazubuchen. Wir vermitteln einen Partner-Grafiker, der Ihr Logo professionell in eine skalierbare Vektordatei umwandelt. Kittelwerk übernimmt die Koordination.',
               },
               {
                 q: 'Wie wasche ich meine bedruckten Textilien richtig?',
