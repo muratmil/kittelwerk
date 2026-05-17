@@ -212,9 +212,16 @@ export default function VerkaufPage() {
     <div className="min-h-screen bg-paper">
       {/* Header */}
       <div className="bg-white border-b-4 border-ink px-6 py-4 flex justify-between items-center">
-        <h1 className="font-serif font-black text-2xl italic uppercase">
-          Kittel<span className="text-tomato">werk</span>. Verkauf
-        </h1>
+        <div>
+          <h1 className="font-serif font-black text-2xl italic uppercase">
+            Kittel<span className="text-tomato">werk</span>. Verkauf
+          </h1>
+          {provisionRate > 0 && (
+            <p className="text-[10px] font-black uppercase tracking-widest text-olive mt-0.5">
+              Ihre Provision: {provisionRate}%
+            </p>
+          )}
+        </div>
         <button onClick={handleLogout}
           className="flex items-center gap-2 text-[10px] font-black uppercase px-3 py-2 border-2 border-ink hover:bg-tomato hover:text-white transition-all">
           <LogOut size={14} />
