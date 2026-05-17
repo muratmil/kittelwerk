@@ -80,6 +80,7 @@ export default function VerkaufPage() {
 
   const [rabattType, setRabattType] = useState('%');
   const [rabattValue, setRabattValue] = useState('');
+  const [provision, setProvision] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -142,6 +143,9 @@ export default function VerkaufPage() {
   const afterDiscount = subtotal - rabattAmount;
   const shippingCost = afterDiscount >= 300 ? 0 : (afterDiscount > 0 ? 5.90 : 0);
   const total = afterDiscount + shippingCost;
+  const provisionRate = parseFloat(provision) || 0;
+  const provisionAmount = total * provisionRate / 100;
+  const kittelwerkAmount = total - provisionAmount;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -374,6 +378,34 @@ export default function VerkaufPage() {
               </div>
             </div>
 
+            {/* Provision */}
+            <div className="bg-white border-4 border-ink shadow-brutalist p-6 space-y-3">
+              <h2 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Satıcı Provision</h2>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">Provision %</label>
+                <input type="number" min="0" max="100" step="0.5" value={provision}
+                  onChange={e => setProvision(e.target.value)}
+                  placeholder="0"
+                  className="w-full border-2 border-ink p-3 font-black focus:bg-sun outline-none text-sm" />
+              </div>
+              {provisionRate > 0 && total > 0 && (
+                <div className="space-y-1 border-t border-ink/20 pt-3">
+                  <div className="flex justify-between text-[11px] font-bold">
+                    <span className="opacity-60">Kundenbetrag</span>
+                    <span>{total.toFixed(2)}€</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] font-black text-olive">
+                    <span>Ihre Provision ({provisionRate}%)</span>
+                    <span>+{provisionAmount.toFixed(2)}€</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] font-bold border-t border-ink/20 pt-2">
+                    <span className="opacity-60">An Kittelwerk</span>
+                    <span>{kittelwerkAmount.toFixed(2)}€</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Rabatt */}
             <div className="bg-white border-4 border-ink shadow-brutalist p-6 space-y-4">
               <h2 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Rabatt</h2>
@@ -427,6 +459,18 @@ export default function VerkaufPage() {
                     <span>TOTAL</span>
                     <span>{total.toFixed(2)}€</span>
                   </div>
+                  {provisionRate > 0 && (
+                    <div className="border-t-2 border-dashed border-ink/30 pt-3 mt-1 space-y-1">
+                      <div className="flex justify-between text-[11px] font-black text-olive">
+                        <span>Ihre Provision ({provisionRate}%)</span>
+                        <span>+{provisionAmount.toFixed(2)}€</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] font-bold opacity-50">
+                        <span>An Kittelwerk</span>
+                        <span>{kittelwerkAmount.toFixed(2)}€</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
