@@ -17,6 +17,7 @@ function formatPrintType(printType) {
     siebdruck: 'Siebdruck (+3,00€/Stk)',
     bestickung_front: 'Bestickung Vorne (+2,00€/Stk)',
     bestickung_back: 'Bestickung Hinten (+3,00€/Stk)',
+    bestickung_both: 'Bestickung Vorne + Hinten (+5,00€/Stk)',
   };
   return labels[printType] || printType;
 }

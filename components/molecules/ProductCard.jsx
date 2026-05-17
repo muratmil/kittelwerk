@@ -16,6 +16,7 @@ const PRINT_OPTIONS = [
   { value: 'siebdruck',        label: 'Siebdruck (ab 150 Stk)',      price: 3, minQty: 150 },
   { value: 'bestickung_front', label: 'Bestickung Vorne',            price: 2, minQty: 0   },
   { value: 'bestickung_back',  label: 'Bestickung Hinten',           price: 3, minQty: 0   },
+  { value: 'bestickung_both',  label: 'Bestickung Vorne + Hinten',   price: 5, minQty: 0   },
 ];
 
 export default function ProductCard({ product }) {
@@ -41,7 +42,7 @@ export default function ProductCard({ product }) {
     }
   }, [totalQty]);
 
-  const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back';
+  const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back' || v === 'bestickung_both';
   const byQty = (o) => totalQty >= o.minQty;
 
   // tshirt: DTF+Siebdruck, kein Bestickung
@@ -51,7 +52,7 @@ export default function ProductCard({ product }) {
     const id = product.id;
     if (id === 'tshirt') return PRINT_OPTIONS.filter(o => !isBestickung(o.value) && byQty(o));
     if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS.filter(o => byQty(o));
-    return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && byQty(o));
+    return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && o.value !== 'bestickung_both' && byQty(o));
   })();
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
   const isOptFree = (opt) => FREE_PRINT_TYPES.includes(opt.value) || (opt.value === 'siebdruck' && product.id === 'tshirt');
@@ -211,32 +212,36 @@ export default function ProductCard({ product }) {
           );
         })()}
 
-        {/* Baskı */}
+        {/* Baskı — Dropdown */}
         <div>
           <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Druckoption</p>
-          <div className="grid grid-cols-2 gap-2">
-            {availablePrints.map((opt) => (
-              <button key={opt.value} onClick={() => setPrintType(opt.value)}
-                className={`px-2 py-2 text-[9px] font-black uppercase border-2 border-ink transition-all text-left leading-tight
-                  ${printType === opt.value ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
-                {opt.label}
-                {isOptFree(opt) ? (
-                  opt.price === 0 ? (
-                    <span className="block text-[8px] font-bold mt-0.5 opacity-70">Kostenlos</span>
-                  ) : (
-                    <span className="block mt-0.5 flex items-center gap-1">
-                      <span className="text-[8px] font-bold line-through opacity-40">+{opt.price.toFixed(2)}€</span>
-                      <span className="text-[8px] font-black bg-olive text-white px-1">GRATIS</span>
-                    </span>
-                  )
-                ) : (
-                  <span className={`block text-[8px] font-bold mt-0.5 ${printType === opt.value ? 'opacity-70' : 'text-tomato'}`}>
-                    +{opt.price.toFixed(2)}€
-                  </span>
-                )}
-              </button>
-            ))}
+          <div className="relative">
+            <select
+              value={printType}
+              onChange={(e) => setPrintType(e.target.value)}
+              className="w-full border-2 border-ink bg-paper px-3 py-3 text-[10px] font-black uppercase appearance-none cursor-pointer focus:outline-none focus:bg-sun pr-8 tracking-widest"
+            >
+              {availablePrints.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}{isOptFree(opt) ? (opt.price === 0 ? ' — Kostenlos' : ' — GRATIS') : ` — +${opt.price.toFixed(2)}€/Stk`}
+                </option>
+              ))}
+            </select>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none font-black text-[10px]">▾</span>
           </div>
+          {selectedPrint && selectedPrint.value !== 'none' && (
+            <div className="mt-2 flex items-center justify-between px-3 py-2 border border-ink/20 bg-white text-[9px] font-black uppercase">
+              <span className="opacity-60">{selectedPrint.label}</span>
+              {isOptFree(selectedPrint) ? (
+                <span className="flex items-center gap-1.5">
+                  {selectedPrint.price > 0 && <span className="line-through opacity-40">+{selectedPrint.price.toFixed(2)}€</span>}
+                  <span className="bg-olive text-white px-1.5 py-0.5">GRATIS</span>
+                </span>
+              ) : (
+                <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ / Stk</span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Baskı boyut notu */}

@@ -9,7 +9,7 @@ export function getTieredPrice(product, qty) {
   return tier ? tier.price : product.newPrice;
 }
 
-const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0, siebdruck: 3.0, bestickung_front: 2.0, bestickung_back: 3.0 };
+const PRINT_PRICES = { none: 0, front: 5.0, back: 5.0, both: 5.0, siebdruck: 3.0, bestickung_front: 2.0, bestickung_back: 3.0, bestickung_both: 5.0 };
 
 export const DISCOUNT_CODES = { 'KITTEL10': 5 };
 
