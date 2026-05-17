@@ -21,7 +21,7 @@ const druckSchema = {
     {
       '@type': 'Question',
       name: 'Was ist der Unterschied zwischen DTF-Druck und Siebdruck?',
-      acceptedAnswer: { '@type': 'Answer', text: 'DTF-Druck (Direct-to-Film) ist ein digitales Transferverfahren — vollfarbig, weich, ideal ab 10 Stück. Siebdruck verwendet eine Druckschablone pro Farbe — extrem langlebig, industriewaschfest bis 60°C, optimal ab 100 Stück.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'DTF-Druck (Direct-to-Film) ist ein digitales Transferverfahren — vollfarbig, weich, ideal ab 10 Stück. Siebdruck verwendet eine Druckschablone pro Farbe — extrem langlebig, industriewaschfest bis 60°C, optimal ab 150 Stück.' },
     },
     {
       '@type': 'Question',
@@ -215,7 +215,7 @@ export default function DruckInfo() {
             <div className="border-4 border-ink shadow-brutalist-lg bg-white flex flex-col">
               <div className="bg-ink text-white px-6 py-4 flex items-center justify-between">
                 <span className="font-serif font-black text-xl italic">Siebdruck</span>
-                <span className="text-[9px] font-black uppercase tracking-widest bg-sun text-ink px-2 py-1">Ab 100 Stk</span>
+                <span className="text-[9px] font-black uppercase tracking-widest bg-sun text-ink px-2 py-1">Ab 150 Stk</span>
               </div>
               <div className="p-6 flex flex-col gap-4 flex-1">
                 <p className="text-[11px] uppercase tracking-widest font-black opacity-50">Screenprint / Siebdruckverfahren</p>
@@ -564,7 +564,7 @@ export default function DruckInfo() {
               </thead>
               <tbody>
                 {[
-                  ['Mindestmenge', '10 Stk', '100 Stk', '10 Stk'],
+                  ['Mindestmenge', '10 Stk', '150 Stk', '10 Stk'],
                   ['Preis', 'Kostenlos', 'Kostenlos (T-Shirt) / +3€', '+2€ vorne / +3€ hinten'],
                   ['Waschtemperatur', '30–40°C', 'bis 60°C', 'bis 60°C'],
                   ['Haltbarkeit', 'Sehr gut', 'Ausgezeichnet', 'Ausgezeichnet'],
@@ -599,7 +599,7 @@ export default function DruckInfo() {
             {[
               {
                 q: 'Was unterscheidet DTF-Druck von Siebdruck?',
-                a: 'DTF ist ein digitales Verfahren — ideal für bunte, detailreiche Logos ab 10 Stück, ohne Aufpreis. Siebdruck verwendet eine physische Schablone pro Farbe: robuster, industriewaschfest, aber erst ab 100 Stück sinnvoll. Auf T-Shirts ist Siebdruck aktuell kostenlos als Sonderangebot.',
+                a: 'DTF ist ein digitales Verfahren — ideal für bunte, detailreiche Logos ab 10 Stück, ohne Aufpreis. Siebdruck verwendet eine physische Schablone pro Farbe: robuster, industriewaschfest, aber erst ab 150 Stück sinnvoll. Auf T-Shirts ist Siebdruck aktuell kostenlos als Sonderangebot.',
               },
               {
                 q: 'Wie groß wird mein Logo gedruckt?',

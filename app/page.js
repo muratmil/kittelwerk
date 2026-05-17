@@ -17,7 +17,7 @@ const faqSchema = {
     {
       '@type': 'Question',
       name: 'Welche Drucktechniken gibt es?',
-      acceptedAnswer: { '@type': 'Answer', text: 'DTF-Druck: kostenlos, vollfarbig, ab 10 Stück. Siebdruck: ab 100 Stück, auf T-Shirts kostenlos. Bestickung: ab 10 Stück, +2€/Stk vorne. Alle Details auf kittelwerk.de/druckinfo.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'DTF-Druck: kostenlos, vollfarbig, ab 10 Stück. Siebdruck: ab 150 Stück, auf T-Shirts kostenlos. Bestickung: ab 10 Stück, +2€/Stk vorne. Alle Details auf kittelwerk.de/druckinfo.' },
     },
     {
       '@type': 'Question',

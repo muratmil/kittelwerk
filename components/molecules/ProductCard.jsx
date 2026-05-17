@@ -13,7 +13,7 @@ const PRINT_OPTIONS = [
   { value: 'front',            label: 'DTF Vorderdruck',             price: 5, minQty: 0   },
   { value: 'back',             label: 'DTF Rückendruck',             price: 5, minQty: 0   },
   { value: 'both',             label: 'DTF Vorder- & Rückendruck',   price: 8, minQty: 0   },
-  { value: 'siebdruck',        label: 'Siebdruck (ab 100 Stk)',      price: 3, minQty: 100 },
+  { value: 'siebdruck',        label: 'Siebdruck (ab 150 Stk)',      price: 3, minQty: 150 },
   { value: 'bestickung_front', label: 'Bestickung Vorne',            price: 2, minQty: 0   },
   { value: 'bestickung_back',  label: 'Bestickung Hinten',           price: 3, minQty: 0   },
 ];
@@ -36,7 +36,7 @@ export default function ProductCard({ product }) {
   const isValid = totalQty >= MIN_QTY;
 
   useEffect(() => {
-    if (printType === 'siebdruck' && totalQty < 100) {
+    if (printType === 'siebdruck' && totalQty < 150) {
       setPrintType('none');
     }
   }, [totalQty]);

@@ -4,7 +4,7 @@ import { useState } from 'react';
 const ITEMS = [
   { q: 'Wie funktioniert die Bestellung?', a: 'Produkte und Mengen wählen, Anfrage absenden und Logo hochladen. Wir senden Ihnen einen digitalen Korrekturabzug (Druckvorschau) zur Freigabe. Erst nach Ihrer Freigabe starten wir die Produktion.' },
   { q: 'Was ist die Mindestbestellmenge?', a: 'Mindestens 10 Stück gesamt — verschiedene Produkte kombinierbar. Beispiel: 5 T-Shirts + 3 Schürzen + 2 Kappen = gültig.' },
-  { q: 'Welche Drucktechniken gibt es?', a: 'DTF-Druck: kostenlos, vollfarbig, ab 10 Stück. Siebdruck: ab 100 Stück, auf T-Shirts kostenlos, sonst +3€/Stk. Bestickung: ab 10 Stück, Brust vorne +2€/Stk — hochwertig und industriewaschfest. Mehr Infos auf unserer Druckinfo-Seite.' },
+  { q: 'Welche Drucktechniken gibt es?', a: 'DTF-Druck: kostenlos, vollfarbig, ab 10 Stück. Siebdruck: ab 150 Stück, auf T-Shirts kostenlos, sonst +3€/Stk. Bestickung: ab 10 Stück, Brust vorne +2€/Stk — hochwertig und industriewaschfest. Mehr Infos auf unserer Druckinfo-Seite.' },
   { q: 'Sehe ich das Logo vor der Produktion?', a: 'Ja — immer. Nach der Bestellung erhalten Sie einen kostenlosen digitalen Korrekturabzug. Produktion startet erst nach Ihrer Freigabe. Keine Überraschungen.' },
   { q: 'Welche Größen gibt es?', a: 'T-Shirts und Sweatshirts in XS, S, M, L, XL und 2XL. Schürzen und Kappen sind One-Size.' },
   { q: 'Wie lange dauert die Lieferung?', a: 'T-Shirts und Schürzen: 1–2 Wochen ab Zahlungseingang. Sweatshirts, Fleece-Jacken und Kappen: 3–4 Wochen. Versand per DHL oder DPD mit Sendungsverfolgung. Deutschlandweiter Versand.' },
