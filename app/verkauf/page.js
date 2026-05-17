@@ -8,11 +8,25 @@ import { Plus, Trash2, LogOut, CheckCircle } from 'lucide-react';
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 const PRINT_OPTIONS = [
-  { value: 'none',  label: 'Kein Druck' },
-  { value: 'front', label: 'Vorderdruck' },
-  { value: 'back',  label: 'Rückendruck' },
-  { value: 'both',  label: 'Vorder + Rücken' },
+  { value: 'none',             label: 'Kein Druck',                price: 0, minQty: 0   },
+  { value: 'front',            label: 'DTF Vorderdruck',           price: 0, minQty: 0   },
+  { value: 'back',             label: 'DTF Rückendruck',           price: 0, minQty: 0   },
+  { value: 'both',             label: 'DTF Vorder- & Rückendruck', price: 0, minQty: 0   },
+  { value: 'siebdruck',        label: 'Siebdruck',                 price: 3, minQty: 150 },
+  { value: 'bestickung_front', label: 'Bestickung Vorne',          price: 2, minQty: 0   },
+  { value: 'bestickung_back',  label: 'Bestickung Hinten',         price: 3, minQty: 0   },
+  { value: 'bestickung_both',  label: 'Bestickung Vorne + Hinten', price: 5, minQty: 0   },
 ];
+
+const isBestickung = (v) => v.startsWith('bestickung');
+
+function getAvailablePrints(product, qty) {
+  const byQty = (o) => qty >= o.minQty;
+  const id = product.id;
+  if (id === 'tshirt') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
+  if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS;
+  return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && !o.value.endsWith('_back') && !o.value.endsWith('_both'));
+}
 
 function getTierPrice(product, qty) {
   let price = product.tiers[0].price;
@@ -20,6 +34,13 @@ function getTierPrice(product, qty) {
     if (qty >= tier.minQty) price = tier.price;
   }
   return price;
+}
+
+function getPrintPrice(productId, printValue) {
+  const opt = PRINT_OPTIONS.find(o => o.value === printValue);
+  if (!opt) return 0;
+  if (printValue === 'siebdruck' && productId === 'tshirt') return 0;
+  return opt.price;
 }
 
 function emptySize() {
@@ -83,16 +104,12 @@ export default function VerkaufPage() {
     ? Object.values(sizes).reduce((s, v) => s + (parseInt(v) || 0), 0)
     : (parseInt(qty) || 0);
 
-  const printOptions = product?.bestickungOnly
-    ? []
-    : PRINT_OPTIONS.filter(o => {
-        if (o.value === 'back' || o.value === 'both') return !!product?.hasBackPrint;
-        return true;
-      });
+  const printOptions = getAvailablePrints(product, itemQty);
 
   const addItem = () => {
     if (itemQty < 1) return;
-    const price = getTierPrice(product, itemQty);
+    if (selPrint === 'siebdruck' && itemQty < 150) return;
+    const price = getTierPrice(product, itemQty) + getPrintPrice(product.id, selPrint);
     const sizesData = product.hasSizes
       ? Object.fromEntries(
           Object.entries(sizes)
@@ -226,19 +243,26 @@ export default function VerkaufPage() {
               </div>
             </div>
 
-            {printOptions.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase tracking-widest">Druckart</label>
-                <div className="flex flex-wrap gap-2">
-                  {printOptions.map(o => (
-                    <button key={o.value} type="button" onClick={() => setSelPrint(o.value)}
-                      className={`px-3 py-1.5 border-2 text-[11px] font-black transition-all ${selPrint === o.value ? 'border-ink bg-ink text-white' : 'border-ink/30 hover:border-ink'}`}>
-                      {o.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-black uppercase tracking-widest">Druckart</label>
+              <select value={selPrint} onChange={e => setSelPrint(e.target.value)}
+                className="w-full border-2 border-ink p-3 bg-white focus:bg-sun outline-none text-sm font-bold">
+                {printOptions.map(o => {
+                  const locked = itemQty < o.minQty;
+                  const isFreeOpt = o.price === 0 || (o.value === 'siebdruck' && product.id === 'tshirt');
+                  const suffix = locked
+                    ? ` — ab ${o.minQty} Stk`
+                    : isFreeOpt
+                      ? ' — kostenlos'
+                      : ` — +${o.price.toFixed(2)}€/Stk`;
+                  return (
+                    <option key={o.value} value={o.value} disabled={locked}>
+                      {o.label}{suffix}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
 
             {product.hasSizes ? (
               <div className="flex flex-col gap-2">
@@ -266,8 +290,12 @@ export default function VerkaufPage() {
 
             {itemQty > 0 && (
               <p className="text-[11px] font-bold text-olive bg-olive/10 px-3 py-2 border border-olive/30">
-                → {itemQty} Stück × {getTierPrice(product, itemQty).toFixed(2)}€
-                = <strong>{(itemQty * getTierPrice(product, itemQty)).toFixed(2)}€</strong>
+                {(() => {
+                  const base = getTierPrice(product, itemQty);
+                  const print = getPrintPrice(product.id, selPrint);
+                  const unit = base + print;
+                  return <>→ {itemQty} Stück × {unit.toFixed(2)}€{print > 0 && ` (inkl. +${print.toFixed(2)}€ Druck)`} = <strong>{(itemQty * unit).toFixed(2)}€</strong></>;
+                })()}
               </p>
             )}
 
