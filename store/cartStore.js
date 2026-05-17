@@ -28,7 +28,8 @@ export const useCartStore = create((set, get) => ({
 
   // sizes: { XS: 2, S: 3, M: 5 } veya { '-': 10 } (bedensiz ürünler için)
   addItem: (product, color, sizes, qty, printType = 'none', fabric = null) => {
-    const printCost = FREE_PRINT_TYPES.includes(printType) ? 0 : PRINT_PRICES[printType];
+    const isFreeForProduct = FREE_PRINT_TYPES.includes(printType) || (printType === 'siebdruck' && product.id === 'tshirt');
+    const printCost = isFreeForProduct ? 0 : PRINT_PRICES[printType];
     const price = getTieredPrice(product, qty) + printCost;
     set((state) => {
       const existing = state.items.find(

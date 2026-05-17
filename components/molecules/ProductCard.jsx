@@ -54,7 +54,8 @@ export default function ProductCard({ product }) {
     return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && byQty(o));
   })();
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
-  const isFree = FREE_PRINT_TYPES.includes(printType);
+  const isOptFree = (opt) => FREE_PRINT_TYPES.includes(opt.value) || (opt.value === 'siebdruck' && product.id === 'tshirt');
+  const isFree = isOptFree(selectedPrint);
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
   const basePrice = getTieredPrice(product, totalQty);
   const totalUnitPrice = basePrice + effectivePrintPrice;
@@ -212,14 +213,14 @@ export default function ProductCard({ product }) {
 
         {/* Baskı */}
         <div>
-          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{product.bestickungOnly ? 'Veredelung' : 'Druckoption'}</p>
+          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Druckoption</p>
           <div className="grid grid-cols-2 gap-2">
             {availablePrints.map((opt) => (
               <button key={opt.value} onClick={() => setPrintType(opt.value)}
                 className={`px-2 py-2 text-[9px] font-black uppercase border-2 border-ink transition-all text-left leading-tight
                   ${printType === opt.value ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
                 {opt.label}
-                {opt.price === 0 || FREE_PRINT_TYPES.includes(opt.value) ? (
+                {isOptFree(opt) ? (
                   opt.price === 0 ? (
                     <span className="block text-[8px] font-bold mt-0.5 opacity-70">Kostenlos</span>
                   ) : (
