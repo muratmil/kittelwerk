@@ -67,95 +67,93 @@ export default function CartDrawer({ isOpen, onClose }) {
                 <OrderForm items={items} totalPrice={finalTotal} onBack={() => setShowForm(false)} />
               ) : (
                 <>
-                  {items.length === 0 && !hasAnyService ? (
-                    <div className="text-center py-20 font-serif italic opacity-40 uppercase">Dein Warenkorb ist noch leer...</div>
+                  {items.length === 0 && (
+                    <div className="text-center py-8 font-serif italic opacity-40 uppercase text-sm">Dein Warenkorb ist noch leer...</div>
+                  )}
+
+                  {items.map((item, idx) => (
+                    <div key={idx} className="flex gap-4 p-4 border-2 border-ink bg-white shadow-brutalist">
+                      <div className="w-20 h-20 bg-ink flex items-center justify-center flex-shrink-0">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-screen" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm uppercase">{item.name}</h4>
+                        <p className="text-[10px] uppercase opacity-60">{item.color}</p>
+                        {item.fabric && (() => {
+                          const opt = item.fabricOptions?.find(o => o.value === item.fabric);
+                          return opt ? (
+                            <p className="text-[10px] uppercase opacity-60">{opt.label} · {opt.weight}</p>
+                          ) : null;
+                        })()}
+                        <SizeBreakdown sizes={item.sizes} />
+                        <div className="flex justify-between items-end mt-2">
+                          <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
+                          <button onClick={() => removeItem(item.id, item.color, item.printType, item.fabric)} className="text-tomato">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Logo-Erstellungsservice — immer sichtbar */}
+                  {logoService ? (
+                    <div className="flex gap-4 p-4 border-2 border-tomato bg-white shadow-brutalist">
+                      <div className="w-20 h-20 bg-tomato flex items-center justify-center flex-shrink-0">
+                        <PenLine size={28} className="text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm uppercase">Logo-Erstellungsservice</h4>
+                        <p className="text-[10px] uppercase opacity-60">Vektorisierung · Partner-Grafiker</p>
+                        <div className="flex justify-between items-end mt-2">
+                          <span className="font-black text-lg">{LOGO_SERVICE_FEE.toFixed(2)}€</span>
+                          <button onClick={() => setLogoService(false)} className="text-tomato">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
-                    <>
-                      {items.map((item, idx) => (
-                        <div key={idx} className="flex gap-4 p-4 border-2 border-ink bg-white shadow-brutalist">
-                          <div className="w-20 h-20 bg-ink flex items-center justify-center flex-shrink-0">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-screen" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-sm uppercase">{item.name}</h4>
-                            <p className="text-[10px] uppercase opacity-60">{item.color}</p>
-                            {item.fabric && (() => {
-                              const opt = item.fabricOptions?.find(o => o.value === item.fabric);
-                              return opt ? (
-                                <p className="text-[10px] uppercase opacity-60">{opt.label} · {opt.weight}</p>
-                              ) : null;
-                            })()}
-                            <SizeBreakdown sizes={item.sizes} />
-                            <div className="flex justify-between items-end mt-2">
-                              <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
-                              <button onClick={() => removeItem(item.id, item.color, item.printType, item.fabric)} className="text-tomato">
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <button onClick={() => setLogoService(true)}
+                      className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-tomato hover:text-tomato transition-all group">
+                      <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                        <PenLine size={14} />
+                        Logo-Erstellungsservice hinzufügen
+                      </span>
+                      <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
+                        Kein Vektorlogo? Wir vermitteln einen Partner-Grafiker — {LOGO_SERVICE_FEE.toFixed(2)}€
+                      </span>
+                    </button>
+                  )}
 
-                      {/* Logo-Erstellungsservice */}
-                      {logoService ? (
-                        <div className="flex gap-4 p-4 border-2 border-tomato bg-white shadow-brutalist">
-                          <div className="w-20 h-20 bg-tomato flex items-center justify-center flex-shrink-0">
-                            <PenLine size={28} className="text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-sm uppercase">Logo-Erstellungsservice</h4>
-                            <p className="text-[10px] uppercase opacity-60">Vektorisierung · Partner-Grafiker</p>
-                            <div className="flex justify-between items-end mt-2">
-                              <span className="font-black text-lg">{LOGO_SERVICE_FEE.toFixed(2)}€</span>
-                              <button onClick={() => setLogoService(false)} className="text-tomato">
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </div>
+                  {/* Professionelle Datei-Kontrolle — immer sichtbar */}
+                  {fileCheck ? (
+                    <div className="flex gap-4 p-4 border-2 border-olive bg-white shadow-brutalist">
+                      <div className="w-20 h-20 bg-olive flex items-center justify-center flex-shrink-0">
+                        <ScanSearch size={28} className="text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm uppercase">Professionelle Datei-Kontrolle</h4>
+                        <p className="text-[10px] uppercase opacity-60">Druckfreigabe · Qualitätsprüfung</p>
+                        <div className="flex justify-between items-end mt-2">
+                          <span className="font-black text-lg">{FILE_CHECK_FEE.toFixed(2)}€</span>
+                          <button onClick={() => setFileCheck(false)} className="text-tomato">
+                            <Trash2 size={16} />
+                          </button>
                         </div>
-                      ) : (
-                        <button onClick={() => setLogoService(true)}
-                          className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-tomato hover:text-tomato transition-all group">
-                          <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                            <PenLine size={14} />
-                            Logo-Erstellungsservice hinzufügen
-                          </span>
-                          <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
-                            Kein Vektorlogo? Wir vermitteln einen Partner-Grafiker — {LOGO_SERVICE_FEE.toFixed(2)}€
-                          </span>
-                        </button>
-                      )}
-
-                      {/* Professionelle Datei-Kontrolle */}
-                      {fileCheck ? (
-                        <div className="flex gap-4 p-4 border-2 border-olive bg-white shadow-brutalist">
-                          <div className="w-20 h-20 bg-olive flex items-center justify-center flex-shrink-0">
-                            <ScanSearch size={28} className="text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-sm uppercase">Professionelle Datei-Kontrolle</h4>
-                            <p className="text-[10px] uppercase opacity-60">Druckfreigabe · Qualitätsprüfung</p>
-                            <div className="flex justify-between items-end mt-2">
-                              <span className="font-black text-lg">{FILE_CHECK_FEE.toFixed(2)}€</span>
-                              <button onClick={() => setFileCheck(false)} className="text-tomato">
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <button onClick={() => setFileCheck(true)}
-                          className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-olive hover:text-olive transition-all group">
-                          <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                            <ScanSearch size={14} />
-                            Datei-Kontrolle hinzufügen
-                          </span>
-                          <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
-                            Professionelle Prüfung Ihrer Druckdatei — {FILE_CHECK_FEE.toFixed(2)}€
-                          </span>
-                        </button>
-                      )}
-                    </>
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={() => setFileCheck(true)}
+                      className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-olive hover:text-olive transition-all group">
+                      <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                        <ScanSearch size={14} />
+                        Datei-Kontrolle hinzufügen
+                      </span>
+                      <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
+                        Professionelle Prüfung Ihrer Druckdatei — {FILE_CHECK_FEE.toFixed(2)}€
+                      </span>
+                    </button>
                   )}
                 </>
               )}
