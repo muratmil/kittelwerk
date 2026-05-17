@@ -97,9 +97,16 @@ export default function VerkaufPage() {
   }, [selProd]);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      const rate = data?.user?.user_metadata?.provision_rate;
-      if (rate) setProvisionRateState(parseFloat(rate));
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data?.user) return;
+      const { data: reseller } = await supabase
+        .from('resellers')
+        .select('discount_rate')
+        .eq('email', data.user.email)
+        .single();
+      if (reseller?.discount_rate) {
+        setProvisionRateState(parseFloat(reseller.discount_rate));
+      }
     });
   }, []);
 
