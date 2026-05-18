@@ -317,7 +317,7 @@ function AddResellerModal({ onClose, onSave }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const [tempPassword, setTempPassword] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -330,7 +330,7 @@ function AddResellerModal({ onClose, onSave }) {
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error || 'Fehler'); setLoading(false); return; }
-    setTempPassword(data.tempPassword);
+    setEmailSent(true);
     onSave();
   };
 
@@ -376,12 +376,10 @@ function AddResellerModal({ onClose, onSave }) {
               className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm w-24" />
           </div>
           {error && <p className="text-tomato text-[11px] font-black uppercase">{error}</p>}
-          {tempPassword ? (
+          {emailSent ? (
             <div className="bg-olive/10 border-2 border-olive p-4 space-y-2">
               <p className="text-[10px] font-black uppercase text-olive">Händler erstellt ✓</p>
-              <p className="text-[11px]">Login: <strong>{form.email}</strong></p>
-              <p className="text-[11px]">Passwort: <strong className="font-mono bg-white px-2 py-0.5">{tempPassword}</strong></p>
-              <p className="text-[10px] opacity-60">Bitte Passwort dem Händler mitteilen.</p>
+              <p className="text-[11px]">Zugangsdaten wurden per E-Mail an <strong>{form.email}</strong> gesendet.</p>
               <button type="button" onClick={onClose}
                 className="w-full bg-ink text-white py-2 font-black uppercase text-[10px] hover:bg-tomato transition-all mt-2">
                 Schließen
@@ -409,7 +407,7 @@ function EditResellerModal({ reseller, onClose, onSave }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [resetting, setResetting] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
+  const [resetDone, setResetDone] = useState(false);
   const [resetError, setResetError] = useState('');
 
   const handleSave = async (e) => {
@@ -431,7 +429,7 @@ function EditResellerModal({ reseller, onClose, onSave }) {
   const handleResetPassword = async () => {
     setResetting(true);
     setResetError('');
-    setNewPassword('');
+    setResetDone(false);
     const res = await fetch('/api/admin-reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -440,7 +438,7 @@ function EditResellerModal({ reseller, onClose, onSave }) {
     const data = await res.json();
     setResetting(false);
     if (!res.ok) { setResetError(data.error || 'Fehler beim Zurücksetzen.'); return; }
-    setNewPassword(data.newPassword);
+    setResetDone(true);
   };
 
   return (
@@ -480,11 +478,10 @@ function EditResellerModal({ reseller, onClose, onSave }) {
           {/* Şifre Sıfırlama */}
           <div className="border-t-2 border-ink/20 pt-4 space-y-2">
             <p className="text-[9px] font-black uppercase opacity-50">Passwort</p>
-            {newPassword ? (
-              <div className="bg-olive/10 border-2 border-olive p-3 space-y-1">
-                <p className="text-[10px] font-black uppercase text-olive">Neues Passwort generiert ✓</p>
-                <p className="text-[11px]">Passwort: <strong className="font-mono bg-white px-2 py-0.5">{newPassword}</strong></p>
-                <p className="text-[9px] opacity-50">Bitte dem Händler mitteilen.</p>
+            {resetDone ? (
+              <div className="bg-olive/10 border-2 border-olive p-3">
+                <p className="text-[10px] font-black uppercase text-olive">Passwort zurückgesetzt ✓</p>
+                <p className="text-[11px] mt-1">Neues Passwort wurde per E-Mail an den Händler gesendet.</p>
               </div>
             ) : (
               <>
@@ -512,7 +509,7 @@ function AddWorkshopModal({ onClose, onSave }) {
   const [form, setForm] = useState({ name: '', contact_name: '', email: '', phone: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [tempPassword, setTempPassword] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -525,7 +522,7 @@ function AddWorkshopModal({ onClose, onSave }) {
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error || 'Fehler'); setLoading(false); return; }
-    setTempPassword(data.tempPassword);
+    setEmailSent(true);
     onSave();
   };
 
@@ -551,12 +548,10 @@ function AddWorkshopModal({ onClose, onSave }) {
             </div>
           ))}
           {error && <p className="text-tomato text-[11px] font-black uppercase">{error}</p>}
-          {tempPassword ? (
+          {emailSent ? (
             <div className="bg-olive/10 border-2 border-olive p-4 space-y-2">
               <p className="text-[10px] font-black uppercase text-olive">Werkstatt erstellt ✓</p>
-              <p className="text-[11px]">Login: <strong>{form.email}</strong></p>
-              <p className="text-[11px]">Passwort: <strong className="font-mono bg-white px-2 py-0.5">{tempPassword}</strong></p>
-              <p className="text-[10px] opacity-60">Zugangsdaten an die Werkstatt weiterleiten.</p>
+              <p className="text-[11px]">Zugangsdaten wurden per E-Mail an <strong>{form.email}</strong> gesendet.</p>
               <button type="button" onClick={onClose}
                 className="w-full bg-ink text-white py-2 font-black uppercase text-[10px] hover:bg-tomato transition-all mt-2">
                 Schließen
@@ -587,7 +582,7 @@ function EditWorkshopModal({ workshop, onClose, onSave }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [resetting, setResetting] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
+  const [resetDone, setResetDone] = useState(false);
   const [resetError, setResetError] = useState('');
 
   const handleSubmit = async (e) => {
@@ -608,7 +603,7 @@ function EditWorkshopModal({ workshop, onClose, onSave }) {
   const handleResetPassword = async () => {
     setResetting(true);
     setResetError('');
-    setNewPassword('');
+    setResetDone(false);
     const res = await fetch('/api/admin-reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -617,7 +612,7 @@ function EditWorkshopModal({ workshop, onClose, onSave }) {
     const data = await res.json();
     setResetting(false);
     if (!res.ok) { setResetError(data.error || 'Fehler beim Zurücksetzen.'); return; }
-    setNewPassword(data.newPassword);
+    setResetDone(true);
   };
 
   return (
@@ -655,11 +650,10 @@ function EditWorkshopModal({ workshop, onClose, onSave }) {
           {/* Şifre Sıfırlama */}
           <div className="border-t-2 border-ink/20 pt-4 space-y-2">
             <p className="text-[9px] font-black uppercase opacity-50">Passwort</p>
-            {newPassword ? (
-              <div className="bg-olive/10 border-2 border-olive p-3 space-y-1">
-                <p className="text-[10px] font-black uppercase text-olive">Neues Passwort generiert ✓</p>
-                <p className="text-[11px]">Passwort: <strong className="font-mono bg-white px-2 py-0.5">{newPassword}</strong></p>
-                <p className="text-[9px] opacity-50">Bitte dem Atölye mitteilen.</p>
+            {resetDone ? (
+              <div className="bg-olive/10 border-2 border-olive p-3">
+                <p className="text-[10px] font-black uppercase text-olive">Passwort zurückgesetzt ✓</p>
+                <p className="text-[11px] mt-1">Neues Passwort wurde per E-Mail an die Werkstatt gesendet.</p>
               </div>
             ) : (
               <>

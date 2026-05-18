@@ -56,11 +56,11 @@ export default function OrderForm({ items, totalPrice, onBack }) {
       body: JSON.stringify({
         ...form,
         items: items.map(i => ({
+          id: i.id,
           name: i.name,
           color: i.color,
           sizes: i.sizes,
           qty: i.qty,
-          price: i.price,
           printType: i.printType,
         })),
         subtotal, discountCode: appliedCode, discountAmount, shippingCost, total,

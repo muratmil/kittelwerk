@@ -18,7 +18,7 @@ export async function POST(req) {
     return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
   }
 
-  const tempPassword = `Atolye${Math.floor(1000 + Math.random() * 9000)}!`;
+  const tempPassword = require('crypto').randomBytes(12).toString('base64url');
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users`, {
     method: 'POST',
@@ -87,7 +87,7 @@ export async function POST(req) {
     `,
   });
 
-  return Response.json({ success: true, tempPassword });
+  return Response.json({ success: true });
 }
 
 export async function PATCH(req) {

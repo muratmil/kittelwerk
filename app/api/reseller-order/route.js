@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { createClient } from '@/utils/supabase/server';
 import { Resend } from 'resend';
+import { esc } from '@/lib/escapeHtml';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -66,8 +67,8 @@ export async function POST(req) {
 
   const itemsHtml = recalcItems.map(i =>
     `<tr>
-      <td style="padding:8px;border-bottom:1px solid #eee;">${i.name}</td>
-      <td style="padding:8px;border-bottom:1px solid #eee;">${i.color} · ${formatSizes(i.sizes)}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(i.name)}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(i.color)} · ${formatSizes(i.sizes)}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.qty} Stück</td>
       <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${(i.price * i.qty).toFixed(2)}€</td>
     </tr>`
@@ -77,17 +78,17 @@ export async function POST(req) {
   await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
-    subject: `🏪 [Händler] Neue Bestellung: ${reseller.company} — ${total.toFixed(2)}€`,
+    subject: `🏪 [Händler] Neue Bestellung: ${esc(reseller.company)} — ${total.toFixed(2)}€`,
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
         <h2>Neue Händlerbestellung</h2>
         <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
-          <tr><td style="padding:6px;color:#555;width:140px;">Händler</td><td><strong>${reseller.company}</strong></td></tr>
-          <tr><td style="padding:6px;color:#555;">Kontakt</td><td>${reseller.contact_name}</td></tr>
-          <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${reseller.email}">${reseller.email}</a></td></tr>
+          <tr><td style="padding:6px;color:#555;width:140px;">Händler</td><td><strong>${esc(reseller.company)}</strong></td></tr>
+          <tr><td style="padding:6px;color:#555;">Kontakt</td><td>${esc(reseller.contact_name)}</td></tr>
+          <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${esc(reseller.email)}">${esc(reseller.email)}</a></td></tr>
           <tr><td style="padding:6px;color:#555;">Rabatt</td><td style="color:#3D6B4F;">${discountRate}% (−${discountAmount.toFixed(2)}€)</td></tr>
           <tr><td style="padding:6px;color:#555;">Bestellwert</td><td><strong>${total.toFixed(2)}€</strong></td></tr>
-          ${note ? `<tr><td style="padding:6px;color:#555;">Notiz</td><td>${note}</td></tr>` : ''}
+          ${note ? `<tr><td style="padding:6px;color:#555;">Notiz</td><td>${esc(note)}</td></tr>` : ''}
         </table>
         <table style="width:100%;border-collapse:collapse;">
           <thead><tr style="background:#111;color:#fff;">

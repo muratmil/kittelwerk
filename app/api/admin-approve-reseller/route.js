@@ -50,7 +50,7 @@ export async function POST(req) {
   }
 
   if (action === 'approve') {
-    const tempPassword = `Haendler${Math.floor(1000 + Math.random() * 9000)}!`;
+    const tempPassword = require('crypto').randomBytes(12).toString('base64url');
 
     // Auth kullanıcısı oluştur
     const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users`, {

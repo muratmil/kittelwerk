@@ -1,9 +1,13 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { Resend } from 'resend';
+import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
+  const { allowed, retryAfter } = rateLimit(req, { limit: 3, windowMs: 60 * 60_000 });
+  if (!allowed) return rateLimitResponse(retryAfter);
+
   const { email } = await req.json();
 
   if (!email || !email.includes('@')) {

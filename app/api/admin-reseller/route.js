@@ -1,5 +1,8 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { createClient } from '@/utils/supabase/server';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
   const supabase = await createClient();
@@ -16,7 +19,7 @@ export async function POST(req) {
   }
 
   // Supabase Admin API ile auth kullanıcısı oluştur
-  const tempPassword = `Haendler${Math.floor(1000 + Math.random() * 9000)}!`;
+  const tempPassword = require('crypto').randomBytes(12).toString('base64url');
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users`, {
     method: 'POST',
@@ -52,7 +55,30 @@ export async function POST(req) {
     return Response.json({ error: 'Händlerdaten konnten nicht gespeichert werden.' }, { status: 500 });
   }
 
-  return Response.json({ success: true, tempPassword });
+  await resend.emails.send({
+    from: 'Kittelwerk <info@kittelwerk.de>',
+    to: email,
+    subject: 'Ihr Händlerkonto bei Kittelwerk — Zugangsdaten',
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
+        <h1 style="font-size:24px;font-weight:900;">Kittel<span style="color:#E63946">werk</span>.</h1>
+        <h2 style="margin-top:16px;">Willkommen als Händler!</h2>
+        <p>Sehr geehrte/r ${contact_name},</p>
+        <p style="margin-top:12px;">Ihr Händlerkonto wurde eingerichtet. Hier sind Ihre Zugangsdaten:</p>
+        <div style="background:#f5f0e8;border:2px solid #111;padding:20px;margin:24px 0;">
+          <p style="font-weight:900;font-size:13px;text-transform:uppercase;margin:0 0 12px;">Ihre Zugangsdaten</p>
+          <p style="margin:4px 0;font-size:14px;">🌐 <a href="https://kittelwerk.de/reseller/login" style="color:#E63946;font-weight:bold;">kittelwerk.de/reseller/login</a></p>
+          <p style="margin:4px 0;font-size:14px;">📧 <strong>${email}</strong></p>
+          <p style="margin:4px 0;font-size:14px;">🔑 <strong style="font-family:monospace;background:#fff;padding:2px 8px;">${tempPassword}</strong></p>
+        </div>
+        <p style="color:#E63946;font-size:12px;font-weight:bold;">Bitte ändern Sie Ihr Passwort nach dem ersten Login.</p>
+        <hr style="margin:32px 0;border:none;border-top:2px solid #111;"/>
+        <p style="color:#999;font-size:11px;">© 2026 Kittelwerk · info@kittelwerk.de</p>
+      </div>
+    `,
+  }).catch(() => {});
+
+  return Response.json({ success: true });
 }
 
 export async function PATCH(req) {

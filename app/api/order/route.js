@@ -1,7 +1,34 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { Resend } from 'resend';
+import { PRODUCTS } from '@/data/products';
+import { esc } from '@/lib/escapeHtml';
+import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const DISCOUNT_CODES = { 'KITTEL10': 5 };
+const LOGO_SERVICE_FEE = 100;
+const FILE_CHECK_FEE = 20;
+
+const PRINT_PRICES = {
+  none: 0, front: 0, back: 0, both: 0,
+  siebdruck: 3,
+  bestickung_front: 2, bestickung_back: 3, bestickung_both: 5,
+};
+
+function getTierPrice(product, qty) {
+  let price = product.tiers[0].price;
+  for (const tier of product.tiers) {
+    if (qty >= tier.minQty) price = tier.price;
+  }
+  return price;
+}
+
+function calcShipping(subtotal) {
+  if (subtotal >= 300) return 0;
+  if (subtotal >= 100) return 14.90;
+  return 9.90;
+}
 
 function formatSizes(sizes) {
   if (!sizes || sizes['-'] !== undefined) return `${sizes?.['-'] ?? '—'} Stück`;
@@ -23,15 +50,50 @@ function formatPrintType(printType) {
 }
 
 export async function POST(req) {
+  const { allowed, retryAfter } = rateLimit(req, { limit: 10, windowMs: 60 * 60_000 });
+  if (!allowed) return rateLimitResponse(retryAfter);
+
   const body = await req.json();
-  const { name, company, email, phone, street, plz, city, items, subtotal, discountCode, discountAmount, shippingCost, total, logoUrl, logoService, logoServiceFee, fileCheck, fileCheckFee, customerNotes } = body;
+  const { name, company, email, phone, street, plz, city, items, discountCode, logoUrl, logoService, fileCheck, customerNotes } = body;
+
+  if (!name || !email || !items || items.length === 0) {
+    return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
+  }
+
+  // Fiyatları server tarafında hesapla
+  const recalcItems = [];
+  for (const item of items) {
+    const product = PRODUCTS.find(p => p.id === item.id);
+    if (!product) return Response.json({ error: `Unbekanntes Produkt: ${item.id}` }, { status: 400 });
+    const qty = item.qty;
+    if (!qty || qty < 10) return Response.json({ error: 'Mindestbestellmenge 10 Stück.' }, { status: 400 });
+    const basePrice = getTierPrice(product, qty);
+    // siebdruck tshirt'te ücretsiz
+    const printPrice = (item.printType === 'siebdruck' && item.id === 'tshirt')
+      ? 0
+      : (PRINT_PRICES[item.printType] ?? 0);
+    const unitPrice = basePrice + printPrice;
+    recalcItems.push({ ...item, price: unitPrice, basePrice });
+  }
+
+  const subtotal = recalcItems.reduce((s, i) => s + i.price * i.qty, 0);
+
+  const discountPct = discountCode ? (DISCOUNT_CODES[discountCode.toUpperCase()] ?? 0) : 0;
+  const discountAmount = discountPct > 0 ? parseFloat((subtotal * discountPct / 100).toFixed(2)) : 0;
+  const afterDiscount = subtotal - discountAmount;
+
+  const logoServiceFee = logoService ? LOGO_SERVICE_FEE : 0;
+  const fileCheckFee = fileCheck ? FILE_CHECK_FEE : 0;
+
+  const shippingCost = calcShipping(afterDiscount);
+  const total = parseFloat((afterDiscount + shippingCost + logoServiceFee + fileCheckFee).toFixed(2));
 
   const { data: order, error } = await supabaseAdmin
     .from('orders')
     .insert([{
       name, company, email, phone, street, plz, city,
-      items, subtotal, discount_code: discountCode || null,
-      discount_amount: discountAmount || 0,
+      items: recalcItems, subtotal, discount_code: discountCode || null,
+      discount_amount: discountAmount,
       shipping_cost: shippingCost, total,
       logo_url: logoUrl || null,
       status: 'new',
@@ -52,10 +114,10 @@ export async function POST(req) {
     if (signedData) logoDownloadUrl = signedData.signedUrl;
   }
 
-  const itemsHtml = items.map(i =>
+  const itemsHtml = recalcItems.map(i =>
     `<tr>
-      <td style="padding:8px;border-bottom:1px solid #eee;">${i.name}</td>
-      <td style="padding:8px;border-bottom:1px solid #eee;">${i.color} · ${formatSizes(i.sizes)}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(i.name)}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(i.color)} · ${formatSizes(i.sizes)}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${formatPrintType(i.printType)}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.qty} Stück</td>
       <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${(i.price * i.qty).toFixed(2)}€</td>
@@ -70,7 +132,7 @@ export async function POST(req) {
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
         <h1 style="font-size:28px;font-weight:900;">Kittel<span style="color:#E63946">werk</span>.</h1>
-        <h2 style="margin-top:24px;">Danke, ${name}!</h2>
+        <h2 style="margin-top:24px;">Danke, ${esc(name)}!</h2>
         <p>Wir haben deine Bestellanfrage erhalten und melden uns bald bei dir.</p>
         <p style="background:#FFF8D4;border:1px solid #111;padding:12px;font-size:12px;margin:16px 0;">
           <strong>Druckvorschau:</strong> Vor der Produktion erhalten Sie einen digitalen Korrekturabzug zur Freigabe. Die Produktion startet erst nach Ihrer ausdrücklichen Freigabe.
@@ -89,13 +151,13 @@ export async function POST(req) {
         </table>
         <table style="width:100%;max-width:300px;margin-left:auto;">
           <tr><td style="padding:4px;color:#555;">Zwischensumme</td><td style="text-align:right;">${subtotal.toFixed(2)}€</td></tr>
-          ${discountAmount > 0 ? `<tr><td style="padding:4px;color:#3D6B4F;">Rabatt (${discountCode})</td><td style="text-align:right;color:#3D6B4F;">−${discountAmount.toFixed(2)}€</td></tr>` : ''}
+          ${discountAmount > 0 ? `<tr><td style="padding:4px;color:#3D6B4F;">Rabatt (${esc(discountCode)})</td><td style="text-align:right;color:#3D6B4F;">−${discountAmount.toFixed(2)}€</td></tr>` : ''}
           <tr><td style="padding:4px;color:#555;">Versandkosten</td><td style="text-align:right;">${shippingCost === 0 ? 'GRATIS' : shippingCost.toFixed(2) + '€'}</td></tr>
-          ${logoService ? `<tr><td style="padding:4px;color:#E63946;">Logo-Erstellungsservice</td><td style="text-align:right;color:#E63946;">+${(logoServiceFee || 0).toFixed(2)}€</td></tr>` : ''}
-          ${fileCheck ? `<tr><td style="padding:4px;color:#3D6B4F;">Professionelle Datei-Kontrolle</td><td style="text-align:right;color:#3D6B4F;">+${(fileCheckFee || 0).toFixed(2)}€</td></tr>` : ''}
+          ${logoService ? `<tr><td style="padding:4px;color:#E63946;">Logo-Erstellungsservice</td><td style="text-align:right;color:#E63946;">+${logoServiceFee.toFixed(2)}€</td></tr>` : ''}
+          ${fileCheck ? `<tr><td style="padding:4px;color:#3D6B4F;">Professionelle Datei-Kontrolle</td><td style="text-align:right;color:#3D6B4F;">+${fileCheckFee.toFixed(2)}€</td></tr>` : ''}
           <tr style="font-weight:900;font-size:18px;border-top:2px solid #111;"><td style="padding:8px 4px;">TOTAL</td><td style="text-align:right;">${total.toFixed(2)}€</td></tr>
         </table>
-        ${customerNotes ? `<p style="background:#f5f5f5;border-left:3px solid #111;padding:10px 14px;font-size:12px;margin:16px 0;"><strong>Ihre Anmerkungen:</strong><br/>${customerNotes}</p>` : ''}
+        ${customerNotes ? `<p style="background:#f5f5f5;border-left:3px solid #111;padding:10px 14px;font-size:12px;margin:16px 0;"><strong>Ihre Anmerkungen:</strong><br/>${esc(customerNotes)}</p>` : ''}
         <hr style="margin:32px 0;border:none;border-top:2px solid #111;"/>
         <p style="color:#999;font-size:11px;">© 2026 Kittelwerk · info@kittelwerk.de</p>
       </div>
@@ -106,22 +168,22 @@ export async function POST(req) {
   await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
-    subject: `🛒 Neue Bestellung: ${company} — ${total.toFixed(2)}€`,
+    subject: `🛒 Neue Bestellung: ${esc(company)} — ${total.toFixed(2)}€`,
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
         <h2>Neue Bestellanfrage</h2>
         <table style="width:100%;border-collapse:collapse;">
-          <tr><td style="padding:6px;color:#555;width:140px;">Name</td><td><strong>${name}</strong></td></tr>
-          <tr><td style="padding:6px;color:#555;">Restaurant</td><td><strong>${company}</strong></td></tr>
-          <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${email}">${email}</a></td></tr>
-          <tr><td style="padding:6px;color:#555;">Telefon</td><td>${phone}</td></tr>
-          <tr><td style="padding:6px;color:#555;">Adresse</td><td>${street}, ${plz} ${city}</td></tr>
+          <tr><td style="padding:6px;color:#555;width:140px;">Name</td><td><strong>${esc(name)}</strong></td></tr>
+          <tr><td style="padding:6px;color:#555;">Restaurant</td><td><strong>${esc(company)}</strong></td></tr>
+          <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
+          <tr><td style="padding:6px;color:#555;">Telefon</td><td>${esc(phone)}</td></tr>
+          <tr><td style="padding:6px;color:#555;">Adresse</td><td>${esc(street)}, ${esc(plz)} ${esc(city)}</td></tr>
           <tr><td style="padding:6px;color:#555;">Bestellwert</td><td><strong>${total.toFixed(2)}€</strong></td></tr>
-          ${discountCode ? `<tr><td style="padding:6px;color:#555;">Rabattcode</td><td>${discountCode} (−${discountAmount.toFixed(2)}€)</td></tr>` : ''}
-          ${logoDownloadUrl ? `<tr><td style="padding:6px;color:#555;">Logo</td><td><a href="${logoDownloadUrl}" style="color:#E63946;font-weight:bold;">📎 Logo herunterladen (48h)</a></td></tr>` : '<tr><td style="padding:6px;color:#555;">Logo</td><td style="color:#999;">Kein Logo hochgeladen</td></tr>'}
-          ${logoService ? `<tr><td style="padding:6px;color:#E63946;font-weight:bold;">Logo-Service</td><td style="color:#E63946;font-weight:bold;">Ja — Partner-Grafiker erforderlich (+${(logoServiceFee || 0).toFixed(2)}€)</td></tr>` : ''}
-          ${fileCheck ? `<tr><td style="padding:6px;color:#3D6B4F;font-weight:bold;">Datei-Kontrolle</td><td style="color:#3D6B4F;font-weight:bold;">Ja — Professionelle Druckdateiprüfung (+${(fileCheckFee || 0).toFixed(2)}€)</td></tr>` : ''}
-          ${customerNotes ? `<tr><td style="padding:6px;color:#555;vertical-align:top;">Anmerkungen</td><td style="white-space:pre-wrap;">${customerNotes}</td></tr>` : ''}
+          ${discountCode ? `<tr><td style="padding:6px;color:#555;">Rabattcode</td><td>${esc(discountCode)} (−${discountAmount.toFixed(2)}€)</td></tr>` : ''}
+          ${logoDownloadUrl ? `<tr><td style="padding:6px;color:#555;">Logo</td><td><a href="${esc(logoDownloadUrl)}" style="color:#E63946;font-weight:bold;">📎 Logo herunterladen (48h)</a></td></tr>` : '<tr><td style="padding:6px;color:#555;">Logo</td><td style="color:#999;">Kein Logo hochgeladen</td></tr>'}
+          ${logoService ? `<tr><td style="padding:6px;color:#E63946;font-weight:bold;">Logo-Service</td><td style="color:#E63946;font-weight:bold;">Ja — Partner-Grafiker erforderlich (+${logoServiceFee.toFixed(2)}€)</td></tr>` : ''}
+          ${fileCheck ? `<tr><td style="padding:6px;color:#3D6B4F;font-weight:bold;">Datei-Kontrolle</td><td style="color:#3D6B4F;font-weight:bold;">Ja — Professionelle Druckdateiprüfung (+${fileCheckFee.toFixed(2)}€)</td></tr>` : ''}
+          ${customerNotes ? `<tr><td style="padding:6px;color:#555;vertical-align:top;">Anmerkungen</td><td style="white-space:pre-wrap;">${esc(customerNotes)}</td></tr>` : ''}
         </table>
         <h3 style="margin-top:24px;">Bestellpositionen</h3>
         <table style="width:100%;border-collapse:collapse;">

@@ -1,9 +1,14 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { Resend } from 'resend';
+import { esc } from '@/lib/escapeHtml';
+import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
+  const { allowed, retryAfter } = rateLimit(req, { limit: 3, windowMs: 60 * 60_000 });
+  if (!allowed) return rateLimitResponse(retryAfter);
+
   const { company, contact_name, email, phone, password, steuer_id, gewerbe_info } = await req.json();
 
   if (!company || !contact_name || !email || !password || !steuer_id) {
@@ -49,15 +54,15 @@ export async function POST(req) {
   await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
-    subject: `Neue Händleranfrage: ${company}`,
+    subject: `Neue Händleranfrage: ${esc(company)}`,
     html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#111">
       <div style="background:#111;padding:24px 32px"><span style="font-family:Georgia,serif;font-style:italic;font-weight:900;font-size:22px;color:#fff;text-transform:uppercase">Kittel<span style="color:#E63946">werk</span>.</span></div>
       <div style="padding:32px;border:3px solid #111;border-top:none">
         <h2 style="margin:0 0 16px;font-size:16px;text-transform:uppercase">Neue Händleranfrage</h2>
-        <p><strong>${company}</strong> — ${contact_name}</p>
-        <p>${email}${phone ? ' · ' + phone : ''}</p>
-        <p>Steuer-ID: <strong>${steuer_id}</strong></p>
-        ${gewerbe_info ? `<p>Gewerbe: ${gewerbe_info}</p>` : ''}
+        <p><strong>${esc(company)}</strong> — ${esc(contact_name)}</p>
+        <p>${esc(email)}${phone ? ' · ' + esc(phone) : ''}</p>
+        <p>Steuer-ID: <strong>${esc(steuer_id)}</strong></p>
+        ${gewerbe_info ? `<p>Gewerbe: ${esc(gewerbe_info)}</p>` : ''}
         <p style="margin-top:16px;font-size:12px;opacity:.6">Im Backend unter "Händler" prüfen und freischalten.</p>
       </div>
     </div>`,
@@ -71,7 +76,7 @@ export async function POST(req) {
       <div style="background:#111;padding:24px 32px"><span style="font-family:Georgia,serif;font-style:italic;font-weight:900;font-size:22px;color:#fff;text-transform:uppercase">Kittel<span style="color:#E63946">werk</span>.</span></div>
       <div style="padding:32px;border:3px solid #111;border-top:none">
         <h2 style="margin:0 0 8px;font-size:18px;text-transform:uppercase">Anfrage eingegangen!</h2>
-        <p>Vielen Dank, <strong>${contact_name}</strong>. Ihre Händleranfrage für <strong>${company}</strong> wird geprüft.</p>
+        <p>Vielen Dank, <strong>${esc(contact_name)}</strong>. Ihre Händleranfrage für <strong>${esc(company)}</strong> wird geprüft.</p>
         <p style="margin-top:12px;opacity:.6;font-size:13px">In der Regel melden wir uns innerhalb von 1–2 Werktagen per E-Mail bei Ihnen.</p>
       </div>
     </div>`,

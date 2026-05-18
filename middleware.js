@@ -23,11 +23,22 @@ export async function middleware(request) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
-  // /backend koruması
+  // Rol lazımsa profile tablosundan çek
+  let role = null
+  const needsRole = path.startsWith('/verkauf') || path.startsWith('/backend')
+  if (user && needsRole) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    role = profile?.role ?? null
+  }
+
+  // /backend koruması — sadece admin
   if (path.startsWith('/backend')) {
     const isLoginPage = path === '/backend/login'
     if (!user && !isLoginPage) return NextResponse.redirect(new URL('/backend/login', request.url))
-    if (user && isLoginPage) return NextResponse.redirect(new URL('/backend', request.url))
+    if (user && isLoginPage && role === 'admin') return NextResponse.redirect(new URL('/backend', request.url))
+    if (user && !isLoginPage && role !== 'admin') {
+      return NextResponse.redirect(new URL('/backend/login', request.url))
+    }
   }
 
   // /atolye koruması
@@ -46,11 +57,14 @@ export async function middleware(request) {
     if (user && isLoginPage) return NextResponse.redirect(new URL('/reseller', request.url))
   }
 
-  // /verkauf koruması
+  // /verkauf koruması — sadece verkauf ve admin
   if (path.startsWith('/verkauf')) {
     const isLoginPage = path === '/verkauf/login'
     if (!user && !isLoginPage) return NextResponse.redirect(new URL('/verkauf/login', request.url))
-    if (user && isLoginPage) return NextResponse.redirect(new URL('/verkauf', request.url))
+    if (user && isLoginPage && (role === 'verkauf' || role === 'admin')) return NextResponse.redirect(new URL('/verkauf', request.url))
+    if (user && !isLoginPage && role !== 'verkauf' && role !== 'admin') {
+      return NextResponse.redirect(new URL('/verkauf/login', request.url))
+    }
   }
 
   return supabaseResponse
