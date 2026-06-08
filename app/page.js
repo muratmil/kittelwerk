@@ -33,7 +33,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/60">— Die Auswahl —</span>
             <h2 className="font-serif font-black text-4xl md:text-6xl uppercase italic tracking-tighter mt-2 leading-none">
-              5 Produkte. <span className="text-tomato">Ein Preis.</span>
+              Die Kollektion. <span className="text-tomato">Ein Preis.</span>
             </h2>
             <p className="mt-3 text-sm font-medium opacity-60">
               Alle Artikel in <strong>Schwarz · Weiß · Rot</strong> · Mindestbestellung: <strong>10 Stück gesamt</strong> · Max. 100 Stück
