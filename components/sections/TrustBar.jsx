@@ -1,7 +1,7 @@
 export default function TrustBar() {
   const items = [
     { num: '24/1', lbl: 'Supreme Baumwolle' },
-    { num: '5', lbl: 'Produkte' },
+    { num: '3', lbl: 'Farben' },
     { num: '10+', lbl: 'Stück Mindestmenge' },
     { num: '1–4W', lbl: 'Lieferzeit' },
     { num: 'GRATIS', lbl: 'Logo-Druck' },
