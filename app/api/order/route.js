@@ -16,6 +16,10 @@ const PRINT_PRICES = {
   bestickung_front: 2, bestickung_back: 3, bestickung_both: 5,
 };
 
+function validateLength(value, max) {
+  return !value || String(value).length <= max;
+}
+
 function getTierPrice(product, qty) {
   let price = product.tiers[0].price;
   for (const tier of product.tiers) {
@@ -58,6 +62,19 @@ export async function POST(req) {
 
   if (!name || !email || !items || items.length === 0) {
     return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
+  }
+
+  if (
+    !validateLength(name, 200) ||
+    !validateLength(company, 200) ||
+    !validateLength(email, 254) ||
+    !validateLength(phone, 30) ||
+    !validateLength(street, 200) ||
+    !validateLength(plz, 10) ||
+    !validateLength(city, 100) ||
+    !validateLength(customerNotes, 1000)
+  ) {
+    return Response.json({ error: 'Eingabe zu lang.' }, { status: 400 });
   }
 
   // Fiyatları server tarafında hesapla

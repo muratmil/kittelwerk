@@ -4,6 +4,12 @@ import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function validateLength(value, max) {
+  return !value || String(value).length <= max;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(req) {
   const { allowed, retryAfter } = rateLimit(req, { limit: 5, windowMs: 60 * 60_000 });
   if (!allowed) return rateLimitResponse(retryAfter);
@@ -12,6 +18,20 @@ export async function POST(req) {
 
   if (!name || !email || !message) {
     return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
+  }
+
+  if (
+    !validateLength(name, 200) ||
+    !validateLength(email, 254) ||
+    !validateLength(company, 200) ||
+    !validateLength(subject, 200) ||
+    !validateLength(message, 2000)
+  ) {
+    return Response.json({ error: 'Eingabe zu lang.' }, { status: 400 });
+  }
+
+  if (!EMAIL_RE.test(String(email))) {
+    return Response.json({ error: 'Ungültige E-Mail-Adresse.' }, { status: 400 });
   }
 
   let result;

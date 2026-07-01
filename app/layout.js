@@ -54,6 +54,20 @@ const localBusinessSchema = {
     { '@type': 'Country', name: 'Deutschland' },
   ],
   priceRange: '€',
+  paymentAccepted: 'SEPA, Kreditkarte, PayPal',
+  currenciesAccepted: 'EUR',
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Gastro-Textilien',
+    itemListElement: [
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Gastro T-Shirt mit Logo-Druck' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Latzschürze mit Logo-Druck' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Vorbinder-Schürze mit Logo-Druck' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Fleece Jacke mit Bestickung' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Premium Sweatshirt mit Logo' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Team-Kappe mit Logo' } },
+    ],
+  },
 };
 
 export default function RootLayout({ children }) {

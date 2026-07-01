@@ -49,12 +49,22 @@ export async function middleware(request) {
     if (user && isLoginPage) return NextResponse.redirect(new URL('/atolye', request.url))
   }
 
-  // /reseller koruması
+  // /reseller koruması — sadece reseller ve admin
   if (path.startsWith('/reseller')) {
     const isLoginPage = path === '/reseller/login'
     const isRegisterPage = path === '/reseller/register'
     if (!user && !isLoginPage && !isRegisterPage) return NextResponse.redirect(new URL('/reseller/login', request.url))
     if (user && isLoginPage) return NextResponse.redirect(new URL('/reseller', request.url))
+
+    if (user && !isLoginPage && !isRegisterPage) {
+      if (!role) {
+        const { data: p } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+        role = p?.role ?? null
+      }
+      if (role !== 'reseller' && role !== 'admin') {
+        return NextResponse.redirect(new URL('/reseller/login', request.url))
+      }
+    }
   }
 
   // /verkauf koruması — sadece verkauf ve admin

@@ -2,15 +2,26 @@ import { PRODUCTS } from '@/data/products';
 import { notFound } from 'next/navigation';
 import ProductDetailPage from './ProductDetailPage';
 
+const PRODUCT_DESCRIPTIONS = {
+  tshirt: 'Gastro T-Shirt aus 100% Baumwolle mit kostenlosem Logo-Druck. Ab 16€/Stk ab 10 Stück — Schw., Weiß, Rot. Lieferzeit 1–2 Wochen. Deutschlandweiter Versand.',
+  sweat: 'Premium Sweatshirt 320g/m² für Gastronomie mit kostenlosem DTF-Druck. Ab 24€/Stk ab 10 Stück. Lieferzeit 3–4 Wochen. Deutschlandweiter Versand.',
+  fleece: 'Fleece Jacke Anti-Pilling für Gastronomie mit Bestickung. Ab 24€/Stk ab 10 Stück. Lieferzeit 3–4 Wochen. Deutschlandweiter Versand.',
+  apron: 'Vorbinder-Schürze Gastro — bügelleicht, Industriewäsche geeignet. Ab 12€/Stk ab 10 Stück. Lieferzeit 1–2 Wochen. Deutschlandweiter Versand.',
+  latz: 'Latzschürze für Gastronomie — vollständige Abdeckung, verstellbarer Nackengurt. Ab 15€/Stk ab 10 Stück. Lieferzeit 1–2 Wochen. Deutschlandweiter Versand.',
+  cap: 'Team-Kappe Gabardine für Gastronomie mit Bestickung. Ab 11€/Stk ab 10 Stück. Lieferzeit 3–4 Wochen. Deutschlandweiter Versand.',
+};
+
 export async function generateMetadata({ params }) {
   const product = PRODUCTS.find(p => p.id === params.id);
   if (!product) return {};
+  const description = PRODUCT_DESCRIPTIONS[product.id]
+    || `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung 10 Stück. Deutschlandweiter Versand.`;
   return {
     title: `${product.name} | Kittelwerk`,
-    description: `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung 10 Stück.`,
+    description,
     openGraph: {
       title: `${product.name} | Kittelwerk`,
-      description: `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€.`,
+      description,
       url: `https://www.kittelwerk.de/produkte/${params.id}`,
       images: [{ url: product.image, width: 800, height: 800, alt: product.name }],
     },
@@ -28,18 +39,24 @@ export default function Page({ params }) {
   const product = PRODUCTS.find(p => p.id === params.id);
   if (!product) notFound();
 
+  const priceValidUntil = new Date(new Date().getFullYear() + 1, 11, 31).toISOString().slice(0, 10);
+
   const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
     description: product.longDesc,
     image: `https://www.kittelwerk.de${product.image}`,
-    brand: { '@type': 'Brand', name: 'Kittelwerk' },
+    sku: product.id,
+    category: 'Gastro-Textilien',
+    brand: { '@type': 'Brand', name: 'Kittelwerk', url: 'https://www.kittelwerk.de' },
     offers: {
       '@type': 'AggregateOffer',
       lowPrice: product.tiers[product.tiers.length - 1].price,
       highPrice: product.tiers[0].price,
       priceCurrency: 'EUR',
+      priceValidUntil,
+      itemCondition: 'https://schema.org/NewCondition',
       availability: 'https://schema.org/InStock',
       seller: { '@type': 'Organization', name: 'Kittelwerk' },
     },

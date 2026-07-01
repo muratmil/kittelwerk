@@ -16,6 +16,7 @@ export default function sitemap() {
     { url: `${base}/produkte`,           lastModified: now, changeFrequency: 'weekly',  priority: 0.95 },
     { url: `${base}/kontakt`,            lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/ueber-uns`,          lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/druckinfo`,          lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
     { url: `${base}/lieferbedingungen`,  lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${base}/impressum`,          lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
     ...productPages,

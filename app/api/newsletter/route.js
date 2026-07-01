@@ -4,13 +4,15 @@ import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(req) {
   const { allowed, retryAfter } = rateLimit(req, { limit: 3, windowMs: 60 * 60_000 });
   if (!allowed) return rateLimitResponse(retryAfter);
 
   const { email } = await req.json();
 
-  if (!email || !email.includes('@')) {
+  if (!email || String(email).length > 254 || !EMAIL_RE.test(String(email))) {
     return Response.json({ error: 'Ungültige E-Mail-Adresse.' }, { status: 400 });
   }
 

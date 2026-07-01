@@ -5,6 +5,10 @@ import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function validateLength(value, max) {
+  return !value || String(value).length <= max;
+}
+
 export async function POST(req) {
   const { allowed, retryAfter } = rateLimit(req, { limit: 3, windowMs: 60 * 60_000 });
   if (!allowed) return rateLimitResponse(retryAfter);
@@ -16,6 +20,17 @@ export async function POST(req) {
   }
   if (password.length < 8) {
     return Response.json({ error: 'Passwort muss mindestens 8 Zeichen lang sein.' }, { status: 400 });
+  }
+
+  if (
+    !validateLength(company, 200) ||
+    !validateLength(contact_name, 200) ||
+    !validateLength(email, 254) ||
+    !validateLength(phone, 30) ||
+    !validateLength(steuer_id, 50) ||
+    !validateLength(gewerbe_info, 500)
+  ) {
+    return Response.json({ error: 'Eingabe zu lang.' }, { status: 400 });
   }
 
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
