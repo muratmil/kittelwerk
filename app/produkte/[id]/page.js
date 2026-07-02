@@ -12,7 +12,8 @@ const PRODUCT_DESCRIPTIONS = {
 };
 
 export async function generateMetadata({ params }) {
-  const product = PRODUCTS.find(p => p.id === params.id);
+  const { id } = await params;
+  const product = PRODUCTS.find(p => p.id === id);
   if (!product) return {};
   const description = PRODUCT_DESCRIPTIONS[product.id]
     || `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung 10 Stück. Deutschlandweiter Versand.`;
@@ -22,11 +23,11 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: `${product.name} | Kittelwerk`,
       description,
-      url: `https://www.kittelwerk.de/produkte/${params.id}`,
+      url: `https://www.kittelwerk.de/produkte/${id}`,
       images: [{ url: product.image, width: 800, height: 800, alt: product.name }],
     },
     alternates: {
-      canonical: `https://www.kittelwerk.de/produkte/${params.id}`,
+      canonical: `https://www.kittelwerk.de/produkte/${id}`,
     },
   };
 }
@@ -35,8 +36,9 @@ export function generateStaticParams() {
   return PRODUCTS.map(p => ({ id: p.id }));
 }
 
-export default function Page({ params }) {
-  const product = PRODUCTS.find(p => p.id === params.id);
+export default async function Page({ params }) {
+  const { id } = await params;
+  const product = PRODUCTS.find(p => p.id === id);
   if (!product) notFound();
 
   const priceValidUntil = new Date(new Date().getFullYear() + 1, 11, 31).toISOString().slice(0, 10);
