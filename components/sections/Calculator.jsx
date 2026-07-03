@@ -36,7 +36,7 @@ export default function Calculator() {
 
         <div className="flex gap-6 items-stretch max-w-4xl mx-auto">
           <div className="hidden md:block w-48 flex-shrink-0 border-4 border-ink overflow-hidden">
-            <img src="/images/toplutshirt.png" alt="Gastro Textilien" className="w-full h-full object-cover" />
+            <img src="/images/toplutshirt.webp" alt="Gastro Textilien" className="w-full h-full object-cover" />
           </div>
         <div className="bg-paper border-4 border-ink shadow-brutalist-lg p-8 flex-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

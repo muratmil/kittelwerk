@@ -320,7 +320,7 @@ export default function DruckInfo() {
 
             {/* T-shirt Vorne */}
             <div className="border-4 border-ink p-6 flex flex-col items-center gap-4">
-              <img src="/images/pos-tshirt-front.png" alt="T-Shirt Vorderseite Druckbereich Brust 10x10 cm" className="w-full max-w-[200px] mx-auto object-contain" />
+              <img src="/images/pos-tshirt-front.webp" alt="T-Shirt Vorderseite Druckbereich Brust 10x10 cm" className="w-full max-w-[200px] mx-auto object-contain" />
               <div className="w-full space-y-2 border-t-2 border-ink pt-4">
                 <p className="font-black text-sm uppercase tracking-widest">T-Shirt Vorne</p>
                 <div className="flex justify-between text-[10px] font-bold"><span className="opacity-50">Maß</span><span>10 × 10 cm</span></div>
@@ -331,7 +331,7 @@ export default function DruckInfo() {
 
             {/* T-shirt Hinten */}
             <div className="border-4 border-ink p-6 flex flex-col items-center gap-4">
-              <img src="/images/pos-tshirt-back.png" alt="T-Shirt Rückseite Druckbereich Rücken max 24cm" className="w-full max-w-[200px] mx-auto object-contain" />
+              <img src="/images/pos-tshirt-back.webp" alt="T-Shirt Rückseite Druckbereich Rücken max 24cm" className="w-full max-w-[200px] mx-auto object-contain" />
               <div className="w-full space-y-2 border-t-2 border-ink pt-4">
                 <p className="font-black text-sm uppercase tracking-widest">T-Shirt Rücken</p>
                 <div className="flex justify-between text-[10px] font-bold"><span className="opacity-50">Maß</span><span>max. 24 × 24 cm</span></div>
@@ -342,7 +342,7 @@ export default function DruckInfo() {
 
             {/* Schürze */}
             <div className="border-4 border-ink p-6 flex flex-col items-center gap-4">
-              <img src="/images/pos-apron.png" alt="Schürze Druckbereich vorne 15x15 cm" className="w-full max-w-[200px] mx-auto object-contain" />
+              <img src="/images/pos-apron.webp" alt="Schürze Druckbereich vorne 15x15 cm" className="w-full max-w-[200px] mx-auto object-contain" />
               <div className="w-full space-y-2 border-t-2 border-ink pt-4">
                 <p className="font-black text-sm uppercase tracking-widest">Schürzen</p>
                 <div className="flex justify-between text-[10px] font-bold"><span className="opacity-50">Maß</span><span>15 × 15 cm</span></div>
@@ -353,7 +353,7 @@ export default function DruckInfo() {
 
             {/* Kappe */}
             <div className="border-4 border-ink p-6 flex flex-col items-center gap-4">
-              <img src="/images/pos-cap.png" alt="Cap Druckbereich Vorderpanel 7x5 cm" className="w-full max-w-[200px] mx-auto object-contain" />
+              <img src="/images/pos-cap.webp" alt="Cap Druckbereich Vorderpanel 7x5 cm" className="w-full max-w-[200px] mx-auto object-contain" />
               <div className="w-full space-y-2 border-t-2 border-ink pt-4">
                 <p className="font-black text-sm uppercase tracking-widest">Team-Kappe</p>
                 <div className="flex justify-between text-[10px] font-bold"><span className="opacity-50">Maß</span><span>ca. 7 × 5 cm</span></div>

@@ -48,7 +48,7 @@ export default function KontaktClient() {
           </div>
           <div className="hidden md:block relative h-full">
             <Image
-              src="/images/team.png"
+              src="/images/team.webp"
               alt="Kittelwerk Team"
               fill
               className="object-cover object-top"
