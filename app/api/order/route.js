@@ -83,7 +83,8 @@ export async function POST(req) {
     const product = PRODUCTS.find(p => p.id === item.id);
     if (!product || product.comingSoon) return Response.json({ error: `Unbekanntes Produkt: ${item.id}` }, { status: 400 });
     const qty = item.qty;
-    if (!qty || qty < 10) return Response.json({ error: 'Mindestbestellmenge 10 Stück.' }, { status: 400 });
+    const minQty = product.minQty || 10;
+    if (!qty || qty < minQty) return Response.json({ error: `Mindestbestellmenge ${minQty} Stück.` }, { status: 400 });
     const basePrice = getTierPrice(product, qty);
     // siebdruck tshirt'te ücretsiz
     const printPrice = (item.printType === 'siebdruck' && item.id === 'tshirt')

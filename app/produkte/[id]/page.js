@@ -10,7 +10,7 @@ const PRODUCT_DESCRIPTIONS = {
   latz: 'Latzschürze für Gastronomie — vollständige Abdeckung, verstellbarer Nackengurt. Ab 15€/Stk ab 10 Stück. Lieferzeit 1–2 Wochen. Deutschlandweiter Versand.',
   cap: 'Team-Kappe Gabardine für Gastronomie mit Bestickung. Ab 11€/Stk ab 10 Stück. Lieferzeit 3–4 Wochen. Deutschlandweiter Versand.',
   kochjacke: 'Kochjacke Profi-Twill 220g/m² mit Druckknöpfen — bald bei Kittelwerk. Bestickung & Logo-Druck ab 10 Stück. Industriewäsche geeignet. Deutschlandweiter Versand.',
-  polo: 'Polo-Shirt Piqué 100% Baumwolle für Gastronomie & Service — bald bei Kittelwerk. Kostenloser Logo-Druck ab 10 Stück. Deutschlandweiter Versand.',
+  polo: 'Polo-Shirt Piqué 100% Baumwolle für Gastronomie & Service mit kostenlosem Logo-Druck. Ab 18€/Stk ab 20 Stück. Lieferzeit 3–4 Wochen. Deutschlandweiter Versand.',
   hoodie: 'Premium Hoodie 320g/m² für Gastro-Teams — bald bei Kittelwerk. Kostenloser Logo-Druck vorne & hinten ab 10 Stück. Deutschlandweiter Versand.',
   bistro: 'Bistroschürze — lange Kellnerschürze aus Alpaka-Gewebe, bald bei Kittelwerk. Logo-Druck kostenlos ab 10 Stück. Industriewäsche geeignet. Deutschlandweiter Versand.',
   beanie: 'Strick-Beanie mit Logo-Bestickung für Gastro-Teams — bald bei Kittelwerk. Ab 10 Stück. Deutschlandweiter Versand.',
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }) {
   if (!product) return {};
   const description = PRODUCT_DESCRIPTIONS[product.id]
     || (product.tiers
-      ? `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung 10 Stück. Deutschlandweiter Versand.`
+      ? `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung ${product.minQty || 10} Stück. Deutschlandweiter Versand.`
       : `${product.name} — ${product.desc}. Bald bei Kittelwerk erhältlich. Kostenloser Logo-Druck ab 10 Stück. Deutschlandweiter Versand.`);
   return {
     title: `${product.name} | Kittelwerk`,

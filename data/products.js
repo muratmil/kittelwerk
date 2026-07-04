@@ -301,11 +301,12 @@ export const PRODUCTS = [
       { src: '/images/polo-back.webp', label: 'Kundenbeispiel — Rücken-Bestickung' },
     ],
     oldPrice: 24.00,
-    newPrice: 19.00,
+    newPrice: 18.00,
     badge: 'NEU',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: true,
     hasBackPrint: true,
+    minQty: 20,
     longDesc: 'Das Polo-Shirt aus feinem Piqué-Gewebe (100% Baumwolle, ca. 220 g/m²) ist der Klassiker für Service, Empfang und Theke — gepflegter als ein T-Shirt, unkomplizierter als ein Hemd. Die charakteristische Piqué-Struktur ist atmungsaktiv, formstabil und behält auch nach vielen Wäschen ihre Optik. Gerippter Kragen und Ärmelbündchen sorgen für den sauberen, professionellen Look über den ganzen Arbeitstag. Die 3-Knopf-Leiste mit farblich abgestimmten Knöpfen rundet das Bild ab. Mit kostenlosem Logo-Druck vorne und hinten oder edler Bestickung auf der Brust.',
     details: [
       'Material: 100% Baumwolle in hochwertiger Piqué-Qualität (ca. 220 g/m²).',
@@ -323,7 +324,6 @@ export const PRODUCTS = [
       'Nicht chemisch reinigen',
     ],
     tiers: [
-      { minQty: 10,  price: 19.00 },
       { minQty: 20,  price: 18.00 },
       { minQty: 50,  price: 16.00 },
       { minQty: 100, price: 15.00 },

@@ -21,12 +21,13 @@ const PRINT_OPTIONS = [
 ];
 
 export default function ProductDetailPage({ product }) {
+  const minQty = product.minQty || MIN_QTY;
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
   const [sizeQtys, setSizeQtys] = useState(
     product.hasSizes
       ? Object.fromEntries(SIZES.map(s => [s, 0]))
-      : { '-': MIN_QTY }
+      : { '-': minQty }
   );
   const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung' : 'none');
   const [selectedFabric, setSelectedFabric] = useState(
@@ -145,7 +146,7 @@ export default function ProductDetailPage({ product }) {
   }
 
   const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
-  const isValid = totalQty >= MIN_QTY;
+  const isValid = totalQty >= minQty;
 
   const availablePrints = product.bestickungOnly
     ? PRINT_OPTIONS.filter(o => o.value === 'bestickung')
@@ -173,7 +174,7 @@ export default function ProductDetailPage({ product }) {
     setSizeQtys(
       product.hasSizes
         ? Object.fromEntries(SIZES.map(s => [s, 0]))
-        : { '-': MIN_QTY }
+        : { '-': minQty }
     );
     setTimeout(() => setAdded(false), 2000);
   };
@@ -362,8 +363,8 @@ export default function ProductDetailPage({ product }) {
               <div>
                 <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
                   Größe & Menge{' '}
-                  <span className={totalQty >= MIN_QTY ? 'text-olive' : 'text-tomato'}>
-                    (Gesamt: {totalQty} / Min. {MIN_QTY})
+                  <span className={totalQty >= minQty ? 'text-olive' : 'text-tomato'}>
+                    (Gesamt: {totalQty} / Min. {minQty})
                   </span>
                 </p>
                 <div className="space-y-2">
@@ -397,7 +398,7 @@ export default function ProductDetailPage({ product }) {
             ) : (
               <div>
                 <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
-                  Menge <span className="text-tomato">(Min. {MIN_QTY} Stück)</span>
+                  Menge <span className="text-tomato">(Min. {minQty} Stück)</span>
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border-2 border-ink">
@@ -406,8 +407,8 @@ export default function ProductDetailPage({ product }) {
                       <Minus size={14} />
                     </button>
                     <input
-                      type="number" min={MIN_QTY} value={sizeQtys['-']}
-                      onChange={(e) => updateSize('-', Math.max(MIN_QTY, parseInt(e.target.value) || MIN_QTY))}
+                      type="number" min={minQty} value={sizeQtys['-']}
+                      onChange={(e) => updateSize('-', Math.max(minQty, parseInt(e.target.value) || minQty))}
                       className="px-3 py-2.5 font-black text-sm border-x-2 border-ink w-20 text-center outline-none bg-transparent"
                     />
                     <button onClick={() => updateSize('-', sizeQtys['-'] + 1)}
@@ -443,7 +444,7 @@ export default function ProductDetailPage({ product }) {
               <button disabled
                 className="w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 bg-ink/20 text-ink/40 cursor-not-allowed border-4 border-ink/20">
                 <ShoppingBag size={16} />
-                Min. {MIN_QTY} Stück wählen
+                Min. {minQty} Stück wählen
               </button>
             )}
 

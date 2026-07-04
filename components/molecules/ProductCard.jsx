@@ -20,11 +20,12 @@ const PRINT_OPTIONS = [
 ];
 
 export default function ProductCard({ product }) {
+  const minQty = product.minQty || MIN_QTY;
   const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
   const [sizeQtys, setSizeQtys] = useState(
     product.hasSizes
       ? Object.fromEntries(SIZES.map(s => [s, 0]))
-      : { '-': MIN_QTY }
+      : { '-': minQty }
   );
   const [printType, setPrintType] = useState('none');
   const [selectedFabric, setSelectedFabric] = useState(
@@ -34,7 +35,7 @@ export default function ProductCard({ product }) {
   const addItem = useCartStore((state) => state.addItem);
 
   const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
-  const isValid = totalQty >= MIN_QTY;
+  const isValid = totalQty >= minQty;
 
   useEffect(() => {
     if (printType === 'siebdruck' && totalQty < 150) {
@@ -118,7 +119,7 @@ export default function ProductCard({ product }) {
     setSizeQtys(
       product.hasSizes
         ? Object.fromEntries(SIZES.map(s => [s, 0]))
-        : { '-': MIN_QTY }
+        : { '-': minQty }
     );
     setTimeout(() => setAdded(false), 1500);
   };
@@ -319,8 +320,8 @@ export default function ProductCard({ product }) {
           <div>
             <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
               Größe & Menge{' '}
-              <span className={totalQty >= MIN_QTY ? 'text-olive' : 'text-tomato'}>
-                (Gesamt: {totalQty} / Min. {MIN_QTY})
+              <span className={totalQty >= minQty ? 'text-olive' : 'text-tomato'}>
+                (Gesamt: {totalQty} / Min. {minQty})
               </span>
             </p>
             <div className="space-y-2">
@@ -354,7 +355,7 @@ export default function ProductCard({ product }) {
         ) : (
           <div>
             <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">
-              Menge <span className="text-tomato">(Min. {MIN_QTY} Stück)</span>
+              Menge <span className="text-tomato">(Min. {minQty} Stück)</span>
             </p>
             <div className="flex items-center gap-3">
               <div className="flex items-center border-2 border-ink">
@@ -363,8 +364,8 @@ export default function ProductCard({ product }) {
                   <Minus size={14} />
                 </button>
                 <input
-                  type="number" min={MIN_QTY} value={sizeQtys['-']}
-                  onChange={(e) => updateSize('-', Math.max(MIN_QTY, parseInt(e.target.value) || MIN_QTY))}
+                  type="number" min={minQty} value={sizeQtys['-']}
+                  onChange={(e) => updateSize('-', Math.max(minQty, parseInt(e.target.value) || minQty))}
                   className="px-2 py-2 font-black text-sm border-x-2 border-ink w-16 text-center outline-none bg-transparent"
                 />
                 <button onClick={() => updateSize('-', sizeQtys['-'] + 1)}
@@ -384,7 +385,7 @@ export default function ProductCard({ product }) {
           className={`w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all mt-auto
             ${added ? 'bg-olive text-white' : isValid ? 'bg-ink text-white hover:bg-tomato active:translate-x-1 active:translate-y-1 active:shadow-none' : 'bg-ink/30 text-white/50 cursor-not-allowed'}`}>
           <ShoppingBag size={16} />
-          {added ? 'Hinzugefügt!' : isValid ? 'In den Warenkorb' : `Min. ${MIN_QTY} Stück wählen`}
+          {added ? 'Hinzugefügt!' : isValid ? 'In den Warenkorb' : `Min. ${minQty} Stück wählen`}
         </button>
       </div>
     </div>
