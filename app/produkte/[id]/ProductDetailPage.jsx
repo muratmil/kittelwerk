@@ -6,7 +6,7 @@ import AlertBar from '@/components/layout/AlertBar';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
-import ProductImage from '@/components/atoms/ProductImage';
+import ProductGallery from '@/components/atoms/ProductGallery';
 import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -53,8 +53,8 @@ export default function ProductDetailPage({ product }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             <div className="lg:sticky lg:top-24 lg:self-start">
               <div className="relative">
-                <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
-                <span className="absolute top-4 left-4 bg-ink text-sun text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+                <ProductGallery product={product} />
+                <span className="absolute top-4 left-4 bg-ink text-sun text-[9px] font-black uppercase tracking-widest px-3 py-1.5 z-10">
                   Bald hier
                 </span>
               </div>
@@ -199,13 +199,13 @@ export default function ProductDetailPage({ product }) {
           {/* Sol — Görsel */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="relative">
-              <ProductImage src={product.image} alt={product.name} />
+              <ProductGallery product={product} />
               {product.badge && (
-                <span className="absolute top-4 left-4 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+                <span className="absolute top-4 left-4 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 z-10">
                   {product.badge}
                 </span>
               )}
-              <span className="absolute top-4 right-4 bg-sun text-ink text-[9px] font-black uppercase px-3 py-1.5">
+              <span className="absolute top-4 right-4 bg-sun text-ink text-[9px] font-black uppercase px-3 py-1.5 z-10">
                 -{savings}%
               </span>
             </div>
