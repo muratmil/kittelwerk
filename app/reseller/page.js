@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { PRODUCTS } from '@/data/products';
+import { PRODUCTS as ALL_PRODUCTS } from '@/data/products';
+const PRODUCTS = ALL_PRODUCTS.filter(p => !p.comingSoon);
 import { Plus, Trash2, LogOut, CheckCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];

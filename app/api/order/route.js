@@ -81,7 +81,7 @@ export async function POST(req) {
   const recalcItems = [];
   for (const item of items) {
     const product = PRODUCTS.find(p => p.id === item.id);
-    if (!product) return Response.json({ error: `Unbekanntes Produkt: ${item.id}` }, { status: 400 });
+    if (!product || product.comingSoon) return Response.json({ error: `Unbekanntes Produkt: ${item.id}` }, { status: 400 });
     const qty = item.qty;
     if (!qty || qty < 10) return Response.json({ error: 'Mindestbestellmenge 10 Stück.' }, { status: 400 });
     const basePrice = getTierPrice(product, qty);

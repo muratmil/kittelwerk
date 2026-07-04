@@ -35,6 +35,115 @@ export default function ProductDetailPage({ product }) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
+  // Bald Hier — ürün henüz satista degil: fiyat/sepet yok, bilgi + WhatsApp CTA
+  if (product.comingSoon) {
+    return (
+      <main className="min-h-screen bg-paper">
+        <AlertBar />
+        <Navbar onOpenCart={() => setIsCartOpen(true)} />
+        <div className="container mx-auto px-6 py-10">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-50 mb-8">
+            <Link href="/" className="hover:text-tomato transition-colors">Kittelwerk</Link>
+            <span>/</span>
+            <Link href="/produkte" className="hover:text-tomato transition-colors">Produkte</Link>
+            <span>/</span>
+            <span className="text-ink opacity-100">{product.name}</span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              <div className="relative">
+                <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
+                <span className="absolute top-4 left-4 bg-ink text-sun text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+                  Bald hier
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <div>
+                <h1 className="font-serif font-black text-4xl md:text-5xl uppercase italic tracking-tighter leading-none">
+                  {product.name}
+                </h1>
+                <p className="text-[11px] uppercase tracking-widest opacity-60 mt-2">{product.desc}</p>
+              </div>
+
+              {product.longDesc && (
+                <p className="text-sm leading-relaxed opacity-75 border-l-4 border-tomato pl-4">
+                  {product.longDesc}
+                </p>
+              )}
+
+              <div className="border-4 border-ink bg-white p-5 shadow-brutalist">
+                <p className="font-black text-2xl text-ink/60 uppercase tracking-widest">Preis in Kürze</p>
+                <p className="text-[10px] opacity-60 mt-1">Dieses Produkt ist bald bei uns bestellbar — natürlich mit kostenlosem Logo-Druck bzw. Bestickung ab 10 Stück.</p>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">Geplante Farben</p>
+                <div className="flex gap-3">
+                  {product.colors.map((c) => (
+                    <span key={c.name} title={c.name} style={{ backgroundColor: c.hex }}
+                      className="w-9 h-9 border-2 border-ink" />
+                  ))}
+                </div>
+              </div>
+
+              <a
+                href={`https://wa.me/491749623344?text=${encodeURIComponent(`Hallo! Ich interessiere mich für das Produkt "${product.name}" (bald verfügbar). Bitte informieren Sie mich, sobald es bestellbar ist.`)}`}
+                target="_blank" rel="noopener noreferrer"
+                className="w-full py-4 font-black text-sm uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all bg-olive text-white hover:bg-ink active:translate-x-1 active:translate-y-1 active:shadow-none"
+              >
+                Bei Verfügbarkeit benachrichtigen
+              </a>
+
+              {product.details && (
+                <div className="border-4 border-ink p-5 bg-white">
+                  <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-4">Produktdetails</p>
+                  <ul className="space-y-2">
+                    {product.details.map((item, i) => {
+                      const [label, ...rest] = item.split(':');
+                      return (
+                        <li key={i} className="flex gap-2 text-[11px] leading-relaxed">
+                          <span className="text-tomato font-black mt-0.5 flex-shrink-0">—</span>
+                          <span>
+                            <strong className="font-black">{label}:</strong>
+                            {rest.join(':')}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {product.washing && (
+                <div className="border-4 border-ink p-5 bg-white">
+                  <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-4">Pflegehinweise</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {product.washing.map((item, i) => (
+                      <div key={i} className="flex items-start gap-3 text-[11px]">
+                        <span className="leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Link href="/produkte"
+                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-tomato transition-all w-fit">
+                <ArrowLeft size={14} />
+                Zurück zu allen Produkten
+              </Link>
+            </div>
+          </div>
+        </div>
+        <Footer />
+        <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      </main>
+    );
+  }
+
   const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
   const isValid = totalQty >= MIN_QTY;
 

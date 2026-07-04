@@ -42,6 +42,49 @@ export default function ProductCard({ product }) {
     }
   }, [totalQty]);
 
+  // Bald Hier — ürün henüz satista degil: fiyat/sepet yok, sade kart
+  if (product.comingSoon) {
+    return (
+      <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
+        <Link href={`/produkte/${product.id}`} className="relative block group/img">
+          <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
+          <span className="absolute top-3 left-3 bg-ink text-sun text-[9px] font-black uppercase tracking-widest px-2 py-1">
+            Bald hier
+          </span>
+          <span className="absolute inset-0 bg-ink/0 group-hover/img:bg-ink/10 transition-all flex items-center justify-center">
+            <span className="opacity-0 group-hover/img:opacity-100 bg-ink text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 transition-all">
+              Details anzeigen →
+            </span>
+          </span>
+        </Link>
+        <div className="p-6 flex flex-col gap-4 flex-1">
+          <div>
+            <h3 className="font-serif font-black text-2xl uppercase italic tracking-tighter">{product.name}</h3>
+            <p className="text-[10px] uppercase tracking-widest opacity-60 mt-1">{product.desc}</p>
+          </div>
+          <div className="border-2 border-ink p-3 bg-white">
+            <span className="font-black text-lg text-ink/60 uppercase tracking-widest">Preis in Kürze</span>
+          </div>
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Farbe</p>
+            <div className="flex gap-2">
+              {product.colors.map((c) => (
+                <span key={c.name} title={c.name} style={{ backgroundColor: c.hex }} className="w-7 h-7 border-2 border-ink" />
+              ))}
+            </div>
+          </div>
+          <a
+            href={`https://wa.me/491749623344?text=${encodeURIComponent(`Hallo! Ich interessiere mich für das Produkt "${product.name}" (bald verfügbar). Bitte informieren Sie mich, sobald es bestellbar ist.`)}`}
+            target="_blank" rel="noopener noreferrer"
+            className="w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all mt-auto bg-olive text-white hover:bg-ink active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            Bei Verfügbarkeit benachrichtigen
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back' || v === 'bestickung_both';
 
   // tshirt: DTF+Siebdruck, kein Bestickung
