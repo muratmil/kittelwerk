@@ -292,7 +292,7 @@ export const PRODUCTS = [
     category: 'bekleidung',
     name: 'Polo-Shirt',
     desc: 'Piqué 100% Baumwolle · Klassisch & Formstabil',
-    deliveryTime: '1–2 Wochen',
+    deliveryTime: '3–4 Wochen',
     image: '/images/polo-flat.webp',
     backImage: '/images/polo-back.webp',
     gallery: [
