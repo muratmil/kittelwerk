@@ -365,6 +365,13 @@ export const PRODUCTS = [
     desc: 'Lange Kellnerschürze · Premium Alpaka-Gewebe',
     deliveryTime: '1–2 Wochen',
     image: '/images/bistro.webp',
+    backImage: '/images/bistro-model.webp',
+    gallery: [
+      { src: '/images/bistro.webp', label: 'Produkt — Schwarz' },
+      { src: '/images/bistro-model.webp', label: 'Am Modell — Schwarz' },
+      { src: '/images/bistro-rot.webp', label: 'Produkt — Rot' },
+      { src: '/images/bistro-model-rot.webp', label: 'Am Modell — Rot' },
+    ],
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: false,
     longDesc: 'Die lange Bistroschürze aus bewährtem Alpaka-Gewebe (75% Polyester, 25% Viskose) ist der Standard im gehobenen Service — von der Weinbar bis zum Restaurant. Mit ihrer Länge bis über das Knie schützt sie zuverlässig und verleiht dem Serviceteam den klassischen, eleganten Bistro-Look. Die extra langen Bindebänder lassen sich vorne oder hinten binden und passen sich jeder Körpergröße an. Das Material ist bügelleicht, knitterarm und für Industriewäsche geeignet — auch nach langen Schichten sieht die Schürze gepflegt aus. Kostenloser Druck oder Bestickung Ihres Firmenlogos inklusive.',
