@@ -290,7 +290,6 @@ export const PRODUCTS = [
   {
     id: 'polo',
     category: 'bekleidung',
-    comingSoon: true,
     name: 'Polo-Shirt',
     desc: 'Piqué 100% Baumwolle · Klassisch & Formstabil',
     deliveryTime: '1–2 Wochen',
@@ -301,6 +300,9 @@ export const PRODUCTS = [
       { src: '/images/polo-front.webp', label: 'Kundenbeispiel — Brust-Bestickung' },
       { src: '/images/polo-back.webp', label: 'Kundenbeispiel — Rücken-Bestickung' },
     ],
+    oldPrice: 24.00,
+    newPrice: 19.00,
+    badge: 'NEU',
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: true,
     hasBackPrint: true,
@@ -319,6 +321,12 @@ export const PRODUCTS = [
       'Trockner geeignet (niedrige Stufe)',
       'Bügeln bis 150°C',
       'Nicht chemisch reinigen',
+    ],
+    tiers: [
+      { minQty: 10,  price: 19.00 },
+      { minQty: 20,  price: 18.00 },
+      { minQty: 50,  price: 16.00 },
+      { minQty: 100, price: 15.00 },
     ],
   },
   {

@@ -24,7 +24,7 @@ const isBestickung = (v) => v.startsWith('bestickung');
 function getAvailablePrints(product, qty) {
   const byQty = (o) => qty >= o.minQty;
   const id = product.id;
-  if (id === 'tshirt') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
+  if (id === 'tshirt' || id === 'polo') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
   if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS;
   return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && !o.value.endsWith('_back') && !o.value.endsWith('_both'));
 }

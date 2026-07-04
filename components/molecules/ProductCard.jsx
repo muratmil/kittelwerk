@@ -93,7 +93,7 @@ export default function ProductCard({ product }) {
   // Siebdruck ist immer sichtbar, aber disabled wenn qty < 150
   const availablePrints = (() => {
     const id = product.id;
-    if (id === 'tshirt') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
+    if (id === 'tshirt' || id === 'polo') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
     if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS;
     return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && o.value !== 'bestickung_both');
   })();
