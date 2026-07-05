@@ -54,6 +54,7 @@ export const PRODUCTS = [
     backImage: '/images/sweat-model-rot.webp',
     gallery: [
       { src: '/images/sweat-model.webp', label: 'Am Modell — Schwarz' },
+      { src: '/images/sweat-model-frau.webp', label: 'Am Modell — Schwarz (Damen)' },
       { src: '/images/sweat-model-rot.webp', label: 'Am Modell — Rot' },
       { src: '/images/sweat-front.webp', label: 'Produkt — Vorderseite' },
       { src: '/images/sweat-back.webp', label: 'Produkt — Rückseite' },
@@ -117,6 +118,7 @@ export const PRODUCTS = [
     backImage: '/images/fleece-model-marine.webp',
     gallery: [
       { src: '/images/fleece-model.webp', label: 'Am Modell — Schwarz' },
+      { src: '/images/fleece-model-frau.webp', label: 'Am Modell — Schwarz (Damen)' },
       { src: '/images/fleece-model-marine.webp', label: 'Am Modell — Marineblau' },
       { src: '/images/fleece.webp', label: 'Produkt' },
     ],
@@ -201,6 +203,11 @@ export const PRODUCTS = [
     desc: 'Premium Alpaka-Gewebe · Verstellbarer Nackengurt',
     deliveryTime: '1–2 Wochen',
     image: '/images/apron-latz.webp',
+    backImage: '/images/latz-model-frau.webp',
+    gallery: [
+      { src: '/images/apron-latz.webp', label: 'Am Modell' },
+      { src: '/images/latz-model-frau.webp', label: 'Am Modell — mit Taschen (Damen)' },
+    ],
     oldPrice: 17.00,
     newPrice: 15.00,
     badge: 'NEUKUNDENANGEBOT',
@@ -238,9 +245,10 @@ export const PRODUCTS = [
     desc: 'Premium Gabardine · EVA-verstärkte Front',
     deliveryTime: '3–4 Wochen',
     image: '/images/cap-model-weiss.webp',
-    backImage: '/images/cap-front.webp',
+    backImage: '/images/cap-model-frau.webp',
     gallery: [
       { src: '/images/cap-model-weiss.webp', label: 'Am Modell — Weiß mit Bestickung' },
+      { src: '/images/cap-model-frau.webp', label: 'Am Modell — Schwarz mit Bestickung' },
       { src: '/images/cap.webp', label: 'Produkt' },
       { src: '/images/cap-front.webp', label: 'Kundenbeispiel — Front' },
       { src: '/images/cap-side.webp', label: 'Kundenbeispiel — Seite' },
@@ -318,6 +326,9 @@ export const PRODUCTS = [
       { src: '/images/polo-flat.webp', label: 'Produkt' },
       { src: '/images/polo-front.webp', label: 'Kundenbeispiel — Brust-Bestickung' },
       { src: '/images/polo-back.webp', label: 'Kundenbeispiel — Rücken-Bestickung' },
+      { src: '/images/polo-gelb.webp', label: 'Kundenbeispiel Gelb — Produkt' },
+      { src: '/images/polo-gelb-front.webp', label: 'Kundenbeispiel Gelb — Vorderseite' },
+      { src: '/images/polo-gelb-back.webp', label: 'Kundenbeispiel Gelb — Rückseite' },
     ],
     oldPrice: 24.00,
     newPrice: 19.00,
@@ -359,6 +370,7 @@ export const PRODUCTS = [
     backImage: '/images/hoodie-model-weiss.webp',
     gallery: [
       { src: '/images/hoodie-model.webp', label: 'Am Modell — Schwarz' },
+      { src: '/images/hoodie-model-frau.webp', label: 'Am Modell — Schwarz (Damen)' },
       { src: '/images/hoodie-model-weiss.webp', label: 'Am Modell — Weiß' },
       { src: '/images/hoodie.webp', label: 'Produkt — Schwarz' },
       { src: '/images/hoodie-weiss.webp', label: 'Produkt — Weiß' },
@@ -394,6 +406,7 @@ export const PRODUCTS = [
     backImage: '/images/bistro-model-rot.webp',
     gallery: [
       { src: '/images/bistro-model.webp', label: 'Am Modell — Schwarz' },
+      { src: '/images/bistro-model-frau.webp', label: 'Am Modell — Schwarz (Damen)' },
       { src: '/images/bistro-model-rot.webp', label: 'Am Modell — Rot' },
       { src: '/images/bistro.webp', label: 'Produkt — Schwarz' },
       { src: '/images/bistro-rot.webp', label: 'Produkt — Rot' },
@@ -429,6 +442,7 @@ export const PRODUCTS = [
     gallery: [
       { src: '/images/beanie-model.webp', label: 'Am Modell — Schwarz' },
       { src: '/images/beanie-model-weiss.webp', label: 'Am Modell — Weiß' },
+      { src: '/images/beanie-model-weiss-frau.webp', label: 'Am Modell — Weiß (Damen)' },
       { src: '/images/beanie.webp', label: 'Produkt — Schwarz' },
       { src: '/images/beanie-weiss.webp', label: 'Produkt — Weiß' },
     ],
