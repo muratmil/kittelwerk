@@ -5,10 +5,10 @@ export const PRODUCTS = [
     name: 'Gastro T-Shirt',
     desc: '24/1 Supreme Baumwolle · Premium Profi-Ware',
     deliveryTime: '1–2 Wochen',
-    image: '/images/tshirt-star-front.webp',
-    backImage: '/images/tshirt-star-back.webp',
+    image: '/images/tshirt-logo.webp',
+    backImage: '/images/tshirt-star-front.webp',
     gallery: [
-      { src: '/images/tshirt.webp', label: 'Produkt' },
+      { src: '/images/tshirt-logo.webp', label: 'Mit Ihrem Logo — Vorder- & Rückseite' },
       { src: '/images/tshirt-star-front.webp', label: 'Kundenbeispiel Rot — Vorderdruck' },
       { src: '/images/tshirt-star-back.webp', label: 'Kundenbeispiel Rot — Rückendruck' },
       { src: '/images/tshirt-doydoy-front.webp', label: 'Kundenbeispiel Schwarz — Vorderdruck' },
