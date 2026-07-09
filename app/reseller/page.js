@@ -64,6 +64,7 @@ export default function ResellerPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [expandedOrders, setExpandedOrders] = useState({});
+  const [infoOpen, setInfoOpen] = useState(false);
   const [error, setError] = useState('');
 
   const product = PRODUCTS.find(p => p.id === selProd);
@@ -248,6 +249,72 @@ export default function ResellerPage() {
               <p className="font-black text-sm uppercase text-olive">Bestellung erfolgreich erstellt!</p>
             </div>
           )}
+
+          {/* Produktinfo — Referenz für Händler bei Kundenfragen */}
+          <div className="bg-white border-4 border-ink shadow-brutalist overflow-hidden">
+            <div className="bg-ink text-white px-5 py-3 flex items-center gap-2">
+              <h2 className="font-black text-xs uppercase tracking-widest">Produktinfo</h2>
+              <span className="text-[10px] opacity-50">für Kundenfragen</span>
+            </div>
+            <div className="p-5 flex flex-col sm:flex-row gap-5">
+              {product.image && (
+                <div className="sm:w-40 flex-shrink-0">
+                  <img src={product.image} alt={product.name}
+                    className="w-full aspect-square object-cover border-2 border-ink bg-paper" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0 space-y-2.5">
+                <div>
+                  <h3 className="font-black text-lg leading-tight">{product.name}</h3>
+                  {product.desc && <p className="text-[12px] opacity-60">{product.desc}</p>}
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+                  {product.deliveryTime && <span><span className="opacity-50">Lieferzeit:</span> <strong>{product.deliveryTime}</strong></span>}
+                  <span><span className="opacity-50">Farben:</span> <strong>{product.colors.map(c => c.name).join(', ')}</strong></span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">Staffelpreise (Verkaufspreis Kunde)</p>
+                  <div className="flex flex-wrap gap-1">
+                    {product.tiers.map(t => (
+                      <span key={t.minQty} className="text-[10px] border border-ink/20 px-1.5 py-0.5">
+                        ab {t.minQty}: <strong>{t.price.toFixed(2)}€</strong>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {(product.longDesc || product.details?.length || product.washing?.length) && (
+              <>
+                <button type="button" onClick={() => setInfoOpen(o => !o)}
+                  className="w-full border-t-2 border-ink px-5 py-2.5 flex items-center justify-between text-[11px] font-black uppercase tracking-widest hover:bg-paper transition-colors">
+                  <span>Details & Pflege</span>
+                  {infoOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+                {infoOpen && (
+                  <div className="px-5 pb-5 pt-3 space-y-3 bg-paper/30 border-t border-ink/10">
+                    {product.longDesc && <p className="text-[12px] leading-relaxed opacity-80">{product.longDesc}</p>}
+                    {product.details?.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">Eigenschaften</p>
+                        <ul className="text-[11px] space-y-0.5 list-disc pl-4 opacity-80">
+                          {product.details.map((d, i) => <li key={i}>{d}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {product.washing?.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">Pflegehinweise</p>
+                        <ul className="text-[11px] space-y-0.5 list-disc pl-4 opacity-80">
+                          {product.washing.map((w, i) => <li key={i}>{w}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
           <div className="bg-white border-4 border-ink shadow-brutalist p-6 space-y-5">
             <h2 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Produkt hinzufügen</h2>
