@@ -505,9 +505,29 @@ export default function ResellerPage() {
                               );
                             })}
                           </div>
-                          <div className="mt-3 pt-3 border-t border-ink/10 flex justify-between items-center">
-                            <span className="text-[11px] font-black uppercase tracking-widest">Gesamt</span>
-                            <span className="font-black text-base">{Number(ord.total).toFixed(2)}€</span>
+                          <div className="mt-3 pt-3 border-t border-ink/10 space-y-1.5">
+                            {ord.subtotal != null && (
+                              <div className="flex justify-between items-baseline text-[11px]">
+                                <span className="text-ink/50">Listenpreis</span>
+                                <span className="line-through text-ink/40">{Number(ord.subtotal).toFixed(2)}€</span>
+                              </div>
+                            )}
+                            {Number(ord.discount_amount) > 0 && (
+                              <div className="flex justify-between items-baseline text-[11px] font-bold text-olive">
+                                <span>Händlerrabatt ({Number(ord.discount_rate).toFixed(0)}%)</span>
+                                <span>−{Number(ord.discount_amount).toFixed(2)}€</span>
+                              </div>
+                            )}
+                            {ord.shipping_cost != null && (
+                              <div className="flex justify-between items-baseline text-[11px]">
+                                <span className="text-ink/50">Versandkosten</span>
+                                <span className="font-bold">{Number(ord.shipping_cost) === 0 ? 'GRATIS' : `${Number(ord.shipping_cost).toFixed(2)}€`}</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between items-center pt-2 mt-1 border-t border-ink/10">
+                              <span className="text-[11px] font-black uppercase tracking-widest">Gesamt</span>
+                              <span className="font-black text-base">{Number(ord.total).toFixed(2)}€</span>
+                            </div>
                           </div>
                           {ord.note && (
                             <p className="mt-2 text-[10px] text-ink/50 italic">Notiz: {ord.note}</p>
