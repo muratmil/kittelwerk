@@ -487,19 +487,19 @@ export default function ResellerPage() {
                           <p className="text-[10px] font-black uppercase tracking-widest text-ink/40 pt-3 pb-2">Artikel</p>
                           <div className="space-y-2">
                             {ord.items?.map((item, idx) => {
-                              const sizeEntries = Object.entries(item.sizes || {}).filter(([, v]) => v > 0);
+                              const sizeEntries = Object.entries(item.sizes || {}).filter(([k, v]) => k !== '-' && v > 0);
                               return (
                                 <div key={idx} className="text-[11px]">
                                   <div className="flex items-center justify-between gap-2">
                                     <span className="font-black">{item.name}</span>
-                                    <span className="font-black">{(item.unitPrice * item.qty).toFixed(2)}€</span>
+                                    <span className="font-black">{((item.price ?? item.unitPrice ?? 0) * item.qty).toFixed(2)}€</span>
                                   </div>
                                   <div className="text-ink/50 flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
                                     {item.color && <span>{item.color}</span>}
                                     {sizeEntries.length > 0 && (
                                       <span>{sizeEntries.map(([s, v]) => `${s}×${v}`).join(' ')}</span>
                                     )}
-                                    <span>{item.qty} Stk. · {item.unitPrice?.toFixed(2)}€/Stk.</span>
+                                    <span>{item.qty} Stk. · {(item.price ?? item.unitPrice ?? 0).toFixed(2)}€/Stk.</span>
                                   </div>
                                 </div>
                               );
