@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { PRODUCTS as ALL_PRODUCTS } from '@/data/products';
 const PRODUCTS = ALL_PRODUCTS.filter(p => !p.comingSoon);
-import { Plus, Trash2, LogOut, CheckCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, LogOut, CheckCircle, Clock, ChevronDown, ChevronUp, Lock, Save, User } from 'lucide-react';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -67,6 +67,14 @@ export default function ResellerPage() {
   const [infoOpen, setInfoOpen] = useState(false);
   const [error, setError] = useState('');
 
+  // Mein Konto
+  const [acct, setAcct] = useState({ contact_name: '', phone: '', street: '', plz: '', city: '' });
+  const [acctSaving, setAcctSaving] = useState(false);
+  const [acctMsg, setAcctMsg] = useState('');
+  const [pw, setPw] = useState({ p1: '', p2: '' });
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwMsg, setPwMsg] = useState('');
+
   const product = PRODUCTS.find(p => p.id === selProd);
 
   useEffect(() => {
@@ -89,6 +97,13 @@ export default function ResellerPage() {
       }
 
       setReseller(res);
+      setAcct({
+        contact_name: res.contact_name || '',
+        phone: res.phone || '',
+        street: res.street || '',
+        plz: res.plz || '',
+        city: res.city || '',
+      });
 
       const { data: ord } = await supabase
         .from('reseller_orders')
@@ -111,6 +126,37 @@ export default function ResellerPage() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/reseller/login');
+  };
+
+  const saveAccount = async (e) => {
+    e.preventDefault();
+    setAcctSaving(true);
+    setAcctMsg('');
+    const res = await fetch('/api/reseller-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(acct),
+    });
+    const data = await res.json();
+    if (!res.ok) { setAcctMsg(data.error || 'Fehler beim Speichern.'); setAcctSaving(false); return; }
+    setReseller(data.reseller);
+    setAcctMsg('Gespeichert!');
+    setAcctSaving(false);
+    setTimeout(() => setAcctMsg(''), 3000);
+  };
+
+  const changePassword = async (e) => {
+    e.preventDefault();
+    setPwMsg('');
+    if (pw.p1.length < 8) { setPwMsg('Passwort muss mindestens 8 Zeichen haben.'); return; }
+    if (pw.p1 !== pw.p2) { setPwMsg('Passwörter stimmen nicht überein.'); return; }
+    setPwSaving(true);
+    const { error: pwError } = await supabase.auth.updateUser({ password: pw.p1 });
+    if (pwError) { setPwMsg(pwError.message || 'Fehler beim Ändern.'); setPwSaving(false); return; }
+    setPw({ p1: '', p2: '' });
+    setPwMsg('Passwort erfolgreich geändert!');
+    setPwSaving(false);
+    setTimeout(() => setPwMsg(''), 3000);
   };
 
   const itemQty = product?.hasSizes
@@ -608,6 +654,119 @@ export default function ResellerPage() {
               </div>
             </div>
           )}
+
+          {/* Mein Konto */}
+          <div className="bg-white border-4 border-ink shadow-brutalist">
+            <div className="bg-ink text-white px-5 py-3 flex items-center gap-2">
+              <User size={14} />
+              <h2 className="font-black text-xs uppercase tracking-widest">Mein Konto</h2>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Kontaktdaten — änderbar */}
+              <form onSubmit={saveAccount} className="space-y-3">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-50">Kontaktdaten</p>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Ansprechpartner</label>
+                  <input type="text" value={acct.contact_name}
+                    onChange={e => setAcct(a => ({ ...a, contact_name: e.target.value }))}
+                    className="w-full border-2 border-ink p-2.5 focus:bg-sun outline-none text-sm" />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Telefon</label>
+                  <input type="tel" value={acct.phone}
+                    onChange={e => setAcct(a => ({ ...a, phone: e.target.value }))}
+                    className="w-full border-2 border-ink p-2.5 focus:bg-sun outline-none text-sm" />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Straße & Nr.</label>
+                  <input type="text" value={acct.street}
+                    onChange={e => setAcct(a => ({ ...a, street: e.target.value }))}
+                    className="w-full border-2 border-ink p-2.5 focus:bg-sun outline-none text-sm" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest opacity-70">PLZ</label>
+                    <input type="text" value={acct.plz}
+                      onChange={e => setAcct(a => ({ ...a, plz: e.target.value }))}
+                      className="w-full border-2 border-ink p-2.5 focus:bg-sun outline-none text-sm" />
+                  </div>
+                  <div className="col-span-2 flex flex-col gap-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Ort</label>
+                    <input type="text" value={acct.city}
+                      onChange={e => setAcct(a => ({ ...a, city: e.target.value }))}
+                      className="w-full border-2 border-ink p-2.5 focus:bg-sun outline-none text-sm" />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button type="submit" disabled={acctSaving}
+                    className="bg-ink text-white px-4 py-2.5 font-black uppercase text-[11px] tracking-wider flex items-center gap-2 hover:bg-tomato transition-all disabled:opacity-30">
+                    <Save size={14} /> {acctSaving ? 'Speichert...' : 'Speichern'}
+                  </button>
+                  {acctMsg && <span className={`text-[11px] font-black ${acctMsg === 'Gespeichert!' ? 'text-olive' : 'text-tomato'}`}>{acctMsg}</span>}
+                </div>
+              </form>
+
+              {/* Passwort ändern */}
+              <form onSubmit={changePassword} className="space-y-3 border-t-2 border-ink/10 pt-6">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-50">Passwort ändern</p>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Neues Passwort</label>
+                  <input type="password" value={pw.p1} autoComplete="new-password"
+                    onChange={e => setPw(p => ({ ...p, p1: e.target.value }))}
+                    className="w-full border-2 border-ink p-2.5 focus:bg-sun outline-none text-sm" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Passwort bestätigen</label>
+                  <input type="password" value={pw.p2} autoComplete="new-password"
+                    onChange={e => setPw(p => ({ ...p, p2: e.target.value }))}
+                    className="w-full border-2 border-ink p-2.5 focus:bg-sun outline-none text-sm" />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button type="submit" disabled={pwSaving}
+                    className="bg-ink text-white px-4 py-2.5 font-black uppercase text-[11px] tracking-wider flex items-center gap-2 hover:bg-tomato transition-all disabled:opacity-30">
+                    <Lock size={14} /> {pwSaving ? 'Ändert...' : 'Passwort ändern'}
+                  </button>
+                  {pwMsg && <span className={`text-[11px] font-black ${pwMsg.includes('geändert') ? 'text-olive' : 'text-tomato'}`}>{pwMsg}</span>}
+                </div>
+              </form>
+
+              {/* Gesperrte Felder — nur durch Kittelwerk änderbar */}
+              <div className="border-t-2 border-ink/10 pt-6 space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-50 flex items-center gap-1.5">
+                  <Lock size={11} /> Nur durch Kittelwerk änderbar
+                </p>
+                <div className="bg-paper border-2 border-ink/15 divide-y divide-ink/10 text-[12px]">
+                  <div className="flex justify-between px-3 py-2">
+                    <span className="opacity-50">Firma</span>
+                    <span className="font-bold text-right">{reseller?.company || '—'}</span>
+                  </div>
+                  <div className="flex justify-between px-3 py-2">
+                    <span className="opacity-50">E-Mail (Login)</span>
+                    <span className="font-bold text-right break-all">{reseller?.email || '—'}</span>
+                  </div>
+                  <div className="flex justify-between px-3 py-2">
+                    <span className="opacity-50">Steuernr. / USt-ID</span>
+                    <span className="font-bold text-right">{reseller?.steuer_id || '—'}</span>
+                  </div>
+                  <div className="flex justify-between px-3 py-2">
+                    <span className="opacity-50">Händlerrabatt</span>
+                    <span className="font-bold text-right">{Number(reseller?.discount_rate || 0).toFixed(0)}%</span>
+                  </div>
+                </div>
+                <p className="text-[10px] opacity-40 leading-relaxed">
+                  Für Änderungen an Firma, Steuernummer oder Rabatt kontaktieren Sie uns bitte direkt.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
