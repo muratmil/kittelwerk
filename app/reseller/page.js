@@ -60,6 +60,7 @@ export default function ResellerPage() {
   const [qty, setQty] = useState(10);
   const [sizes, setSizes] = useState(emptySize());
   const [note, setNote] = useState('');
+  const [jobName, setJobName] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -213,6 +214,7 @@ export default function ResellerPage() {
       body: JSON.stringify({
         items: items.map(({ id, ...rest }) => rest),
         note,
+        jobName,
       }),
     });
 
@@ -226,6 +228,7 @@ export default function ResellerPage() {
     setSuccess(true);
     setItems([]);
     setNote('');
+    setJobName('');
 
     // Sipariş geçmişini güncelle
     const { data: ord } = await supabase
@@ -537,6 +540,14 @@ export default function ResellerPage() {
                 </div>
               </div>
             )}
+
+            <div className="bg-white border-4 border-ink shadow-brutalist p-6 space-y-3">
+              <h2 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Auftrag / Firmenname</h2>
+              <input value={jobName} onChange={e => setJobName(e.target.value)}
+                maxLength={120} placeholder="z. B. Restaurant Mustermann"
+                className="w-full border-2 border-ink p-3 focus:bg-sun outline-none text-sm font-bold" />
+              <p className="text-[10px] opacity-50">Für wen ist diese Bestellung? Erscheint als Titel in der Atölye.</p>
+            </div>
 
             <div className="bg-white border-4 border-ink shadow-brutalist p-6 space-y-3">
               <h2 className="font-black text-xs uppercase tracking-widest border-b-2 border-ink pb-3">Notiz (optional)</h2>

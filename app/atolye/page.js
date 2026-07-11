@@ -243,7 +243,7 @@ function OrderCard({ order, supabase, t, isWorkshop, workshopName, onStatusChang
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const waPhone = ADMIN_WHATSAPP;
-  const waText = encodeURIComponent(`Bestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nhttps://kittelwerk.de/atolye#${order.id}`);
+  const waText = encodeURIComponent(`Bestellung #${order.id.slice(0,8)}${isReseller && order.job_name ? `\nAuftrag: ${order.job_name}` : ''}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nhttps://kittelwerk.de/atolye#${order.id}`);
 
   const handleStatusChange = async (newStatus) => {
     setUpdatingStatus(true);
@@ -262,12 +262,26 @@ function OrderCard({ order, supabase, t, isWorkshop, workshopName, onStatusChang
     <div id={order.id} className="scroll-mt-24 border-4 border-ink bg-white shadow-brutalist-lg print:shadow-none print:border-2 print:break-inside-avoid">
       {/* Header */}
       <div className="bg-ink text-white px-5 py-3 flex justify-between items-center">
-        <div>
-          <span className="font-black text-lg uppercase">{order.company}</span>
-          {isReseller && <span className="text-[9px] font-black bg-olive text-white px-1.5 py-0.5 ml-2 uppercase">Händler</span>}
-          <span className="text-[10px] opacity-60 ml-3">{date}</span>
+        <div className="min-w-0">
+          {isReseller ? (
+            <>
+              <span className={`font-black text-xl uppercase leading-tight ${order.job_name ? '' : 'opacity-40 italic'}`}>
+                {order.job_name || '—'}
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[9px] font-black bg-olive text-white px-1.5 py-0.5 uppercase">Händler</span>
+                <span className="text-[11px] font-bold opacity-70">{order.company}</span>
+                <span className="text-[10px] opacity-50">· {date}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="font-black text-lg uppercase">{order.company}</span>
+              <span className="text-[10px] opacity-60 ml-3">{date}</span>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <span className="text-[10px] font-black opacity-60">#{order.id.slice(0, 8)}</span>
           <span className={`text-[9px] font-black uppercase px-2 py-1 ${STATUS_COLORS[status]}`}>
             {t.statusLabels[status]}

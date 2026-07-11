@@ -27,10 +27,12 @@ export async function POST(req) {
     return Response.json({ error: 'Kein aktives Händlerkonto gefunden.' }, { status: 403 });
   }
 
-  const { items, note } = await req.json();
+  const { items, note, jobName } = await req.json();
   if (!items || items.length === 0) {
     return Response.json({ error: 'Keine Produkte angegeben.' }, { status: 400 });
   }
+
+  const cleanJobName = typeof jobName === 'string' ? jobName.trim().slice(0, 120) || null : null;
 
   // Fiyatları server tarafında hesapla (client'a güvenme)
   const discountRate = reseller.discount_rate;
@@ -57,6 +59,7 @@ export async function POST(req) {
       total,
       status: 'new',
       notes: note || null,
+      job_name: cleanJobName,
     }])
     .select()
     .single();
@@ -78,11 +81,12 @@ export async function POST(req) {
   await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: process.env.NOTIFICATION_EMAIL,
-    subject: `🏪 [Händler] Neue Bestellung: ${esc(reseller.company)} — ${total.toFixed(2)}€`,
+    subject: `🏪 [Händler] Neue Bestellung: ${esc(cleanJobName || reseller.company)} — ${total.toFixed(2)}€`,
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
         <h2>Neue Händlerbestellung</h2>
         <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+          ${cleanJobName ? `<tr><td style="padding:6px;color:#555;width:140px;">Auftrag / Firma</td><td><strong style="font-size:16px;">${esc(cleanJobName)}</strong></td></tr>` : ''}
           <tr><td style="padding:6px;color:#555;width:140px;">Händler</td><td><strong>${esc(reseller.company)}</strong></td></tr>
           <tr><td style="padding:6px;color:#555;">Kontakt</td><td>${esc(reseller.contact_name)}</td></tr>
           <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${esc(reseller.email)}">${esc(reseller.email)}</a></td></tr>

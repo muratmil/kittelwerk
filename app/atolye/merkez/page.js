@@ -33,6 +33,11 @@ const TRANSLATIONS = {
     noteSave:       'Notiz speichern',
     noteSaved:      'Gespeichert ✓',
     noteSaving:     'Speichern...',
+    jobName:        'Auftrag / Firma',
+    jobNamePlaceholder: 'Für wen ist der Auftrag?',
+    jobNameEmpty:   '— Kein Auftragsname —',
+    jobNameSave:    'Speichern',
+    jobNameSaved:   'Gespeichert ✓',
     messages:       'Nachrichten vom Atölye',
     noMessages:     'Noch keine Nachrichten',
     msgPlaceholder: 'Nachricht an Atölye...',
@@ -88,6 +93,11 @@ const TRANSLATIONS = {
     noteSave:       'Notu kaydet',
     noteSaved:      'Kaydedildi ✓',
     noteSaving:     'Kaydediliyor...',
+    jobName:        'İş / Firma',
+    jobNamePlaceholder: 'İş kimin için?',
+    jobNameEmpty:   '— İş ismi girilmedi —',
+    jobNameSave:    'Kaydet',
+    jobNameSaved:   'Kaydedildi ✓',
     messages:       'Atölye\'den mesajlar',
     noMessages:     'Henüz mesaj yok',
     msgPlaceholder: 'Atölye\'ye mesaj...',
@@ -231,6 +241,9 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t, is
   const [notes, setNotes] = useState(order.notes || '');
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
+  const [jobName, setJobName] = useState(order.job_name || '');
+  const [savingJob, setSavingJob] = useState(false);
+  const [jobSaved, setJobSaved] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const totalQty = order.items?.reduce((sum, i) => sum + i.qty, 0) || 0;
@@ -260,6 +273,16 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t, is
     setTimeout(() => setNotesSaved(false), 2000);
   };
 
+  const handleSaveJob = async () => {
+    setSavingJob(true);
+    const clean = jobName.trim().slice(0, 120);
+    await supabase.from(table).update({ job_name: clean || null }).eq('id', order.id);
+    setJobName(clean);
+    setSavingJob(false);
+    setJobSaved(true);
+    setTimeout(() => setJobSaved(false), 2000);
+  };
+
   const handleLogoDownload = async () => {
     if (!order.logo_url) return;
     const { data } = await supabase.storage.from('logos').createSignedUrl(order.logo_url, 3600);
@@ -272,12 +295,26 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t, is
     <div id={order.id} className="scroll-mt-24 border-4 border-ink bg-white shadow-brutalist-lg print:shadow-none print:border-2 print:break-inside-avoid">
       {/* Header */}
       <div className="bg-ink text-white px-5 py-3 flex justify-between items-center">
-        <div>
-          <span className="font-black text-lg uppercase">{order.company}</span>
-          {isReseller && <span className="text-[9px] font-black bg-olive text-white px-1.5 py-0.5 ml-2 uppercase">Händler</span>}
-          <span className="text-[10px] opacity-60 ml-3">{date}</span>
+        <div className="min-w-0">
+          {isReseller ? (
+            <>
+              <span className={`font-black text-xl uppercase leading-tight ${jobName ? '' : 'opacity-40 italic'}`}>
+                {jobName || t.jobNameEmpty}
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[9px] font-black bg-olive text-white px-1.5 py-0.5 uppercase">Händler</span>
+                <span className="text-[11px] font-bold opacity-70">{order.company}</span>
+                <span className="text-[10px] opacity-50">· {date}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="font-black text-lg uppercase">{order.company}</span>
+              <span className="text-[10px] opacity-60 ml-3">{date}</span>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <span className="text-[10px] font-black opacity-60">#{order.id.slice(0,8)}</span>
           <span className={`text-[9px] font-black uppercase px-2 py-1 ${STATUS_COLORS[status]}`}>
             {t.statusLabels[status]}
@@ -286,6 +323,22 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t, is
       </div>
 
       <div className="p-5 space-y-4">
+        {/* İş / Firma ismi — sadece Händler siparişleri, sonradan eklenebilir */}
+        {isReseller && (
+          <div className="flex items-center gap-2 border-2 border-tomato bg-tomato/5 p-3 print:hidden">
+            <span className="text-[9px] font-black uppercase opacity-60 whitespace-nowrap">{t.jobName}</span>
+            <input value={jobName} onChange={e => setJobName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSaveJob()}
+              maxLength={120} placeholder={t.jobNamePlaceholder}
+              className="flex-1 min-w-0 border-2 border-ink p-2 text-[12px] font-bold bg-white outline-none focus:bg-sun" />
+            <button onClick={handleSaveJob} disabled={savingJob || jobName.trim() === (order.job_name || '')}
+              className={`text-[10px] font-black uppercase px-3 py-2 border-2 border-ink transition-all disabled:opacity-40 whitespace-nowrap
+                ${jobSaved ? 'bg-olive text-white border-olive' : 'bg-white hover:bg-sun'}`}>
+              {jobSaved ? t.jobNameSaved : t.jobNameSave}
+            </button>
+          </div>
+        )}
+
         {/* Atölye atama */}
         <div className="flex items-center gap-3 border-2 border-sun bg-sun/20 p-3 print:hidden">
           <span className="text-[9px] font-black uppercase opacity-60 whitespace-nowrap">{t.workshop}</span>
@@ -388,7 +441,7 @@ function OrderCard({ order, supabase, workshops, onStatusChange, onAssign, t, is
         {/* Atölye WhatsApp */}
         {assignedWorkshop?.phone && (
           <div className="flex justify-start print:hidden">
-            <a href={`https://wa.me/${assignedWorkshop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`)}`}
+            <a href={`https://wa.me/${assignedWorkshop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Neue Bestellung zugewiesen!\n\nBestellung #${order.id.slice(0,8)}${isReseller ? `\nAuftrag: ${jobName || '—'}` : ''}\nFirma: ${order.company}\nStückzahl: ${totalQty}\n\nDirekt zur Bestellung:\nhttps://kittelwerk.de/atolye#${order.id}`)}`}
               target="_blank" rel="noreferrer"
               className="inline-flex items-stretch border-2 border-ink shadow-brutalist hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
               <span className="bg-[#25D366] px-2.5 flex items-center justify-center">
