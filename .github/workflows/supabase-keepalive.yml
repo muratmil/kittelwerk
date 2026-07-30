@@ -1,0 +1,27 @@
+name: Supabase wach halten
+
+# Kostenlose Supabase-Projekte pausieren nach sieben Tagen ohne Zugriff. Ein
+# pausiertes Projekt loest seinen Hostnamen nicht mehr auf: die Seite laedt zwar
+# weiter, aber Login, Bestellung und Haendlerbereich fallen aus. Genau das ist am
+# 30.07.2026 passiert. Ein Aufruf pro Tag verhindert es.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Datenbank abfragen
+        run: |
+          code=$(curl -sS -o /tmp/antwort.txt -w "%{http_code}" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/products?select=id&limit=1")
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "Unerwartete Antwort:"
+            cat /tmp/antwort.txt
+            exit 1
+          fi
