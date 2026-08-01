@@ -7,6 +7,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
 import ProductGallery from '@/components/atoms/ProductGallery';
+import SizeChart from '@/components/molecules/SizeChart';
 import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -22,11 +23,12 @@ const PRINT_OPTIONS = [
 
 export default function ProductDetailPage({ product }) {
   const minQty = product.minQty || MIN_QTY;
+  const sizes = product.sizes || SIZES;
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
   const [sizeQtys, setSizeQtys] = useState(
     product.hasSizes
-      ? Object.fromEntries(SIZES.map(s => [s, 0]))
+      ? Object.fromEntries(sizes.map(s => [s, 0]))
       : { '-': minQty }
   );
   const [printType, setPrintType] = useState(product.bestickungOnly ? 'bestickung' : 'none');
@@ -89,6 +91,10 @@ export default function ProductDetailPage({ product }) {
                   ))}
                 </div>
               </div>
+
+              {product.hasSizes && product.sizeChart && (
+                <SizeChart sizes={sizes} chart={product.sizeChart} />
+              )}
 
               <a
                 href={`https://wa.me/491749623344?text=${encodeURIComponent(`Hallo! Ich interessiere mich für das Produkt "${product.name}" (bald verfügbar). Bitte informieren Sie mich, sobald es bestellbar ist.`)}`}
@@ -173,7 +179,7 @@ export default function ProductDetailPage({ product }) {
     setAdded(true);
     setSizeQtys(
       product.hasSizes
-        ? Object.fromEntries(SIZES.map(s => [s, 0]))
+        ? Object.fromEntries(sizes.map(s => [s, 0]))
         : { '-': minQty }
     );
     setTimeout(() => setAdded(false), 2000);
@@ -368,7 +374,7 @@ export default function ProductDetailPage({ product }) {
                   </span>
                 </p>
                 <div className="space-y-2">
-                  {SIZES.map(size => (
+                  {sizes.map(size => (
                     <div key={size} className="flex items-center gap-4">
                       <span className="text-[11px] font-black uppercase w-10 flex-shrink-0">{size}</span>
                       <div className="flex items-center border-2 border-ink">
@@ -421,6 +427,11 @@ export default function ProductDetailPage({ product }) {
                   </span>
                 </div>
               </div>
+            )}
+
+            {/* Ölçü tablosu */}
+            {product.hasSizes && product.sizeChart && (
+              <SizeChart sizes={sizes} chart={product.sizeChart} />
             )}
 
             {/* Toplam & Sepete Ekle */}

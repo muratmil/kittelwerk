@@ -86,8 +86,8 @@ export async function POST(req) {
     const minQty = product.minQty || 10;
     if (!qty || qty < minQty) return Response.json({ error: `Mindestbestellmenge ${minQty} Stück.` }, { status: 400 });
     const basePrice = getTierPrice(product, qty);
-    // siebdruck tshirt'te ücretsiz
-    const printPrice = (item.printType === 'siebdruck' && item.id === 'tshirt')
+    // siebdruck, freeSiebdruck işaretli ürünlerde ücretsiz (tshirt, oversize)
+    const printPrice = (item.printType === 'siebdruck' && product.freeSiebdruck)
       ? 0
       : (PRINT_PRICES[item.printType] ?? 0);
     const unitPrice = basePrice + printPrice;

@@ -21,10 +21,11 @@ const PRINT_OPTIONS = [
 
 export default function ProductCard({ product }) {
   const minQty = product.minQty || MIN_QTY;
+  const sizes = product.sizes || SIZES;
   const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
   const [sizeQtys, setSizeQtys] = useState(
     product.hasSizes
-      ? Object.fromEntries(SIZES.map(s => [s, 0]))
+      ? Object.fromEntries(sizes.map(s => [s, 0]))
       : { '-': minQty }
   );
   const [printType, setPrintType] = useState('none');
@@ -88,18 +89,18 @@ export default function ProductCard({ product }) {
 
   const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back' || v === 'bestickung_both';
 
-  // tshirt: DTF+Siebdruck, kein Bestickung
+  // tshirt/oversize: DTF+Siebdruck, kein Bestickung
   // sweat/fleece: alles
   // cap/apron/latz: kein Rücken, kein Bestickung Hinten
   // Siebdruck ist immer sichtbar, aber disabled wenn qty < 150
   const availablePrints = (() => {
     const id = product.id;
-    if (id === 'tshirt' || id === 'polo') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
+    if (id === 'tshirt' || id === 'oversize' || id === 'polo') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
     if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS;
     return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && o.value !== 'bestickung_both');
   })();
   const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
-  const isOptFree = (opt) => FREE_PRINT_TYPES.includes(opt.value) || (opt.value === 'siebdruck' && product.id === 'tshirt');
+  const isOptFree = (opt) => FREE_PRINT_TYPES.includes(opt.value) || (opt.value === 'siebdruck' && product.freeSiebdruck);
   const isFree = isOptFree(selectedPrint);
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
   const basePrice = getTieredPrice(product, totalQty);
@@ -118,7 +119,7 @@ export default function ProductCard({ product }) {
     setAdded(true);
     setSizeQtys(
       product.hasSizes
-        ? Object.fromEntries(SIZES.map(s => [s, 0]))
+        ? Object.fromEntries(sizes.map(s => [s, 0]))
         : { '-': minQty }
     );
     setTimeout(() => setAdded(false), 1500);
@@ -325,7 +326,7 @@ export default function ProductCard({ product }) {
               </span>
             </p>
             <div className="space-y-2">
-              {SIZES.map(size => (
+              {sizes.map(size => (
                 <div key={size} className="flex items-center gap-3">
                   <span className="text-[10px] font-black uppercase w-8 flex-shrink-0">{size}</span>
                   <div className="flex items-center border-2 border-ink">

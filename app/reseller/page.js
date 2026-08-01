@@ -40,8 +40,8 @@ function getTierPrice(product, qty) {
   return price;
 }
 
-function emptySize() {
-  return Object.fromEntries(SIZES.map(s => [s, 0]));
+function emptySize(product) {
+  return Object.fromEntries((product?.sizes || SIZES).map(s => [s, 0]));
 }
 
 export default function ResellerPage() {
@@ -58,7 +58,7 @@ export default function ResellerPage() {
   const [selColor, setSelColor] = useState(PRODUCTS[0].colors[0].name);
   const [selPrint, setSelPrint] = useState('none');
   const [qty, setQty] = useState(10);
-  const [sizes, setSizes] = useState(emptySize());
+  const [sizes, setSizes] = useState(() => emptySize(PRODUCTS[0]));
   const [note, setNote] = useState('');
   const [jobName, setJobName] = useState('');
 
@@ -120,7 +120,7 @@ export default function ResellerPage() {
   useEffect(() => {
     setSelColor(product.colors[0].name);
     setSelPrint('none');
-    setSizes(emptySize());
+    setSizes(emptySize(product));
     setQty(10);
   }, [selProd]);
 
@@ -190,7 +190,7 @@ export default function ResellerPage() {
       price: resellerPrice,
       basePrice,
     }]);
-    setSizes(emptySize());
+    setSizes(emptySize(product));
     setQty(10);
   };
 
@@ -409,7 +409,7 @@ export default function ResellerPage() {
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase tracking-widest">Größen</label>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {SIZES.map(s => (
+                  {(product.sizes || SIZES).map(s => (
                     <div key={s} className="flex flex-col items-center gap-1">
                       <span className="text-[9px] font-black opacity-50">{s}</span>
                       <div className="flex items-center border-2 border-ink w-full">

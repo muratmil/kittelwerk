@@ -24,7 +24,7 @@ const isBestickung = (v) => v.startsWith('bestickung');
 function getAvailablePrints(product, qty) {
   const byQty = (o) => qty >= o.minQty;
   const id = product.id;
-  if (id === 'tshirt' || id === 'polo') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
+  if (id === 'tshirt' || id === 'oversize' || id === 'polo') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
   if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS;
   return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && !o.value.endsWith('_back') && !o.value.endsWith('_both'));
 }
@@ -37,15 +37,15 @@ function getTierPrice(product, qty) {
   return price;
 }
 
-function getPrintPrice(productId, printValue) {
+function getPrintPrice(product, printValue) {
   const opt = PRINT_OPTIONS.find(o => o.value === printValue);
   if (!opt) return 0;
-  if (printValue === 'siebdruck' && productId === 'tshirt') return 0;
+  if (printValue === 'siebdruck' && product?.freeSiebdruck) return 0;
   return opt.price;
 }
 
-function emptySize() {
-  return Object.fromEntries(SIZES.map(s => [s, 0]));
+function emptySize(product) {
+  return Object.fromEntries((product?.sizes || SIZES).map(s => [s, 0]));
 }
 
 function Field({ label, value, onChange, type = 'text', required = false, placeholder = '' }) {
@@ -74,7 +74,7 @@ export default function VerkaufPage() {
   const [selColor, setSelColor] = useState(PRODUCTS[0].colors[0].name);
   const [selPrint, setSelPrint] = useState('none');
   const [qty, setQty] = useState(10);
-  const [sizes, setSizes] = useState(emptySize());
+  const [sizes, setSizes] = useState(() => emptySize(PRODUCTS[0]));
 
   const [cust, setCust] = useState({ name: '', company: '', email: '', phone: '', street: '', plz: '', city: '' });
   const [note, setNote] = useState('');
@@ -93,7 +93,7 @@ export default function VerkaufPage() {
   useEffect(() => {
     setSelColor(product.colors[0].name);
     setSelPrint('none');
-    setSizes(emptySize());
+    setSizes(emptySize(product));
     setQty(10);
   }, [selProd]);
 
@@ -125,7 +125,7 @@ export default function VerkaufPage() {
   const addItem = () => {
     if (itemQty < 1) return;
     if (selPrint === 'siebdruck' && itemQty < 150) return;
-    const price = getTierPrice(product, itemQty) + getPrintPrice(product.id, selPrint);
+    const price = getTierPrice(product, itemQty) + getPrintPrice(product, selPrint);
     const sizesData = product.hasSizes
       ? Object.fromEntries(
           Object.entries(sizes)
@@ -144,7 +144,7 @@ export default function VerkaufPage() {
       qty: itemQty,
       price,
     }]);
-    setSizes(emptySize());
+    setSizes(emptySize(product));
     setQty(10);
   };
 
@@ -274,7 +274,7 @@ export default function VerkaufPage() {
                 className="w-full border-2 border-ink p-3 bg-white focus:bg-sun outline-none text-sm font-bold">
                 {printOptions.map(o => {
                   const locked = itemQty < o.minQty;
-                  const isFreeOpt = o.price === 0 || (o.value === 'siebdruck' && product.id === 'tshirt');
+                  const isFreeOpt = o.price === 0 || (o.value === 'siebdruck' && product.freeSiebdruck);
                   const suffix = locked
                     ? ` — ab ${o.minQty} Stk`
                     : isFreeOpt
@@ -293,7 +293,7 @@ export default function VerkaufPage() {
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase tracking-widest">Größen</label>
                 <div className="grid grid-cols-6 gap-2">
-                  {SIZES.map(s => (
+                  {(product.sizes || SIZES).map(s => (
                     <div key={s} className="flex flex-col items-center gap-1">
                       <span className="text-[9px] font-black opacity-50">{s}</span>
                       <input type="number" min="0" value={sizes[s]}
@@ -317,7 +317,7 @@ export default function VerkaufPage() {
               <p className="text-[11px] font-bold text-olive bg-olive/10 px-3 py-2 border border-olive/30">
                 {(() => {
                   const base = getTierPrice(product, itemQty);
-                  const print = getPrintPrice(product.id, selPrint);
+                  const print = getPrintPrice(product, selPrint);
                   const unit = base + print;
                   return <>→ {itemQty} Stück × {unit.toFixed(2)}€{print > 0 && ` (inkl. +${print.toFixed(2)}€ Druck)`} = <strong>{(itemQty * unit).toFixed(2)}€</strong></>;
                 })()}
