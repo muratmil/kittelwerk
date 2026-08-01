@@ -33,6 +33,13 @@ export default function Lieferbedingungen() {
                 </div>
               </div>
               <div className="flex items-start gap-4 border-2 border-ink p-4">
+                <span className="bg-sun text-ink font-black text-[9px] uppercase px-2 py-1 whitespace-nowrap mt-0.5">3 Wochen</span>
+                <div>
+                  <p className="font-black uppercase tracking-wide text-[11px] mb-1">Oversize T-Shirts</p>
+                  <p className="opacity-60">Oversize T-Shirt</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 border-2 border-ink p-4">
                 <span className="bg-sun text-ink font-black text-[9px] uppercase px-2 py-1 whitespace-nowrap mt-0.5">3–4 Wochen</span>
                 <div>
                   <p className="font-black uppercase tracking-wide text-[11px] mb-1">Sweatshirts, Fleece & Kappen</p>
