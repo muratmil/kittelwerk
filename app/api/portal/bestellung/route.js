@@ -19,6 +19,7 @@ export async function POST(request) {
   if (!istHaendler && !istIntern) return json({ error: 'Kein Zugriff.' }, 403);
 
   const body = await request.json().catch(() => ({}));
+  const siteId = body.site_id ?? 'kittelwerk';
   const rawItems = Array.isArray(body.items) ? body.items : [];
   if (rawItems.length === 0) return json({ error: 'Der Warenkorb ist leer.' }, 400);
 
@@ -37,7 +38,7 @@ export async function POST(request) {
     haendler = data;
   }
 
-  const { products } = await loadCatalog(svc, { haendler });
+  const { products } = await loadCatalog(svc, { haendler, siteId });
   const byId = Object.fromEntries(products.map((p) => [p.id, p]));
 
   const items = [];
@@ -92,6 +93,7 @@ export async function POST(request) {
   const { data: order, error } = await svc
     .from('orders')
     .insert({
+      site_id: siteId,
       source: istHaendler ? 'haendler' : 'intern',
       haendler_id: istHaendler ? haendler.id : null,
       created_by_profile_id: actor.id,

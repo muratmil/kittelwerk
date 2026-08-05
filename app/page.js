@@ -49,7 +49,7 @@ const faqSchema = {
 };
 
 export default async function Home() {
-  const { products } = await loadCatalog(createPublicClient());
+  const { products } = await loadCatalog(createPublicClient(), { siteId: 'kittelwerk' });
 
   return (
     <>

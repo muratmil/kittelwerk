@@ -8,7 +8,7 @@ import { loadCatalog } from '@/lib/catalog';
 export const revalidate = 60;
 
 async function ladeProdukt(id) {
-  const { products } = await loadCatalog(createPublicClient(), { includeInactive: true });
+  const { products } = await loadCatalog(createPublicClient(), { includeInactive: true, siteId: 'kittelwerk' });
   return products.find((p) => p.id === id) ?? null;
 }
 

@@ -4,7 +4,8 @@ import { createClient } from '@/utils/supabase/client';
 import { ORDER_STATUS, SOURCE_LABELS, hasPermission } from '@/lib/portal';
 import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
-export default function BestellungenTab({ profile }) {
+export default function BestellungenTab({ profile, sites = [] }) {
+  const [siteFilter, setSiteFilter] = useState('');
   const [orders, setOrders] = useState([]);
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +26,9 @@ export default function BestellungenTab({ profile }) {
 
   useEffect(() => { load(); }, [load]);
 
-  const summe = orders.reduce((s, o) => s + Number(o.total ?? 0), 0);
+  const gefiltert = siteFilter ? orders.filter((o) => o.site_id === siteFilter) : orders;
+  const summe = gefiltert.reduce((s, o) => s + Number(o.total ?? 0), 0);
+  const siteName = (id) => sites.find((s) => s.id === id)?.name ?? id;
 
   return (
     <div className="space-y-4">
@@ -34,8 +37,15 @@ export default function BestellungenTab({ profile }) {
           className="border-2 border-ink px-4 py-2 text-[11px] font-black uppercase tracking-widest bg-white hover:bg-sun flex items-center gap-2 disabled:opacity-50">
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />Aktualisieren
         </button>
+        {sites.length > 1 && (
+          <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)}
+            className="border-2 border-ink p-2 text-[11px] font-black uppercase tracking-widest bg-white focus:bg-sun outline-none">
+            <option value="">Alle Seiten</option>
+            {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+        )}
         <span className="text-[11px] font-bold uppercase tracking-widest opacity-50">
-          {orders.length} Bestellungen
+          {gefiltert.length} Bestellungen
           {darfPreise && ` · ${summe.toFixed(2)} €`}
         </span>
       </div>
@@ -48,7 +58,7 @@ export default function BestellungenTab({ profile }) {
         </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {orders.map((o) => {
+          {gefiltert.map((o) => {
             const st = ORDER_STATUS[o.status] ?? ORDER_STATUS.neu;
             const items = Array.isArray(o.items) ? o.items : [];
             const shop = shops.find((s) => s.id === o.werkstatt_id);
@@ -58,6 +68,9 @@ export default function BestellungenTab({ profile }) {
                 <button onClick={() => setOpenId(open ? null : o.id)} aria-expanded={open}
                   className="w-full flex flex-wrap items-center gap-x-4 gap-y-2 p-4 text-left hover:bg-sun/30">
                   <span className="font-black text-lg tabular-nums">#{o.order_no}</span>
+                  {sites.length > 1 && (
+                    <span className="text-[9px] font-black uppercase px-2 py-1 bg-ink text-white">{siteName(o.site_id)}</span>
+                  )}
                   <span className="font-bold text-sm">{o.company || o.name}</span>
                   <span className={`text-[9px] font-black uppercase px-2 py-1 ${st.cls}`}>{st.label}</span>
                   <span className="text-[10px] font-black uppercase tracking-widest border-2 border-ink px-2 py-0.5">

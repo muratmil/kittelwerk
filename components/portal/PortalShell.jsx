@@ -3,14 +3,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { navFor, ROLE_LABELS } from '@/lib/portal';
-import { LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, X, ExternalLink } from 'lucide-react';
 
 // Dört panelin paylaştığı kabuk. Menüde ne göründüğü role göre değişir;
 // owner ve admin bütün alanları görür — "tek platformdan hepsini göreyim".
-export default function PortalShell({ profile, current, title, actions, children }) {
+export default function PortalShell({
+  profile, current, title, actions, children,
+  sites = [], activeSite = null,
+}) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const areas = navFor(profile.role);
+  const aktuelleSite = sites.find((s) => s.id === activeSite);
 
   const logout = async () => {
     await createClient().auth.signOut();
@@ -47,6 +51,31 @@ export default function PortalShell({ profile, current, title, actions, children
           <span className="hidden md:inline text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
             Portal
           </span>
+
+          {/* Site değiştirici — tek admin, birden çok site */}
+          {sites.length > 1 && (
+            <div className="flex items-center gap-1 border-2 border-ink">
+              {sites.map((s) => {
+                const aktiv = s.id === activeSite;
+                return (
+                  <a key={s.id} href={`${current}?site=${s.id}`}
+                    aria-current={aktiv ? 'true' : undefined}
+                    className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-colors
+                      ${aktiv ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
+                    {s.name}
+                  </a>
+                );
+              })}
+            </div>
+          )}
+
+          {aktuelleSite?.admin_url && (
+            <a href={aktuelleSite.admin_url} target="_blank" rel="noreferrer"
+              title="Eigenes Panel dieser Seite (noch nicht übernommen)"
+              className="hidden lg:flex items-center gap-1.5 border-2 border-ink px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-sun">
+              <ExternalLink size={12} />Altes Panel
+            </a>
+          )}
 
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end leading-tight">

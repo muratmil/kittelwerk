@@ -38,7 +38,7 @@ function hasPerm(p, key) {
   return p.role === 'admin' && (p.permissions ?? []).includes(key);
 }
 
-export default function AdminClient({ profile, catalog }) {
+export default function AdminClient({ profile, catalog, sites = [], activeSite = null }) {
   const TABS = tabsFor(profile);
   const [tab, setTab] = useState(TABS[0].key);
   const [users, setUsers] = useState([]);
@@ -128,15 +128,16 @@ export default function AdminClient({ profile, catalog }) {
         />
       )}
 
-      {tab === 'bestellungen' && <BestellungenTab profile={profile} />}
+      {tab === 'bestellungen' && <BestellungenTab profile={profile} sites={sites} />}
 
       {tab === 'freigaben' && <FreigabenTab profile={profile} onError={setError} />}
 
       {tab === 'preise' && (
         <PreiseTab
-          profile={profile} catalog={catalog}
+          profile={profile} catalog={catalog} activeSite={activeSite}
+          siteName={sites.find((s) => s.id === activeSite)?.name}
           onChange={async (payload) => {
-            const r = await call('/api/portal/preise', 'PATCH', payload);
+            const r = await call('/api/portal/preise', 'PATCH', { site_id: activeSite, ...payload });
             if (r) router.refresh();   // fiyatlar sunucuda hesaplanıyor, sayfayı tazele
             return r;
           }}
@@ -146,7 +147,7 @@ export default function AdminClient({ profile, catalog }) {
             return r;
           }}
           onSettings={async (payload) => {
-            const r = await call('/api/portal/preise', 'PATCH', { art: 'einstellungen', ...payload });
+            const r = await call('/api/portal/preise', 'PATCH', { art: 'einstellungen', site_id: activeSite, ...payload });
             if (r) router.refresh();
             return r;
           }}

@@ -24,7 +24,7 @@ export default async function HaendlerPage() {
     : { data: null };
 
   // Fiyatlar bayinin koşullarıyla hesaplanıyor; admin/owner liste fiyatını görür.
-  const { products } = await loadCatalog(supabase, { haendler });
+  const { products } = await loadCatalog(supabase, { haendler, siteId: 'kittelwerk' });
 
   const bestellbar = products
     .filter((p) => !p.comingSoon && p.tiers?.length)

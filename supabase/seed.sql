@@ -5,6 +5,17 @@
 -- Tüm test hesaplarının şifresi:  portal1234
 -- ============================================================================
 
+-- --- siteler -----------------------------------------------------------------
+insert into public.sites (id, name, domain, sort_order, admin_url) values
+  ('wipello', 'Wipello', 'www.wipello.com', 1, 'https://www.wipello.com/admin/teklifler')
+on conflict (id) do nothing;
+
+-- Wipello'da birim fiyat kuruş seviyesinde: yuvarlama tam euro OLAMAZ,
+-- yoksa 0,08 €'luk mendil 1,00 € olurdu.
+insert into public.pricing_settings (site_id, round_to, round_mode, low_margin_threshold)
+values ('wipello', 0.01, 'up', 30)
+on conflict (site_id) do nothing;
+
 -- --- atölyeler ---------------------------------------------------------------
 insert into public.werkstaetten (id, name, contact_name, email, active) values
   ('a0000000-0000-0000-0000-000000000001','Atölye Hannover','Ahmet Y.','atolye-a@test.local', true),
@@ -87,6 +98,44 @@ update public.products set cost_price = 155.00 where id = 'bistro';
 update public.products set cost_price = 120.00 where id = 'cap';
 update public.products set cost_price = 265.00 where id = 'polo';
 
+-- --- Wipello ürünleri --------------------------------------------------------
+-- Islak mendil: birim fiyat kuruş seviyesinde, asgari 10.000 adet.
+-- Kademeler 10/20/40/80 bin. Marj modunda çalışıyor — Kittelwerk elle.
+insert into public.products (site_id, id, name, category, min_qty, price_mode, cost_currency, cost_price, sort_order) values
+  ('wipello','triplex','Triplex Feuchttuch','accessoires',10000,'marge','TRY', 1.85, 0),
+  ('wipello','coated', 'Kuşe Feuchttuch',   'accessoires',10000,'marge','TRY', 1.72, 1),
+  ('wipello','kraft',  'Kraft Feuchttuch',  'accessoires',10000,'marge','TRY', 1.68, 2),
+  ('wipello','duplex', 'Duplex Feuchttuch', 'accessoires',10000,'marge','TRY', 1.55, 3),
+  ('wipello','koeln',  'Kolonyalı Mendil',  'accessoires',10000,'manuell','TRY', 2.10, 4);
+
+insert into public.product_prices (site_id, product_id, min_qty, price, margin) values
+  ('wipello','triplex',10000, null, 55), ('wipello','triplex',20000, null, 48),
+  ('wipello','triplex',40000, null, 42), ('wipello','triplex',80000, null, 35),
+  ('wipello','coated', 10000, null, 55), ('wipello','coated', 20000, null, 48),
+  ('wipello','coated', 40000, null, 42), ('wipello','coated', 80000, null, 35),
+  ('wipello','kraft',  10000, null, 55), ('wipello','kraft',  20000, null, 48),
+  ('wipello','kraft',  40000, null, 42), ('wipello','kraft',  80000, null, 35),
+  ('wipello','duplex', 10000, null, 55), ('wipello','duplex', 20000, null, 48),
+  ('wipello','duplex', 40000, null, 42), ('wipello','duplex', 80000, null, 35),
+  -- Kolonyalı elle fiyatlanmış: marj modu kapalı, fiyat sabit.
+  ('wipello','koeln',  10000, 0.09, null), ('wipello','koeln',  20000, 0.08, null),
+  ('wipello','koeln',  40000, 0.07, null), ('wipello','koeln',  80000, 0.06, null);
+
+-- Wipello siparişleri (teklif üzerinden gelen işler)
+insert into public.orders (site_id, source, name, company, email, street, plz, city,
+                           items, subtotal, total, status)
+values
+  ('wipello','web','Ayşe Demir','Café Mood','info@moodburger.de','Georgstr. 5','30159','Hannover',
+   '[{"productId":"triplex","product":"Triplex Feuchttuch","color":"Weiß","sizes":{"-":20000},"qty":20000,"print":"front","unitPrice":0.07,"linePrice":1400.00}]'::jsonb,
+   1400.00, 1400.00, 'neu'),
+  ('wipello','web','Stefan Klein','Hotel Adler','post@adler-hotel.de','Bahnhofstr. 2','30159','Hannover',
+   '[{"productId":"koeln","product":"Kolonyalı Mendil","color":"Weiß","sizes":{"-":40000},"qty":40000,"print":"front","unitPrice":0.07,"linePrice":2800.00}]'::jsonb,
+   2800.00, 2800.00, 'neu');
+
+-- Yalnızca Kittelwerk'e erişebilen admin — site kısıtının test öznesi.
+update public.profiles set site_access = array['kittelwerk']
+  where id = '66666666-6666-6666-6666-666666666666';
+
 -- --- kur ---------------------------------------------------------------------
 insert into public.exchange_rates (currency, to_currency, rate, valid_from, created_by) values
   ('TRY','EUR', 0.0263, now() - interval '60 days', '22222222-2222-2222-2222-222222222222'),
@@ -94,7 +143,9 @@ insert into public.exchange_rates (currency, to_currency, rate, valid_from, crea
   ('TRY','EUR', 0.0244, now() -  interval '2 days', '22222222-2222-2222-2222-222222222222');
 
 -- --- yuvarlama: yukarı, tam euro --------------------------------------------
-update public.pricing_settings set round_to = 1.00, round_mode = 'up', low_margin_threshold = 35;
+-- WHERE şart: bu satır site süzgeci olmadan Wipello'nun kuruş ayarını da ezer.
+update public.pricing_settings set round_to = 1.00, round_mode = 'up', low_margin_threshold = 35
+  where site_id = 'kittelwerk';
 
 -- --- siparişler --------------------------------------------------------------
 -- 1) Web'den, henüz atölyeye atanmamış → Vertrieb kuyruğunda

@@ -18,6 +18,7 @@ export async function PATCH(request) {
   if (!actor) return json({ error: 'Nicht angemeldet.' }, 401);
 
   const body = await request.json().catch(() => ({}));
+  const siteId = body.site_id ?? 'kittelwerk';
   const svc = serviceClient();
 
   // --- satış fiyatı / mod / marj ---
@@ -37,9 +38,9 @@ export async function PATCH(request) {
     if (min_qty !== undefined) patch.min_qty = Math.max(1, Number(min_qty) || 1);
     if (typeof active === 'boolean') patch.active = active;
 
-    const { error } = await svc.from('products').update(patch).eq('id', id);
+    const { error } = await svc.from('products').update(patch).eq('id', id).eq('site_id', siteId);
     if (error) return json({ error: error.message }, 500);
-    await writeAudit(svc, actor.id, 'produkt_geaendert', 'product', id, patch);
+    await writeAudit(svc, actor.id, 'produkt_geaendert', 'product', id, { ...patch, site: siteId });
     return json({ ok: true });
   }
 
@@ -56,7 +57,8 @@ export async function PATCH(request) {
 
     const { error } = await svc
       .from('product_prices')
-      .upsert({ product_id, min_qty: Number(min_qty), price: value }, { onConflict: 'product_id,min_qty' });
+      .upsert({ site_id: siteId, product_id, min_qty: Number(min_qty), price: value },
+              { onConflict: 'site_id,product_id,min_qty' });
     if (error) return json({ error: error.message }, 500);
 
     await writeAudit(svc, actor.id, 'staffelpreis_geaendert', 'product', product_id, { min_qty, price: value });
@@ -70,7 +72,7 @@ export async function PATCH(request) {
     if (!id) return json({ error: 'Produkt fehlt.' }, 400);
 
     const { data: before } = await svc
-      .from('products').select('cost_price, price_mode').eq('id', id).single();
+      .from('products').select('cost_price, price_mode').eq('id', id).eq('site_id', siteId).single();
     if (!before) return json({ error: 'Produkt nicht gefunden.' }, 404);
 
     const value = cost_price === null || cost_price === '' ? null : Number(cost_price);
@@ -92,7 +94,7 @@ export async function PATCH(request) {
     const patch = { cost_price: value, updated_at: new Date().toISOString() };
     if (cost_currency) patch.cost_currency = String(cost_currency).toUpperCase();
 
-    const { error } = await svc.from('products').update(patch).eq('id', id);
+    const { error } = await svc.from('products').update(patch).eq('id', id).eq('site_id', siteId);
     if (error) return json({ error: error.message }, 500);
 
     await writeAudit(svc, actor.id, 'einkaufspreis_geaendert', 'product', id,
@@ -115,7 +117,7 @@ export async function PATCH(request) {
     }
     if (body.low_margin_threshold != null) patch.low_margin_threshold = Number(body.low_margin_threshold);
 
-    const { error } = await svc.from('pricing_settings').update(patch).eq('id', true);
+    const { error } = await svc.from('pricing_settings').update(patch).eq('site_id', siteId);
     if (error) return json({ error: error.message }, 500);
     await writeAudit(svc, actor.id, 'preiseinstellungen_geaendert', 'settings', null, patch);
     return json({ ok: true });

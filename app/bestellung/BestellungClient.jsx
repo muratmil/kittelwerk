@@ -7,7 +7,7 @@ import { RefreshCw, ChevronDown, ChevronUp, Send, Inbox, Factory } from 'lucide-
 // Vertrieb'in ekranı. Bilerek `orders_produktion` görünümünden okuyor —
 // `orders` tablosuna erişimi yok, dolayısıyla fiyatlar buraya hiç gelmiyor.
 // Görünümde para sütunu bulunmadığı için ekranda "gizlenecek" bir şey de yok.
-export default function BestellungClient({ profile }) {
+export default function BestellungClient({ profile, sites = [] }) {
   const [orders, setOrders] = useState([]);
   const [werkstaetten, setWerkstaetten] = useState([]);
   const [loading, setLoading] = useState(true);

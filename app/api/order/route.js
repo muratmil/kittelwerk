@@ -72,7 +72,7 @@ export async function POST(req) {
   }
 
   // Fiyatları server tarafında hesapla — kaynak veritabanı, kod değil.
-  const { products: catalog } = await loadCatalog(supabaseAdmin);
+  const { products: catalog } = await loadCatalog(supabaseAdmin, { siteId: 'kittelwerk' });
   const byId = Object.fromEntries(catalog.map(p => [p.id, p]));
 
   const recalcItems = [];
@@ -115,6 +115,7 @@ export async function POST(req) {
   const { data: order, error } = await supabaseAdmin
     .from('orders')
     .insert([{
+      site_id: 'kittelwerk',
       source: 'web',
       name, company, email, phone, street, plz, city,
       items: recalcItems, subtotal, discount_code: discountCode || null,

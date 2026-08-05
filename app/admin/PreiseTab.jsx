@@ -9,7 +9,7 @@ const eur = (v) => (v == null ? '—' : `${Number(v).toFixed(2)} €`);
 // Fiyat ekranı. Her satır iki modu HEM gösteriyor HEM seçtiriyor, ve elle
 // fiyatlanan ürünün GERÇEKLEŞEN MARJINI yanına yazıyor — Kittelwerk'te tüm
 // ürünler elle fiyatlandığı için maliyet artışına karşı tek koruma bu sütun.
-export default function PreiseTab({ profile, catalog, onChange, onRate, onSettings }) {
+export default function PreiseTab({ profile, catalog, onChange, onRate, onSettings, siteName }) {
   const darfPflegen = hasPermission(profile, 'preise_pflegen');
   const { products, settings, rates, rateByCurrency } = catalog;
   const [busy, setBusy] = useState(null);
@@ -144,6 +144,7 @@ export default function PreiseTab({ profile, catalog, onChange, onRate, onSettin
       <section className="space-y-3">
         <h2 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">
           <TrendingUp size={16} />Produkte & Preise
+          {siteName && <span className="text-[10px] border-2 border-ink px-2 py-0.5">{siteName}</span>}
         </h2>
         <div className="flex flex-col gap-3">
           {products.map((p) => (

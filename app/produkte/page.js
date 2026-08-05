@@ -16,6 +16,6 @@ export const metadata = {
 };
 
 export default async function ProduktePage() {
-  const { products } = await loadCatalog(createPublicClient());
+  const { products } = await loadCatalog(createPublicClient(), { siteId: 'kittelwerk' });
   return <ProdukteClient products={products} />;
 }
