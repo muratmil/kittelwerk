@@ -409,6 +409,13 @@ grant insert, update, delete on
 -- orders'a INSERT/UPDATE bilerek verilmedi: sipariş yazma ve durum değişikliği
 -- sunucu tarafındaki API uçlarından (service role) geçer.
 
+-- service_role RLS'i atlar ama tablo yetkisi yine de gerekiyor; Supabase artık
+-- bunu da otomatik vermiyor. Bu satır olmadan bütün yönetim API'leri
+-- "permission denied" alır.
+grant all on all tables    in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+grant usage, select on all sequences in schema public to authenticated;
+
 -- --- profiles ---------------------------------------------------------------
 create policy profiles_self_read on public.profiles
   for select to authenticated using (id = auth.uid());
