@@ -1,6 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
+import { AREAS, OPEN_PATHS, areaForPath, homeFor } from '@/lib/portal'
 
+// Dört kopyala-yapıştır blok yerine tek kural: alan tablosu lib/portal.js'te.
+// Not: burası yalnızca YÖNLENDİRME yapar. Gerçek sınır veritabanındaki RLS —
+// buradaki bir hata en fazla yanlış sayfaya götürür, veri sızdırmaz.
 export async function middleware(request) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -20,66 +24,51 @@ export async function middleware(request) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
+  const { data: { user } } = await supabase.auth.getUser()
 
-  // Rol lazımsa profile tablosundan çek
-  let role = null
-  const needsRole = path.startsWith('/verkauf') || path.startsWith('/backend')
-  if (user && needsRole) {
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    role = profile?.role ?? null
+  const roleOf = async () => {
+    if (!user) return null
+    const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    return data?.role ?? null
   }
 
-  // /backend koruması — sadece admin
-  if (path.startsWith('/backend')) {
-    const isLoginPage = path === '/backend/login'
-    if (!user && !isLoginPage) return NextResponse.redirect(new URL('/backend/login', request.url))
-    if (user && isLoginPage && role === 'admin') return NextResponse.redirect(new URL('/backend', request.url))
-    if (user && !isLoginPage && role !== 'admin') {
-      return NextResponse.redirect(new URL('/backend/login', request.url))
-    }
+  // Giriş sayfası: oturum açıksa kendi alanına gönder
+  if (path === '/login') {
+    if (!user) return supabaseResponse
+    const role = await roleOf()
+    return NextResponse.redirect(new URL(homeFor(role), request.url))
   }
 
-  // /atolye koruması
-  if (path.startsWith('/atolye')) {
-    const isLoginPage = path === '/atolye/login'
-    const isKayitPage = path === '/atolye/kayit'
-    if (!user && !isLoginPage && !isKayitPage) return NextResponse.redirect(new URL('/atolye/login', request.url))
-    if (user && isLoginPage) return NextResponse.redirect(new URL('/atolye', request.url))
+  // Kayıt sayfaları gibi, korunan alanın içinde ama herkese açık adresler
+  if (OPEN_PATHS.includes(path)) return supabaseResponse
+
+  const area = areaForPath(path)
+  if (!area) return supabaseResponse
+
+  if (!user) {
+    const url = new URL('/login', request.url)
+    url.searchParams.set('next', path)
+    return NextResponse.redirect(url)
   }
 
-  // /reseller koruması — sadece reseller ve admin
-  if (path.startsWith('/reseller')) {
-    const isLoginPage = path === '/reseller/login'
-    const isRegisterPage = path === '/reseller/register'
-    if (!user && !isLoginPage && !isRegisterPage) return NextResponse.redirect(new URL('/reseller/login', request.url))
-    if (user && isLoginPage) return NextResponse.redirect(new URL('/reseller', request.url))
-
-    if (user && !isLoginPage && !isRegisterPage) {
-      if (!role) {
-        const { data: p } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-        role = p?.role ?? null
-      }
-      if (role !== 'reseller' && role !== 'admin') {
-        return NextResponse.redirect(new URL('/reseller/login', request.url))
-      }
-    }
-  }
-
-  // /verkauf koruması — sadece verkauf ve admin
-  if (path.startsWith('/verkauf')) {
-    const isLoginPage = path === '/verkauf/login'
-    if (!user && !isLoginPage) return NextResponse.redirect(new URL('/verkauf/login', request.url))
-    if (user && isLoginPage && (role === 'verkauf' || role === 'admin')) return NextResponse.redirect(new URL('/verkauf', request.url))
-    if (user && !isLoginPage && role !== 'verkauf' && role !== 'admin') {
-      return NextResponse.redirect(new URL('/verkauf/login', request.url))
-    }
+  const role = await roleOf()
+  if (!area.roles.includes(role)) {
+    // Yetkisi yoksa kendi alanına; hiç rolü yoksa girişe.
+    const target = role ? homeFor(role) : '/login'
+    return NextResponse.redirect(new URL(target, request.url))
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/backend/:path*', '/atolye/:path*', '/verkauf/:path*', '/reseller/:path*'],
+  matcher: [
+    '/login',
+    '/admin/:path*',
+    '/bestellung/:path*',
+    '/werkstatt/:path*',
+    '/haendler/:path*',
+    '/konto/:path*',
+  ],
 }

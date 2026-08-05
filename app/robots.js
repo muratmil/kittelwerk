@@ -3,7 +3,21 @@ export default function robots() {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/backend', '/atolye', '/api'],
+      // Portalın tamamı arama motorlarına kapalı. Eskiden /reseller ve
+      // /verkauf açıkta kalmıştı; kayıt sayfaları da indekslenmesin.
+      disallow: [
+        '/api',
+        '/login',
+        '/admin',
+        '/bestellung',
+        '/werkstatt',
+        '/haendler',
+        '/konto',
+        '/backend',
+        '/atolye',
+        '/reseller',
+        '/verkauf',
+      ],
     },
     sitemap: 'https://www.kittelwerk.de/sitemap.xml',
   };

@@ -133,12 +133,15 @@ create table if not exists public.product_prices (
   primary key (product_id, min_qty)
 );
 
--- Marj varsayılanları: ürün marjı → kategori marjı → genel marj
+-- Marj varsayılanları: ürün marjı → kategori marjı → genel marj.
+-- Kademe sayısı sabit değil; Kittelwerk'te altı kademe var, Wipello'da dört.
+-- Tek marj tüm kademelere uygulanırsa hacim indirimi çöker, o yüzden
+-- marj kademe başına tanımlanıyor.
 create table if not exists public.margin_defaults (
-  scope       text primary key,                   -- 'global' veya kategori adı
-  tier1       numeric(5,2) not null,
-  tier2       numeric(5,2) not null,
-  tier3       numeric(5,2) not null
+  scope     text not null,                        -- 'global' veya kategori adı
+  min_qty   int  not null,
+  margin    numeric(5,2) not null,
+  primary key (scope, min_qty)
 );
 
 -- Yuvarlama proje başına ayarlanabilir olmalı: Kittelwerk'te tam euro yukarı,
