@@ -1,6 +1,16 @@
 import { PRODUCTS } from '@/data/products';
 import { notFound } from 'next/navigation';
 import ProductDetailPage from './ProductDetailPage';
+import { createPublicClient } from '@/utils/supabase/public';
+import { loadCatalog } from '@/lib/catalog';
+
+// Fiyatlar veritabanindan; sayfa ISR ile tazeleniyor.
+export const revalidate = 60;
+
+async function ladeProdukt(id) {
+  const { products } = await loadCatalog(createPublicClient(), { includeInactive: true });
+  return products.find((p) => p.id === id) ?? null;
+}
 
 const PRODUCT_DESCRIPTIONS = {
   tshirt: 'Gastro T-Shirt aus 100% Baumwolle mit kostenlosem Logo-Druck. Ab 16€/Stk ab 10 Stück — Schw., Weiß, Rot. Lieferzeit 1–2 Wochen. Deutschlandweiter Versand.',
@@ -19,11 +29,11 @@ const PRODUCT_DESCRIPTIONS = {
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const product = PRODUCTS.find(p => p.id === id);
+  const product = await ladeProdukt(id);
   if (!product) return {};
   const description = PRODUCT_DESCRIPTIONS[product.id]
-    || (product.tiers
-      ? `${product.name} — ${product.desc}. Ab ${product.tiers[0].price.toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung ${product.minQty || 10} Stück. Deutschlandweiter Versand.`
+    || (product.tiers?.[0]?.price != null
+      ? `${product.name} — ${product.desc}. Ab ${Number(product.tiers[0].price).toFixed(2)}€ pro Stück inkl. kostenlosem Logo-Druck. Mindestbestellung ${product.minQty || 10} Stück. Deutschlandweiter Versand.`
       : `${product.name} — ${product.desc}. Bald bei Kittelwerk erhältlich. Kostenloser Logo-Druck ab 10 Stück. Deutschlandweiter Versand.`);
   return {
     title: `${product.name} | Kittelwerk`,
@@ -46,7 +56,7 @@ export function generateStaticParams() {
 
 export default async function Page({ params }) {
   const { id } = await params;
-  const product = PRODUCTS.find(p => p.id === id);
+  const product = await ladeProdukt(id);
   if (!product) notFound();
 
   const priceValidUntil = new Date(new Date().getFullYear() + 1, 11, 31).toISOString().slice(0, 10);
@@ -60,7 +70,7 @@ export default async function Page({ params }) {
     sku: product.id,
     category: 'Gastro-Textilien',
     brand: { '@type': 'Brand', name: 'Kittelwerk', url: 'https://www.kittelwerk.de' },
-    ...(product.tiers && {
+    ...(product.tiers?.length && product.tiers[0].price != null && {
       offers: {
         '@type': 'AggregateOffer',
         lowPrice: product.tiers[product.tiers.length - 1].price,

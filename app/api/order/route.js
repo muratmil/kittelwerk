@@ -1,8 +1,8 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { Resend } from 'resend';
-import { PRODUCTS } from '@/data/products';
 import { esc } from '@/lib/escapeHtml';
 import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
+import { loadCatalog, priceOf } from '@/lib/catalog';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -20,13 +20,7 @@ function validateLength(value, max) {
   return !value || String(value).length <= max;
 }
 
-function getTierPrice(product, qty) {
-  let price = product.tiers[0].price;
-  for (const tier of product.tiers) {
-    if (qty >= tier.minQty) price = tier.price;
-  }
-  return price;
-}
+// Kademeli fiyat artık koddan değil veritabanından geliyor (lib/catalog).
 
 function calcShipping(subtotal) {
   if (subtotal >= 300) return 0;
@@ -77,21 +71,33 @@ export async function POST(req) {
     return Response.json({ error: 'Eingabe zu lang.' }, { status: 400 });
   }
 
-  // Fiyatları server tarafında hesapla
+  // Fiyatları server tarafında hesapla — kaynak veritabanı, kod değil.
+  const { products: catalog } = await loadCatalog(supabaseAdmin);
+  const byId = Object.fromEntries(catalog.map(p => [p.id, p]));
+
   const recalcItems = [];
+  let costTotal = 0;
   for (const item of items) {
-    const product = PRODUCTS.find(p => p.id === item.id);
+    const product = byId[item.id];
     if (!product || product.comingSoon) return Response.json({ error: `Unbekanntes Produkt: ${item.id}` }, { status: 400 });
     const qty = item.qty;
     const minQty = product.minQty || 10;
     if (!qty || qty < minQty) return Response.json({ error: `Mindestbestellmenge ${minQty} Stück.` }, { status: 400 });
-    const basePrice = getTierPrice(product, qty);
+
+    const basePrice = priceOf(product, qty);
+    if (basePrice == null) return Response.json({ error: `Für ${product.name} ist kein Preis hinterlegt.` }, { status: 400 });
+
     // siebdruck, freeSiebdruck işaretli ürünlerde ücretsiz (tshirt, oversize)
     const printPrice = (item.printType === 'siebdruck' && product.freeSiebdruck)
       ? 0
       : (PRINT_PRICES[item.printType] ?? 0);
     const unitPrice = basePrice + printPrice;
-    recalcItems.push({ ...item, price: unitPrice, basePrice });
+
+    // Maliyet anlık görüntüsü — kur sonradan değişse de bu siparişin kârı bozulmaz.
+    const unitCost = product.staffel?.[0]?.costEur ?? null;
+    if (unitCost != null) costTotal += unitCost * qty;
+
+    recalcItems.push({ ...item, price: unitPrice, basePrice, unitCost });
   }
 
   const subtotal = recalcItems.reduce((s, i) => s + i.price * i.qty, 0);
@@ -109,12 +115,14 @@ export async function POST(req) {
   const { data: order, error } = await supabaseAdmin
     .from('orders')
     .insert([{
+      source: 'web',
       name, company, email, phone, street, plz, city,
       items: recalcItems, subtotal, discount_code: discountCode || null,
       discount_amount: discountAmount,
       shipping_cost: shippingCost, total,
+      cost_total: costTotal ? Math.round(costTotal * 100) / 100 : null,
       logo_url: logoUrl || null,
-      status: 'new',
+      status: 'neu',
     }])
     .select()
     .single();

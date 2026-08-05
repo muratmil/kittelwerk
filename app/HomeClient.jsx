@@ -16,9 +16,9 @@ import CartDrawer from '@/components/cart/CartDrawer';
 import CookieBanner from '@/components/layout/CookieBanner';
 import NewsletterPopup from '@/components/layout/NewsletterPopup';
 import Footer from '@/components/layout/Footer';
-import { PRODUCTS } from '@/data/products';
 
-export default function HomeClient() {
+
+export default function HomeClient({ products = [] }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
@@ -40,7 +40,7 @@ export default function HomeClient() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PRODUCTS.map((product) => (
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -66,7 +66,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <Calculator />
+      <Calculator products={products} />
       <Process />
       <Benefits />
       <Testimonials />

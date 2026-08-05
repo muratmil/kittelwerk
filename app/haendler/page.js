@@ -1,39 +1,44 @@
 import { redirect } from 'next/navigation';
+import { createClient } from '@/utils/supabase/server';
 import { getProfile } from '@/lib/session';
+import { loadCatalog } from '@/lib/catalog';
 import PortalShell from '@/components/portal/PortalShell';
+import HaendlerClient from './HaendlerClient';
 
 export const metadata = {
   title: 'Händler — Kittelwerk Portal',
   robots: { index: false, follow: false },
 };
 
-// Henüz taşınmadı — bayi siparişi ve durum takibi bir sonraki adımda geliyor.
 export default async function HaendlerPage() {
   const profile = await getProfile();
   if (!profile) redirect('/login');
 
-  const istHaendler = profile.role === 'haendler';
+  const supabase = await createClient();
+
+  // Bayi kaydı — RLS yalnızca kendi satırını veriyor.
+  const { data: haendler } = profile.role === 'haendler'
+    ? await supabase.from('haendler')
+        .select('id, company, contact_name, street, plz, city, discount_rate, custom_prices, active')
+        .eq('profile_id', profile.id).maybeSingle()
+    : { data: null };
+
+  // Fiyatlar bayinin koşullarıyla hesaplanıyor; admin/owner liste fiyatını görür.
+  const { products } = await loadCatalog(supabase, { haendler });
+
+  const bestellbar = products
+    .filter((p) => !p.comingSoon && p.tiers?.length)
+    .map((p) => ({
+      id: p.id, name: p.name, category: p.category, minQty: p.minQty,
+      colors: p.colors ?? [], hasSizes: p.hasSizes ?? false, sizes: p.sizes ?? null,
+      hasBackPrint: p.hasBackPrint ?? false, bestickungOnly: p.bestickungOnly ?? false,
+      freeSiebdruck: p.freeSiebdruck ?? false,
+      tiers: p.tiers, image: p.image ?? null,
+    }));
 
   return (
     <PortalShell profile={profile} current="/haendler" title="Händler">
-      <div className="max-w-2xl space-y-4">
-        <p className="border-4 border-sun bg-sun/20 p-4 text-sm">
-          <strong className="block font-black uppercase text-[11px] tracking-widest mb-1">
-            Nächster Schritt
-          </strong>
-          Bestellung aufgeben, eigene Aufträge verfolgen und Konditionen einsehen —
-          wird als Nächstes hierher übernommen.
-        </p>
-
-        {!istHaendler && (
-          <p className="border-2 border-ink bg-white p-4 text-sm">
-            Sie sind als <strong>{profile.is_owner ? 'Inhaber' : 'Admin'}</strong> hier.
-            Bestellungen aus diesem Bereich laufen später auf den Namen der Firma
-            (<code className="text-[12px]">intern</code>) — nicht auf einen Händler.
-            Niemand bestellt im Namen eines anderen.
-          </p>
-        )}
-      </div>
+      <HaendlerClient profile={profile} haendler={haendler} products={bestellbar} />
     </PortalShell>
   );
 }

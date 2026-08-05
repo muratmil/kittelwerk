@@ -1,4 +1,8 @@
 import ProdukteClient from './ProdukteClient';
+import { createPublicClient } from '@/utils/supabase/public';
+import { loadCatalog } from '@/lib/catalog';
+
+export const revalidate = 60;
 
 export const metadata = {
   title: 'Gastro-Textilien kaufen | Schürzen, T-Shirts & Kappen — Kittelwerk',
@@ -11,6 +15,7 @@ export const metadata = {
   },
 };
 
-export default function ProduktePage() {
-  return <ProdukteClient />;
+export default async function ProduktePage() {
+  const { products } = await loadCatalog(createPublicClient());
+  return <ProdukteClient products={products} />;
 }

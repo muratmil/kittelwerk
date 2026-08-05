@@ -23,11 +23,11 @@ function check(name, ok, detail) {
 }
 
 /** Oturum açıp @supabase/ssr'ın beklediği çerezi kuruyor. */
-async function login(email) {
+async function login(email, password = 'portal1234') {
   const res = await fetch(`${API}/auth/v1/token?grant_type=password`, {
     method: 'POST',
     headers: { apikey: ANON, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password: 'portal1234' }),
+    body: JSON.stringify({ email, password }),
   });
   const session = await res.json();
   if (!session.access_token) throw new Error(`Anmeldung fehlgeschlagen (${email}): ${session.error_description ?? session.msg}`);
@@ -131,8 +131,10 @@ console.log('\n=== Şifre sıfırlama ===');
   check('kısıtlı admin (yetkisiz) händler şifresini sıfırlayamaz → 403', r.status === 403, `HTTP ${r.status}`);
 }
 {
-  const r = await call(owner, '/api/portal/passwort', 'POST', { id: idOf('haendler@test.local') });
-  check('owner händler şifresini sıfırlar → 200', r.status === 200, `HTTP ${r.status}`);
+  // Hedef bilerek atolye-b: sifresi degisen hesapla sonradan giris denenmiyor.
+  const r = await call(owner, '/api/portal/passwort', 'POST', { id: idOf('atolye-b@kittelwerk.de') });
+  check('owner başka hesabın şifresini sıfırlar → 200', r.status === 200, `HTTP ${r.status}`);
+  check('yeni şifre bir kez dönüyor', typeof r.data.password === 'string' && r.data.password.length >= 12);
 }
 
 console.log('\n=== Silme ===');
@@ -178,6 +180,120 @@ console.log('\n=== Werkstatt kapatma koruması ===');
 {
   const r = await call(owner, '/api/portal/werkstatt', 'PATCH', { id: shops[0].id, active: false });
   check('devam eden işi olan atölye kapatılamaz → 409', r.status === 409, `HTTP ${r.status} ${JSON.stringify(r.data)}`);
+}
+
+console.log('\n=== Kayıt ve onay ===');
+const neuMail = `bayi${uniq()}@t.local`;
+{
+  const res = await fetch(APP + '/api/portal/registrierung', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ art: 'haendler', company: 'Test Gastro', email: neuMail, password: 'sifre12345' }),
+  });
+  check('bayi kaydı açılır → 200', res.status === 200, `HTTP ${res.status}`);
+}
+{
+  const rows = await (await fetch(`${API}/rest/v1/haendler?select=id,active&email=eq.${neuMail}`, { headers: svcHeaders })).json();
+  check('yeni bayi PASİF geliyor', rows[0]?.active === false, JSON.stringify(rows));
+
+  const neuSession = await login(neuMail, 'sifre12345');
+  const r = await call(neuSession, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'tshirt', sizes: { L: 20 }, color: 'Schwarz', print: 'front' }] });
+  check('onaysız bayi sipariş veremez → 403', r.status === 403, `HTTP ${r.status} ${JSON.stringify(r.data)}`);
+
+  const app2 = await call(owner, '/api/portal/haendler', 'PATCH', { id: rows[0].id, active: true });
+  check('owner bayiyi onaylar → 200', app2.status === 200, `HTTP ${app2.status}`);
+
+  const r2 = await call(neuSession, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'tshirt', sizes: { L: 20 }, color: 'Schwarz', print: 'front' }] });
+  check('onaylı bayi sipariş verir → 200', r2.status === 200, `HTTP ${r2.status} ${JSON.stringify(r2.data)}`);
+}
+{
+  const r = await call(vertrieb, '/api/portal/haendler', 'PATCH', { id: 'x', active: true });
+  check('vertrieb bayi onaylayamaz → 403', r.status === 403, `HTTP ${r.status}`);
+}
+
+console.log('\n=== Sipariş kuralları ===');
+const haendlerSession = await login('haendler@test.local');
+{
+  const r = await call(haendlerSession, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'tshirt', sizes: { L: 3 }, color: 'Schwarz', print: 'front' }] });
+  check('asgari adedin altı reddedilir → 400', r.status === 400, `HTTP ${r.status} ${JSON.stringify(r.data)}`);
+}
+{
+  const r = await call(haendlerSession, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'kochjacke', sizes: { L: 20 }, color: 'Schwarz', print: 'none' }] });
+  check('yakında olan ürün sipariş edilemez → 400', r.status === 400, `HTTP ${r.status}`);
+}
+{
+  const r = await call(haendlerSession, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'tshirt', sizes: { L: 20 }, color: 'Schwarz', print: 'front' }] });
+  check('bayi sipariş verir → 200', r.status === 200, `HTTP ${r.status}`);
+
+  const o = await (await fetch(`${API}/rest/v1/orders?select=order_no,items,total,source,haendler_id&order_no=eq.${r.data.order_no}`, { headers: svcHeaders })).json();
+  // Liste 20 adette 15,00 €; bayi iskontosu %18 → 12,30 €
+  check('fiyat bayi iskontosuyla hesaplandı', o[0]?.items?.[0]?.unitPrice === 12.3,
+    `birim: ${o[0]?.items?.[0]?.unitPrice}`);
+  check('kaynak haendler', o[0]?.source === 'haendler');
+  check('bayi kimliği yazıldı', !!o[0]?.haendler_id);
+}
+{
+  // Fiyat istemciden gelmiyor: uydurma fiyat gönderilse de sunucu kendi hesabını yazıyor.
+  const r = await call(haendlerSession, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'tshirt', sizes: { L: 20 }, color: 'Schwarz', print: 'front', unitPrice: 0.01 }] });
+  const o = await (await fetch(`${API}/rest/v1/orders?select=items&order_no=eq.${r.data.order_no}`, { headers: svcHeaders })).json();
+  check('istemciden gelen fiyat yok sayılıyor', o[0]?.items?.[0]?.unitPrice === 12.3,
+    `birim: ${o[0]?.items?.[0]?.unitPrice}`);
+}
+{
+  const r = await call(atolyeA, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'tshirt', sizes: { L: 20 } }] });
+  check('atölye sipariş veremez → 403', r.status === 403, `HTTP ${r.status}`);
+}
+{
+  const r = await call(owner, '/api/portal/bestellung', 'POST',
+    { items: [{ productId: 'tshirt', sizes: { L: 20 }, color: 'Rot', print: 'front' }] });
+  check('owner şirket adına sipariş verir → 200', r.status === 200, `HTTP ${r.status}`);
+  const o = await (await fetch(`${API}/rest/v1/orders?select=source,haendler_id,payment_status&order_no=eq.${r.data.order_no}`, { headers: svcHeaders })).json();
+  check('kaynak intern', o[0]?.source === 'intern');
+  check('bayi kimliği YOK — kimse başkası adına sipariş vermiyor', o[0]?.haendler_id === null);
+  check('ödemeye uğramıyor', o[0]?.payment_status === 'nicht_erforderlich');
+}
+
+console.log('\n=== Fiyat yetkileri ===');
+{
+  const r = await call(vertrieb, '/api/portal/preise', 'PATCH',
+    { art: 'staffel', product_id: 'tshirt', min_qty: 10, price: 1 });
+  check('vertrieb SATIŞ fiyatı değiştiremez → 403', r.status === 403, `HTTP ${r.status}`);
+}
+{
+  const r = await call(vertrieb, '/api/portal/preise', 'PATCH',
+    { art: 'kosten', id: 'tshirt', cost_price: 230 });
+  check('vertrieb ALIŞ fiyatı değiştirir → 200', r.status === 200, `HTTP ${r.status} ${JSON.stringify(r.data)}`);
+}
+{
+  const r = await call(vertrieb, '/api/portal/preise', 'POST', { currency: 'TRY', rate: 0.0239 });
+  check('vertrieb kur girer → 200', r.status === 200, `HTTP ${r.status}`);
+  const rows = await (await fetch(`${API}/rest/v1/exchange_rates?select=rate&currency=eq.TRY&order=valid_from.desc`, { headers: svcHeaders })).json();
+  check('kur ÜZERİNE YAZILMADI, yeni satır eklendi', rows.length === 4, `satır: ${rows.length}`);
+  check('en güncel kur yeni değer', Number(rows[0].rate) === 0.0239);
+}
+{
+  const r = await call(admin2, '/api/portal/preise', 'PATCH',
+    { art: 'staffel', product_id: 'tshirt', min_qty: 10, price: 1 });
+  check('fiyat yetkisi olmayan admin satış fiyatı değiştiremez → 403', r.status === 403, `HTTP ${r.status}`);
+}
+{
+  const r = await call(owner, '/api/portal/preise', 'PATCH',
+    { art: 'staffel', product_id: 'tshirt', min_qty: 10, price: 17.5 });
+  check('owner satış fiyatı değiştirir → 200', r.status === 200, `HTTP ${r.status}`);
+  const rows = await (await fetch(`${API}/rest/v1/product_prices?select=price&product_id=eq.tshirt&min_qty=eq.10`, { headers: svcHeaders })).json();
+  check('fiyat veritabanına yazıldı', Number(rows[0].price) === 17.5, `gelen: ${rows[0]?.price}`);
+}
+{
+  const r = await call(owner, '/api/portal/preise', 'PATCH',
+    { art: 'einstellungen', round_to: 0.5, round_mode: 'up' });
+  check('yuvarlama ayarı proje başına değiştirilebilir → 200', r.status === 200, `HTTP ${r.status}`);
+  await call(owner, '/api/portal/preise', 'PATCH', { art: 'einstellungen', round_to: 1, round_mode: 'up' });
 }
 
 console.log(`\n${fail === 0 ? '✓' : '✗'} ${pass} geçti, ${fail} kaldı\n`);

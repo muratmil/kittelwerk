@@ -6,7 +6,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
 import ProductCard from '@/components/molecules/ProductCard';
-import { PRODUCTS } from '@/data/products';
+
 
 const CATEGORIES = [
   { key: 'bekleidung', label: 'Bekleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
@@ -14,7 +14,7 @@ const CATEGORIES = [
   { key: 'accessoires', label: 'Accessoires', sub: 'Kappen, Beanies & Extras' },
 ];
 
-export default function ProdukteClient() {
+export default function ProdukteClient({ products = [] }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
@@ -43,7 +43,7 @@ export default function ProdukteClient() {
           </div>
 
           {CATEGORIES.map((cat) => {
-            const items = PRODUCTS.filter((p) => p.category === cat.key);
+            const items = products.filter((p) => p.category === cat.key);
             if (items.length === 0) return null;
             return (
               <div key={cat.key} className="mb-16 last:mb-0">

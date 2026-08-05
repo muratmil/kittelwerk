@@ -1,4 +1,10 @@
 import HomeClient from './HomeClient';
+import { createPublicClient } from '@/utils/supabase/public';
+import { loadCatalog } from '@/lib/catalog';
+
+// Fiyatlar veritabanından geliyor. Sayfa ISR ile önbelleklenir; yönetimden
+// yapılan fiyat değişikliği en geç bir dakika içinde vitrine yansır.
+export const revalidate = 60;
 
 const faqSchema = {
   '@context': 'https://schema.org',
@@ -42,11 +48,13 @@ const faqSchema = {
   ],
 };
 
-export default function Home() {
+export default async function Home() {
+  const { products } = await loadCatalog(createPublicClient());
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <HomeClient />
+      <HomeClient products={products} />
     </>
   );
 }

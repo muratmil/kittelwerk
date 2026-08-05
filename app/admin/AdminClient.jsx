@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { PERMISSIONS, ROLE_LABELS } from '@/lib/portal';
 import {
@@ -8,20 +9,44 @@ import {
 } from '@/lib/authz';
 import {
   RefreshCw, UserPlus, Trash2, KeyRound, Copy, Check, X, Factory, Users, ShieldAlert,
+  Package, Tag, BadgeCheck,
 } from 'lucide-react';
+import BestellungenTab from './BestellungenTab';
+import PreiseTab from './PreiseTab';
+import FreigabenTab from './FreigabenTab';
 
-const TABS = [
-  { key: 'benutzer',   label: 'Benutzer',    icon: Users },
-  { key: 'werkstatt',  label: 'Werkstätten', icon: Factory },
-];
+function tabsFor(profile) {
+  const t = [{ key: 'bestellungen', label: 'Bestellungen', icon: Package }];
+  if (hasPerm(profile, 'haendler_verwalten') || hasPerm(profile, 'werkstatt_verwalten')
+      || hasPerm(profile, 'haendler_konditionen')) {
+    t.push({ key: 'freigaben', label: 'Freigaben', icon: BadgeCheck });
+  }
+  if (hasPerm(profile, 'preise_sehen') || hasPerm(profile, 'preise_pflegen')) {
+    t.push({ key: 'preise', label: 'Preise', icon: Tag });
+  }
+  t.push({ key: 'benutzer', label: 'Benutzer', icon: Users });
+  if (hasPerm(profile, 'werkstatt_verwalten')) {
+    t.push({ key: 'werkstatt', label: 'Werkstätten', icon: Factory });
+  }
+  return t;
+}
 
-export default function AdminClient({ profile }) {
-  const [tab, setTab] = useState('benutzer');
+// Yetki kontrolü lib/portal'dan; burada kısa ad.
+function hasPerm(p, key) {
+  if (!p) return false;
+  if (p.is_owner) return true;
+  return p.role === 'admin' && (p.permissions ?? []).includes(key);
+}
+
+export default function AdminClient({ profile, catalog }) {
+  const TABS = tabsFor(profile);
+  const [tab, setTab] = useState(TABS[0].key);
   const [users, setUsers] = useState([]);
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [secret, setSecret] = useState(null); // { email, password }
+  const router = useRouter();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -100,6 +125,31 @@ export default function AdminClient({ profile }) {
           profile={profile} shops={shops} loading={loading}
           onCreate={(payload) => call('/api/portal/werkstatt', 'POST', payload)}
           onToggle={(id, active) => call('/api/portal/werkstatt', 'PATCH', { id, active })}
+        />
+      )}
+
+      {tab === 'bestellungen' && <BestellungenTab profile={profile} />}
+
+      {tab === 'freigaben' && <FreigabenTab profile={profile} onError={setError} />}
+
+      {tab === 'preise' && (
+        <PreiseTab
+          profile={profile} catalog={catalog}
+          onChange={async (payload) => {
+            const r = await call('/api/portal/preise', 'PATCH', payload);
+            if (r) router.refresh();   // fiyatlar sunucuda hesaplanıyor, sayfayı tazele
+            return r;
+          }}
+          onRate={async (payload) => {
+            const r = await call('/api/portal/preise', 'POST', payload);
+            if (r) router.refresh();
+            return r;
+          }}
+          onSettings={async (payload) => {
+            const r = await call('/api/portal/preise', 'PATCH', { art: 'einstellungen', ...payload });
+            if (r) router.refresh();
+            return r;
+          }}
         />
       )}
     </div>

@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { PRODUCTS as ALL_PRODUCTS } from '@/data/products';
 import { getTieredPrice } from '@/store/cartStore';
 
 const CALC_PRODUCTS = [
@@ -11,12 +10,13 @@ const CALC_PRODUCTS = [
   { label: 'Sweatshirt',  key: 'sweat',  default: 20 },
 ];
 
-export default function Calculator() {
+export default function Calculator({ products = [] }) {
   const [qtys, setQtys] = useState(
     Object.fromEntries(CALC_PRODUCTS.map(p => [p.key, p.default]))
   );
 
-  const getProduct = (key) => ALL_PRODUCTS.find(p => p.id === key);
+  // Fiyatlar veritabanindan geliyor; urun bulunamazsa hesap sifirlanir, patlamaz.
+  const getProduct = (key) => products.find(p => p.id === key) ?? { oldPrice: 0, newPrice: 0, tiers: [] };
 
   const totalOld = CALC_PRODUCTS.reduce((s, p) => s + getProduct(p.key).oldPrice * (qtys[p.key] || 0), 0);
   const totalNew = CALC_PRODUCTS.reduce((s, p) => s + getTieredPrice(getProduct(p.key), qtys[p.key] || 0) * (qtys[p.key] || 0), 0);

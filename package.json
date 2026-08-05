@@ -10,7 +10,9 @@
     "seed:products": "node scripts/products-to-sql.mjs > supabase/seed-products.sql",
     "test:authz": "node scripts/authz-test.mjs",
     "test:api": "node scripts/portal-api-test.mjs",
-    "test:rls": "docker exec -i supabase_db_kittelwerk psql -U postgres -d postgres -q < supabase/rls-test.sql"
+    "test:rls": "docker exec -i supabase_db_kittelwerk psql -U postgres -d postgres -q < supabase/rls-test.sql",
+    "test:pricing": "node scripts/pricing-test.mjs",
+    "test": "npm run test:authz && npm run test:pricing"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.109.0",
