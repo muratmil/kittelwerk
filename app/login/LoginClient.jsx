@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { homeFor, canEnter } from '@/lib/portal';
+import { homeFor, canEnter, PORTAL_NAME, PORTAL_SHORT } from '@/lib/portal';
 import { LogIn } from 'lucide-react';
 
 // Dört ayrı giriş sayfası yerine tek kapı. Kullanıcı hangi rolde olduğunu
@@ -56,9 +56,11 @@ export default function LoginClient() {
 
         <form onSubmit={handleLogin} className="bg-white border-4 border-ink shadow-brutalist p-8 space-y-4">
           <div className="border-b-2 border-ink pb-3">
-            <h1 className="font-black text-xl uppercase">Portal</h1>
+            <h1 className="font-black text-xl uppercase leading-tight">
+              {PORTAL_NAME}
+            </h1>
             <p className="text-[10px] font-bold uppercase tracking-widest opacity-50 mt-1">
-              Händler · Vertrieb · Werkstatt · Verwaltung
+              {PORTAL_SHORT} · Händler · Vertrieb · Werkstatt · Verwaltung
             </p>
           </div>
 

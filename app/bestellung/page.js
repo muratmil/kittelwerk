@@ -6,7 +6,7 @@ import PortalShell from '@/components/portal/PortalShell';
 import BestellungClient from './BestellungClient';
 
 export const metadata = {
-  title: 'Bestellungen — Kittelwerk Portal',
+  title: 'Bestellungen — Central Communication Hub (CCH)',
   robots: { index: false, follow: false },
 };
 

@@ -8,7 +8,7 @@ import PortalShell from '@/components/portal/PortalShell';
 import AdminClient from './AdminClient';
 
 export const metadata = {
-  title: 'Verwaltung — Kittelwerk Portal',
+  title: 'Verwaltung — Central Communication Hub (CCH)',
   robots: { index: false, follow: false },
 };
 

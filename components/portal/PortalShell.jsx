@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { navFor, ROLE_LABELS } from '@/lib/portal';
+import { navFor, ROLE_LABELS, PORTAL_NAME, PORTAL_SHORT } from '@/lib/portal';
 import { LogOut, Menu, X, ExternalLink } from 'lucide-react';
 
 // Dört panelin paylaştığı kabuk. Menüde ne göründüğü role göre değişir;
@@ -115,7 +115,11 @@ export default function PortalShell({
           </a>
 
           <span className="hidden md:inline text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-            Portal
+            {PORTAL_NAME} <span className="opacity-70">({PORTAL_SHORT})</span>
+          </span>
+          {/* Dar ekranda uzun ad sığmıyor, kısaltma yeter. */}
+          <span className="md:hidden text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+            {PORTAL_SHORT}
           </span>
 
 

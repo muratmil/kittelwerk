@@ -6,7 +6,7 @@ import PortalShell from '@/components/portal/PortalShell';
 import { para, tarih, kalanGun } from './bicim';
 
 export const metadata = {
-  title: 'İş Takip — Kittelwerk Portal',
+  title: 'İş Takip — Central Communication Hub (CCH)',
   robots: { index: false, follow: false },
 };
 

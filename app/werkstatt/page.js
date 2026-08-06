@@ -6,7 +6,7 @@ import PortalShell from '@/components/portal/PortalShell';
 import WerkstattClient from './WerkstattClient';
 
 export const metadata = {
-  title: 'Werkstatt — Kittelwerk Portal',
+  title: 'Werkstatt — Central Communication Hub (CCH)',
   robots: { index: false, follow: false },
 };
 

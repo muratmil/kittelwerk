@@ -7,7 +7,7 @@ import PortalShell from '@/components/portal/PortalShell';
 import HaendlerClient from './HaendlerClient';
 
 export const metadata = {
-  title: 'Händler — Kittelwerk Portal',
+  title: 'Händler — Central Communication Hub (CCH)',
   robots: { index: false, follow: false },
 };
 
