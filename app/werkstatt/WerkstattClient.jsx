@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { ORDER_STATUS } from '@/lib/portal';
+import { ORDER_STATUS, siteTone } from '@/lib/portal';
 import { RefreshCw, Printer, Download } from 'lucide-react';
 
 // Atölye ekranı. Aynı parasız görünümden okuyor; satır süzgeci veritabanında,
@@ -64,13 +64,16 @@ export default function WerkstattClient({ profile, sites = [] }) {
 function JobCard({ order, siteName, mehrereSites }) {
   const status = ORDER_STATUS[order.status] ?? ORDER_STATUS.neu;
   const items = Array.isArray(order.items) ? order.items : [];
+  const ton = siteTone(order.site_id);
 
   return (
-    <article className="bg-white rounded-sm shadow-cch break-inside-avoid">
+    <article className={`bg-white rounded-sm shadow-cch break-inside-avoid border-l-2 ${ton.border}`}>
       <header className="flex flex-wrap items-center gap-3 p-4 border-b border-cch-line">
         <span className="font-medium text-xl tabular-nums">#{order.order_no}</span>
         {mehrereSites && siteName && (
-          <span className="text-[9px] font-medium uppercase px-2 py-1 bg-cch-mint text-white">{siteName}</span>
+          <span className={`text-[9px] font-medium uppercase tracking-[0.12em] px-2 py-1 rounded-sm ${ton.badge}`}>
+            {siteName}
+          </span>
         )}
         <span className={`text-[9px] font-medium uppercase px-2 py-1 ${status.cls}`}>{status.label}</span>
         <span className="ml-auto text-[11px] opacity-50 tabular-nums">

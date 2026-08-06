@@ -2,6 +2,10 @@ module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
+    // lib de taranmalı: durum renkleri (ORDER_STATUS) ve sistem tonları
+    // (siteTone) sınıf adlarını burada tutuyor. Bu satır olmadan Tailwind
+    // o sınıfları hiç üretmiyor ve renkler sessizce kayboluyor.
+    "./lib/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {

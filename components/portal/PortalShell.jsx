@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { navFor, ROLE_LABELS, PORTAL_NAME, PORTAL_SHORT } from '@/lib/portal';
+import { navFor, ROLE_LABELS, PORTAL_NAME, PORTAL_SHORT, siteTone } from '@/lib/portal';
 import { LogOut, Menu, X, ExternalLink } from 'lucide-react';
 
 // Dört panelin paylaştığı kabuk. Menüde ne göründüğü role göre değişir;
@@ -55,7 +55,7 @@ export default function PortalShell({
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-sm text-[11px] font-medium uppercase tracking-[0.14em] transition-colors
                   ${aktiv ? 'bg-cch-soft text-cch-dark' : 'text-cch-muted hover:bg-cch-ash'}`}>
                 <span aria-hidden="true"
-                  className={`w-2 h-2 rounded-full shrink-0 ${aktiv ? 'bg-cch-mint' : 'bg-cch-line'}`} />
+                  className={`w-2 h-2 rounded-full shrink-0 ${aktiv ? siteTone(s.id).badge.split(' ')[0] : 'bg-cch-line'}`} />
                 {s.name}
               </a>
             );

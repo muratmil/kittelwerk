@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { ORDER_STATUS, SOURCE_LABELS, KIND_LABELS } from '@/lib/portal';
+import { ORDER_STATUS, SOURCE_LABELS, KIND_LABELS, siteTone } from '@/lib/portal';
 import { RefreshCw, ChevronDown, ChevronUp, Send, Inbox, Factory } from 'lucide-react';
 
 // Vertrieb'in ekranı. Bilerek `orders_produktion` görünümünden okuyor —
@@ -142,12 +142,12 @@ function OrderRow({ order, open, onToggle, werkstaetten, onAssign, busy, siteNam
   const shopName = werkstaetten.find((w) => w.id === order.werkstatt_id)?.name;
 
   return (
-    <article className="bg-white rounded-sm shadow-cch">
+    <article className={`bg-white rounded-sm shadow-cch border-l-2 ${siteTone(order.site_id).border}`}>
       <button onClick={onToggle} aria-expanded={open}
         className="w-full flex flex-wrap items-center gap-x-4 gap-y-2 p-4 text-left hover:bg-cch-ash/30 transition-colors">
         <span className="font-medium text-lg tabular-nums">#{order.order_no}</span>
         {mehrereSites && (
-          <span className="text-[9px] font-medium uppercase px-2 py-1 bg-cch-mint text-white">
+          <span className={`text-[9px] font-medium uppercase tracking-[0.12em] px-2 py-1 rounded-sm ${siteTone(order.site_id).badge}`}>
             {siteName(order.site_id)}
           </span>
         )}

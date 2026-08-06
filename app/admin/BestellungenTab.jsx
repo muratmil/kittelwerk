@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { ORDER_STATUS, SOURCE_LABELS, KIND_LABELS, hasPermission } from '@/lib/portal';
+import { ORDER_STATUS, SOURCE_LABELS, KIND_LABELS, hasPermission, siteTone } from '@/lib/portal';
 import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
 export default function BestellungenTab({ profile, sites = [] }) {
@@ -63,13 +63,18 @@ export default function BestellungenTab({ profile, sites = [] }) {
             const items = Array.isArray(o.items) ? o.items : [];
             const shop = shops.find((s) => s.id === o.werkstatt_id);
             const open = openId === o.id;
+            // Hangi sistemden geldiği sol kenardaki tondan anlaşılıyor;
+            // rozet okumadan da liste taranabilsin diye.
+            const ton = siteTone(o.site_id);
             return (
-              <article key={o.id} className="bg-white rounded-sm shadow-cch">
+              <article key={o.id} className={`bg-white rounded-sm shadow-cch border-l-2 ${ton.border}`}>
                 <button onClick={() => setOpenId(open ? null : o.id)} aria-expanded={open}
                   className="w-full flex flex-wrap items-center gap-x-4 gap-y-2 p-4 text-left hover:bg-cch-ash/30">
                   <span className="font-medium text-lg tabular-nums">#{o.order_no}</span>
                   {sites.length > 1 && (
-                    <span className="text-[9px] font-medium uppercase px-2 py-1 bg-cch-mint text-white">{siteName(o.site_id)}</span>
+                    <span className={`text-[9px] font-medium uppercase tracking-[0.12em] px-2 py-1 rounded-sm ${ton.badge}`}>
+                      {siteName(o.site_id)}
+                    </span>
                   )}
                   {o.kind === 'angebot' && (
                     <span className="text-[9px] font-medium uppercase px-2 py-1 rounded-sm bg-cch-soft text-cch-dark">
