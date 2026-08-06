@@ -1,9 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { navFor, ROLE_LABELS, PORTAL_NAME, PORTAL_SHORT, siteTone } from '@/lib/portal';
-import { LogOut, Menu, X, ExternalLink } from 'lucide-react';
+import { LogOut, Menu, X, ExternalLink, ChevronDown } from 'lucide-react';
 
 // Dört panelin paylaştığı kabuk. Menüde ne göründüğü role göre değişir;
 // owner ve admin bütün alanları görür — "tek platformdan hepsini göreyim".
@@ -14,7 +14,6 @@ export default function PortalShell({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const areas = navFor(profile.role);
-  const aktuelleSite = sites.find((s) => s.id === activeSite);
 
   const logout = async () => {
     await createClient().auth.signOut();
@@ -22,88 +21,111 @@ export default function PortalShell({
     router.refresh();
   };
 
-  // Site seçici — her portal sayfasında görünür. Seçili site hem fiyat/sipariş
-  // bağlamını belirliyor hem de aşağıdaki dış panel bağlantılarını.
-  const SiteSwitcher = ({ onNavigate }) => {
-    // Tek siteye kısıtlı hesapta seçici yerine sebebini yaz — sessizce
-    // kaybolması "özellik yok" gibi görünüyor.
-    if (sites.length < 2) {
-      if (!profile.is_owner && (profile.site_access ?? []).length > 0) {
+  // Menü sistem bazlı: her sistemin altında yalnız ona ait sayfalar.
+  // Site seçici ayrı bir kutu değil artık — sistemin kendisi başlık.
+  const gruplar = useMemo(() => {
+    const liste = [];
+
+    for (const site of sites) {
+      const alanlar = areas
+        .filter((a) => a.path !== '/is-takip')
+        // Siparişe kapalı sistemde üretim ve bayi ekranlarının karşılığı yok
+        // (Wipello portalda yalnızca görüntüleniyor).
+        .filter((a) => site.allows_ordering !== false
+                    || a.path === '/admin' || a.path === '/bestellung')
+        .map((a) => ({ href: `${a.path}?site=${site.id}`, label: a.label, path: a.path }));
+
+      // Sistemin portala taşınmamış kendi ekranları — geçiş dönemi köprüsü.
+      // Bunlar YÖNETİM ekranları (Wipello'nun teklif ve fiyat panelleri),
+      // o yüzden yalnız yönetime gösteriliyor. Eskiden herkese görünüyordu:
+      // bayi hesabı menüde Wipello'nun fiyat paneline bağlantı görüyordu.
+      const yonetim = profile.is_owner || profile.role === 'admin';
+      const disLinkler = yonetim
+        ? (site.links ?? []).map((l) => ({ href: l.url, label: l.label, dis: true }))
+        : [];
+
+      if (alanlar.length || disLinkler.length) {
+        liste.push({
+          id: site.id, ad: site.name, ton: siteTone(site.id),
+          cocuklar: [...alanlar, ...disLinkler],
+        });
+      }
+    }
+
+    // İş takip bir siteye bağlı değil, kendi sistemi.
+    if (areas.some((a) => a.path === '/is-takip')) {
+      liste.push({
+        id: 'is-takip', ad: 'İş Takip', ton: siteTone('is-takip'),
+        cocuklar: [
+          { href: '/is-takip', label: 'Müşteriler', path: '/is-takip' },
+          { href: '/is-takip?sekme=yaklasan', label: 'Vadeler', path: '/is-takip' },
+        ],
+      });
+    }
+
+    return liste;
+  }, [sites, areas]);
+
+  // Açılışta bulunduğun sistem açık gelsin; her seferinde tıklamak gerekmesin.
+  const [acikGrup, setAcikGrup] = useState(
+    current === '/is-takip' ? 'is-takip' : (activeSite ?? sites[0]?.id ?? null)
+  );
+
+  const SystemNav = ({ onNavigate }) => (
+    <nav className="flex flex-col gap-0.5">
+      {gruplar.map((g) => {
+        const acik = acikGrup === g.id;
         return (
-          <div className="rounded-sm bg-cch-ash border border-cch-line p-3 mb-3">
-            <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-cch-muted mb-1">Seite</p>
-            <p className="text-[11px] font-medium uppercase tracking-[0.14em]">{sites[0]?.name}</p>
-            <p className="text-[10px] text-cch-muted mt-1 leading-snug">
-              Ihr Konto ist auf diese Seite beschränkt.
-            </p>
+          <div key={g.id}>
+            <button type="button" aria-expanded={acik}
+              onClick={() => setAcikGrup(acik ? null : g.id)}
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-sm text-[11px] font-medium uppercase tracking-[0.16em] transition-colors
+                ${acik ? 'text-cch-slate bg-cch-ash' : 'text-cch-muted hover:bg-cch-ash hover:text-cch-slate'}`}>
+              <span aria-hidden="true"
+                className={`w-2 h-2 rounded-full shrink-0 ${g.ton.badge.split(' ')[0]}`} />
+              <span className="text-left">{g.ad}</span>
+              <ChevronDown size={13} aria-hidden="true"
+                className={`ml-auto shrink-0 transition-transform ${acik ? 'rotate-180' : ''}`} />
+            </button>
+
+            {acik && (
+              <div className="mt-0.5 mb-1 ml-2.5 pl-3 border-l border-cch-line flex flex-col">
+                {g.cocuklar.map((c) => {
+                  // Dış bağlantı yeni sekmede; portal sayfası aynı sekmede.
+                  if (c.dis) {
+                    return (
+                      <a key={c.href} href={c.href} target="_blank" rel="noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 rounded-sm text-[11px] text-cch-muted hover:text-cch-dark hover:bg-cch-ash transition-colors">
+                        <ExternalLink size={11} className="shrink-0" />
+                        {c.label}
+                      </a>
+                    );
+                  }
+                  const aktif = c.path === current
+                    && (g.id === 'is-takip' || g.id === activeSite);
+                  return (
+                    <a key={c.href} href={c.href} onClick={onNavigate}
+                      aria-current={aktif ? 'page' : undefined}
+                      className={`px-3 py-2 rounded-sm text-[11px] transition-colors
+                        ${aktif ? 'bg-cch-soft text-cch-dark font-medium' : 'text-cch-muted hover:bg-cch-ash hover:text-cch-slate'}`}>
+                      {c.label}
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
-      }
-      return null;
-    }
-    return (
-      <div className="mb-4">
-        <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-cch-muted mb-2 px-1">
-          Seite
-        </p>
-        <div className="flex flex-col gap-1.5">
-          {sites.map((s) => {
-            const aktiv = s.id === activeSite;
-            return (
-              <a key={s.id} href={`${current}?site=${s.id}`} onClick={onNavigate}
-                aria-current={aktiv ? 'true' : undefined}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-sm text-[11px] font-medium uppercase tracking-[0.14em] transition-colors
-                  ${aktiv ? 'bg-cch-soft text-cch-dark' : 'text-cch-muted hover:bg-cch-ash'}`}>
-                <span aria-hidden="true"
-                  className={`w-2 h-2 rounded-full shrink-0 ${aktiv ? siteTone(s.id).badge.split(' ')[0] : 'bg-cch-line'}`} />
-                {s.name}
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  // Sitenin kendi panelleri. Bir ekran portala taşınana kadar buradan tek
-  // tıkla gidiliyor — geçiş dönemi köprüsü, taşındıkça bu liste kısalır.
-  const ExternePanels = () => {
-    const links = aktuelleSite?.links ?? [];
-    if (links.length === 0) return null;
-    return (
-      <div className="mt-4 pt-4 border-t border-cch-line">
-        <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-cch-muted mb-2 px-1">
-          {aktuelleSite.name} — eigenes Panel
-        </p>
-        <div className="flex flex-col gap-1.5">
-          {links.map((l) => (
-            <a key={l.url} href={l.url} target="_blank" rel="noreferrer"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-sm text-[11px] font-medium uppercase tracking-[0.14em] text-cch-muted hover:text-cch-dark hover:bg-cch-ash transition-colors">
-              <ExternalLink size={12} className="shrink-0" />
-              {l.label}
-            </a>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const NavLinks = ({ onNavigate }) => (
-    <>
-      {areas.map((a) => {
-        const active = a.path === current;
-        return (
-          <a key={a.path} href={a.path} onClick={onNavigate}
-            aria-current={active ? 'page' : undefined}
-            className={`block px-4 py-2.5 rounded-sm text-[11px] font-medium uppercase tracking-[0.16em] transition-colors border-l-2
-              ${active
-                ? 'bg-cch-soft text-cch-dark border-cch-mint'
-                : 'text-cch-muted border-transparent hover:bg-cch-ash hover:text-cch-slate'}`}>
-            {a.label}
-          </a>
-        );
       })}
-    </>
+
+      {/* Hesabı tek siteye kısıtlıysa sebebini yaz — sistemin sessizce
+          eksik görünmesi "özellik yok" sanılmasına yol açıyordu. */}
+      {!profile.is_owner && (profile.site_access ?? []).length > 0 && (
+        <p className="mt-3 px-3 text-[10px] text-cch-muted leading-snug">
+          Ihr Konto ist auf {gruplar.length === 1 ? 'diese Seite' : 'diese Seiten'} beschränkt.
+        </p>
+      )}
+    </nav>
   );
 
   return (
@@ -138,27 +160,23 @@ export default function PortalShell({
         </div>
 
         {open && (
-          <nav className="md:hidden border-t border-white/10 p-4 flex flex-col gap-2 bg-cch-slate">
+          <nav className="md:hidden p-4 flex flex-col gap-2 bg-white border-t border-cch-line">
             {/* Hangi hesapla girildiği dar ekranda üst barda gizleniyor;
                 yanlış hesapla bakıp "özellik yok" sanmak kolay. */}
-            <p className="text-[11px] mb-1">
-              <span className="font-light text-white/80">{profile.email}</span>
-              <span className="block text-[9px] font-medium uppercase tracking-[0.18em] text-cch-mint">
+            <p className="text-[11px] mb-1 px-3">
+              <span className="font-light text-cch-slate">{profile.email}</span>
+              <span className="block text-[9px] font-medium uppercase tracking-[0.18em] text-cch-dark">
                 {profile.is_owner ? 'Inhaber' : ROLE_LABELS[profile.role]}
               </span>
             </p>
-            <SiteSwitcher onNavigate={() => setOpen(false)} />
-            <NavLinks onNavigate={() => setOpen(false)} />
-            <ExternePanels />
+            <SystemNav onNavigate={() => setOpen(false)} />
           </nav>
         )}
       </header>
 
       <div className="flex">
         <aside className="hidden md:flex flex-col gap-2 w-60 shrink-0 p-4 bg-white border-r border-cch-line min-h-[calc(100vh-4rem)]">
-          <SiteSwitcher />
-          <NavLinks />
-          <ExternePanels />
+          <SystemNav />
         </aside>
 
         <main className="flex-1 min-w-0 p-5 md:p-8">
