@@ -48,8 +48,12 @@ union all select format(
   o.id, o.kalem_id, o.aciklama, o.en_cm, o.boy_cm, coalesce(o.adet,1), o.notlar)
 from olculer o
 
+-- Ödemenin eski tarafta kimliği yok (tek sayıydı). Kimlik işin id'sinden
+-- türetiliyor ki betik iki kez çalıştırılırsa ödeme İKİLENMESİN — provada
+-- tam bu oldu: tahsilat 2.500 yerine 5.000 göründü, bakiye yanlış çıktı.
 union all select format(
-  'insert into public.is_odemeler (musteri_id, is_id, tarih, tutar, para_birimi, aciklama) values (%L,%L,%L,%s,%L,%L);',
+  'insert into public.is_odemeler (id, musteri_id, is_id, tarih, tutar, para_birimi, aciklama) values (%L,%L,%L,%L,%s,%L,%L) on conflict (id) do nothing;',
+  md5(i.id::text || ':devir')::uuid,
   i.musteri_id, i.id, i.olusturma::date, i.alinan_odeme, i.para_birimi, 'Devir: eski kayıttaki alınan ödeme toplamı')
 from isler i where i.musteri_id is not null and i.alinan_odeme > 0
 

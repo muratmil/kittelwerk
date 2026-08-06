@@ -69,6 +69,7 @@ export const config = {
     '/bestellung/:path*',
     '/werkstatt/:path*',
     '/haendler/:path*',
+    '/is-takip/:path*',
     '/konto/:path*',
   ],
 }
