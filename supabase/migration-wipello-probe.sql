@@ -27,12 +27,12 @@ insert into probe_quotes (quote_number, scent, quantity, size, package_type, wip
 values
   ('WP-2026-0001','Zitrone',20000,'6x8','triplex','Vlies',
    0.0700, 1400.00, 1400.00, 19, 266.00, 1666.00, 'EUR',
-   'open', now() - interval '20 days', 'front', 0, 'Ayşe Demir','Café Mood',
+   'draft', now() - interval '20 days', 'front', 0, 'Ayşe Demir','Café Mood',
    'ayse@moodburger.de','0511 111111','de','Georgstr. 5','30159','Hannover','DE','DE123456789'),
   -- Kesme işareti içeren isim: %L kaçışının çalıştığını kanıtlıyor.
   ('WP-2026-0002','Kolonya',40000,'7x10','kraft','Spunlace',
    0.0650, 2600.00, 2600.00, 19, 494.00, 3094.00, 'EUR',
-   'accepted', now() - interval '5 days', 'both', 120.00, 'O''Brien Ltd','O''Brien & Söhne',
+   'contacted', now() - interval '5 days', 'both', 120.00, 'O''Brien Ltd','O''Brien & Söhne',
    'info@obrien.ie','+353 1 234','en','Main St. 7','D02','Dublin','IE',null),
   ('WP-2026-0003',null,10000,null,'coated',null,
    0.0900, 900.00, 900.00, 19, 171.00, 1071.00, 'EUR',
@@ -56,6 +56,8 @@ begin
       || 'on conflict (site_id, external_ref) where external_ref is not null do nothing;',
       'wipello', 'angebot', 'web', q.quote_number,
       case lower(coalesce(q.status, ''))
+        when 'draft'      then 'angebot_offen'
+        when 'contacted'  then 'angebot_kontaktiert'
         when 'accepted'   then 'angebot_angenommen'
         when 'angenommen' then 'angebot_angenommen'
         when 'rejected'   then 'angebot_abgelehnt'

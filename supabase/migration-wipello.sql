@@ -40,13 +40,18 @@ select format(
   'web',
   q.quote_number,
   -- Durum eşlemesi: bilinmeyen her değer açık teklif sayılır.
+  -- Wipello'da fiilen kullanılan değerler: draft, contacted.
+  -- Diğerleri ileride ortaya çıkarsa diye eşlemede duruyor;
+  -- bilinmeyen her değer açık teklif sayılır (veri kaybı olmaz).
   case lower(coalesce(q.status, ''))
-    when 'accepted'  then 'angebot_angenommen'
+    when 'draft'      then 'angebot_offen'
+    when 'contacted'  then 'angebot_kontaktiert'
+    when 'accepted'   then 'angebot_angenommen'
     when 'angenommen' then 'angebot_angenommen'
-    when 'rejected'  then 'angebot_abgelehnt'
-    when 'abgelehnt' then 'angebot_abgelehnt'
-    when 'done'      then 'abgeschlossen'
-    when 'cancelled' then 'storniert'
+    when 'rejected'   then 'angebot_abgelehnt'
+    when 'abgelehnt'  then 'angebot_abgelehnt'
+    when 'done'       then 'abgeschlossen'
+    when 'cancelled'  then 'storniert'
     else 'angebot_offen'
   end,
   q.customer_name,
