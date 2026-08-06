@@ -107,20 +107,32 @@ update public.products set cost_price = 265.00 where id = 'polo';
 -- (çarpan bazlı, 124 varyantlı model). Bu yüzden burada ürün/fiyat satırı yok;
 -- yalnızca gelen teklif ve siparişler duruyor.
 
--- Wipello siparişleri (teklif üzerinden gelen işler)
--- Biri sipariş, biri teklif: portalda ikisinin de nasıl göründüğü belli olsun.
-insert into public.orders (site_id, kind, source, external_ref, name, company, email,
-                           street, plz, city, items,
-                           subtotal, net_total, vat_rate, vat_amount, total, locale, status)
+-- Wipello teklifleri — orders'a ELLE yazılmıyor.
+-- wipello.com kendi tablosuna yazar, trigger portalın orders'ına yansıtır
+-- (bkz. 20260806200000_wipello_tabellen.sql). Seed de aynı yoldan gidiyor ki
+-- her `db reset` köprünün çalıştığını fiilen kanıtlasın.
+-- KDV burada ORAN (0.19); portala yüzde (19) olarak geçmesi trigger'ın işi.
+insert into public.wipello_quotes (
+  quote_number, created_at, status, locale,
+  scent, quantity, size, package_type, wipe_type, print_type, print_fee,
+  unit_price, product_subtotal, net_total, vat_rate, vat_amount, total, currency,
+  customer_name, customer_company, customer_email, customer_phone,
+  customer_street, customer_zip, customer_city, customer_country)
 values
-  ('wipello','bestellung','web', null,
-   'Ayşe Demir','Café Mood','info@moodburger.de','Georgstr. 5','30159','Hannover',
-   '[{"productId":"triplex","product":"Triplex · 6x8","scent":"Zitrone","size":"6x8","package":"triplex","sizes":{"-":20000},"qty":20000,"print":"front","unitPrice":0.07,"linePrice":1400.00}]'::jsonb,
-   1400.00, 1400.00, 19, 266.00, 1666.00, 'de', 'in_produktion'),
-  ('wipello','angebot','web','WP-2026-0002',
-   'Stefan Klein','Hotel Adler','post@adler-hotel.de','Bahnhofstr. 2','30159','Hannover',
-   '[{"productId":"kraft","product":"Kraft · 7x12","scent":"Kolonya","size":"7x12","package":"kraft","sizes":{"-":40000},"qty":40000,"print":"both","unitPrice":0.07,"linePrice":2800.00}]'::jsonb,
-   2800.00, 2800.00, 19, 532.00, 3332.00, 'de', 'angebot_kontaktiert');
+  ('MND-260805-A1B2C3', now() - interval '2 days', 'approved', 'de',
+   'Zitrone', 20000, '6x8', 'triplex', 'normal', 'front', 0,
+   0.0700, 1400.00, 1400.00, 0.19, 266.00, 1666.00, 'EUR',
+   'Ayşe Demir','Café Mood','info@moodburger.de', null,
+   'Georgstr. 5','30159','Hannover','DE'),
+  ('MND-260806-D4E5F6', now() - interval '6 hours', 'contacted', 'de',
+   'Kolonya', 40000, '7x12', 'kraft', 'normal', 'both', 0,
+   0.0700, 2800.00, 2800.00, 0.19, 532.00, 3332.00, 'EUR',
+   'Stefan Klein','Hotel Adler','post@adler-hotel.de', null,
+   'Bahnhofstr. 2','30159','Hannover','DE');
+
+-- Kabul edilen teklif işe dönüşünce sipariş olur; o adım portalda elle atılıyor.
+update public.orders set kind = 'bestellung', status = 'in_produktion'
+ where site_id = 'wipello' and external_ref = 'MND-260805-A1B2C3';
 
 -- Yalnızca Kittelwerk'e erişebilen admin — site kısıtının test öznesi.
 update public.profiles set site_access = array['kittelwerk']
