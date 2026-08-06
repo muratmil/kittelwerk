@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { ORDER_STATUS, SOURCE_LABELS, hasPermission } from '@/lib/portal';
+import { ORDER_STATUS, SOURCE_LABELS, KIND_LABELS, hasPermission } from '@/lib/portal';
 import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
 export default function BestellungenTab({ profile, sites = [] }) {
@@ -71,6 +71,11 @@ export default function BestellungenTab({ profile, sites = [] }) {
                   {sites.length > 1 && (
                     <span className="text-[9px] font-black uppercase px-2 py-1 bg-ink text-white">{siteName(o.site_id)}</span>
                   )}
+                  {o.kind === 'angebot' && (
+                    <span className="text-[9px] font-black uppercase px-2 py-1 border-2 border-sun bg-sun/30">
+                      {KIND_LABELS.angebot}{o.external_ref ? ` ${o.external_ref}` : ''}
+                    </span>
+                  )}
                   <span className="font-bold text-sm">{o.company || o.name}</span>
                   <span className={`text-[9px] font-black uppercase px-2 py-1 ${st.cls}`}>{st.label}</span>
                   <span className="text-[10px] font-black uppercase tracking-widest border-2 border-ink px-2 py-0.5">
@@ -113,6 +118,12 @@ export default function BestellungenTab({ profile, sites = [] }) {
                             <div className="flex text-olive"><dt>Rabatt</dt><dd className="ml-auto">−{Number(o.discount_amount).toFixed(2)} €</dd></div>
                           )}
                           <div className="flex"><dt className="opacity-60">Versand</dt><dd className="ml-auto">{Number(o.shipping_cost).toFixed(2)} €</dd></div>
+                          {o.net_total != null && (
+                            <>
+                              <div className="flex"><dt className="opacity-60">Netto</dt><dd className="ml-auto">{Number(o.net_total).toFixed(2)} €</dd></div>
+                              <div className="flex"><dt className="opacity-60">MwSt. {Number(o.vat_rate)} %</dt><dd className="ml-auto">{Number(o.vat_amount).toFixed(2)} €</dd></div>
+                            </>
+                          )}
                           <div className="flex font-black border-t-2 border-ink pt-1"><dt>Gesamt</dt><dd className="ml-auto">{Number(o.total).toFixed(2)} €</dd></div>
                           {o.cost_total != null && (
                             <div className="flex text-[11px] opacity-60">

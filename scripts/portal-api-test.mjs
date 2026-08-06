@@ -271,11 +271,21 @@ console.log('\n=== Fiyat yetkileri ===');
   check('vertrieb ALIŞ fiyatı değiştirir → 200', r.status === 200, `HTTP ${r.status} ${JSON.stringify(r.data)}`);
 }
 {
-  const r = await call(vertrieb, '/api/portal/preise', 'POST', { currency: 'TRY', rate: 0.0239 });
+  // Mutlak sayı yerine ÖNCE/SONRA farkı: test tazelenmemiş veritabanında da geçmeli.
+  const kurUrl = `${API}/rest/v1/exchange_rates?select=rate&currency=eq.TRY&order=valid_from.desc`;
+  const vorher = (await (await fetch(kurUrl, { headers: svcHeaders })).json()).length;
+  // toFixed(6): numeric(12,6) altı haneye yuvarlıyor, JS toplamı ise
+  // 0.024147000000000002 gibi bir artık bırakıyor — karşılaştırma tutmazdı.
+  const yeniKur = Number((0.0239 + Math.round(Math.random() * 900) / 1e6).toFixed(6));
+
+  const r = await call(vertrieb, '/api/portal/preise', 'POST', { currency: 'TRY', rate: yeniKur });
   check('vertrieb kur girer → 200', r.status === 200, `HTTP ${r.status}`);
-  const rows = await (await fetch(`${API}/rest/v1/exchange_rates?select=rate&currency=eq.TRY&order=valid_from.desc`, { headers: svcHeaders })).json();
-  check('kur ÜZERİNE YAZILMADI, yeni satır eklendi', rows.length === 4, `satır: ${rows.length}`);
-  check('en güncel kur yeni değer', Number(rows[0].rate) === 0.0239);
+
+  const rows = await (await fetch(kurUrl, { headers: svcHeaders })).json();
+  check('kur ÜZERİNE YAZILMADI, yeni satır eklendi', rows.length === vorher + 1,
+    `önce ${vorher}, sonra ${rows.length}`);
+  check('en güncel kur yeni değer', Number(rows[0].rate) === yeniKur,
+    `beklenen ${yeniKur}, gelen ${rows[0]?.rate}`);
 }
 {
   const r = await call(admin2, '/api/portal/preise', 'PATCH',
