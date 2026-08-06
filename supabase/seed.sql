@@ -6,8 +6,10 @@
 -- ============================================================================
 
 -- --- siteler -----------------------------------------------------------------
-insert into public.sites (id, name, domain, sort_order, admin_url) values
-  ('wipello', 'Wipello', 'www.wipello.com', 1, 'https://www.wipello.com/admin/teklifler')
+insert into public.sites (id, name, domain, sort_order, links) values
+  ('wipello', 'Wipello', 'www.wipello.com', 1,
+   '[{"label":"Angebote","url":"https://www.wipello.com/admin/teklifler"},
+     {"label":"Preise","url":"https://www.wipello.com/admin/fiyat"}]'::jsonb)
 on conflict (id) do nothing;
 
 -- Wipello'da birim fiyat kuruş seviyesinde: yuvarlama tam euro OLAMAZ,

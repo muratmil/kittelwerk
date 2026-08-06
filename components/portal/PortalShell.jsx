@@ -22,11 +22,10 @@ export default function PortalShell({
     router.refresh();
   };
 
-  // Site seçici — yalnızca site bağlamı olan ekranlarda anlamlı.
-  // /bestellung ve /werkstatt zaten bütün sitelerin işini bir arada gösteriyor,
-  // orada seçici değil süzgeç var (satırlarda site rozeti ile).
+  // Site seçici — her portal sayfasında görünür. Seçili site hem fiyat/sipariş
+  // bağlamını belirliyor hem de aşağıdaki dış panel bağlantılarını.
   const SiteSwitcher = ({ onNavigate }) => {
-    if (sites.length < 2 || !activeSite) return null;
+    if (sites.length < 2) return null;
     return (
       <div className="border-4 border-ink bg-white shadow-brutalist p-3 mb-2">
         <p className="text-[9px] font-black uppercase tracking-[0.18em] opacity-50 mb-2">
@@ -46,6 +45,29 @@ export default function PortalShell({
               </a>
             );
           })}
+        </div>
+      </div>
+    );
+  };
+
+  // Sitenin kendi panelleri. Bir ekran portala taşınana kadar buradan tek
+  // tıkla gidiliyor — geçiş dönemi köprüsü, taşındıkça bu liste kısalır.
+  const ExternePanels = () => {
+    const links = aktuelleSite?.links ?? [];
+    if (links.length === 0) return null;
+    return (
+      <div className="border-4 border-ink bg-white shadow-brutalist p-3 mb-2">
+        <p className="text-[9px] font-black uppercase tracking-[0.18em] opacity-50 mb-2">
+          {aktuelleSite.name} — eigenes Panel
+        </p>
+        <div className="flex flex-col gap-1.5">
+          {links.map((l) => (
+            <a key={l.url} href={l.url} target="_blank" rel="noreferrer"
+              className="flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest border-2 border-ink bg-white hover:bg-sun transition-colors">
+              <ExternalLink size={12} className="shrink-0" />
+              {l.label}
+            </a>
+          ))}
         </div>
       </div>
     );
@@ -81,13 +103,6 @@ export default function PortalShell({
             Portal
           </span>
 
-          {aktuelleSite?.admin_url && (
-            <a href={aktuelleSite.admin_url} target="_blank" rel="noreferrer"
-              title="Eigenes Panel dieser Seite (noch nicht übernommen)"
-              className="hidden lg:flex items-center gap-1.5 border-2 border-ink px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-sun">
-              <ExternalLink size={12} />Altes Panel
-            </a>
-          )}
 
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end leading-tight">
@@ -111,6 +126,7 @@ export default function PortalShell({
           <nav className="md:hidden border-t-2 border-ink p-4 flex flex-col gap-2 bg-paper">
             <SiteSwitcher onNavigate={() => setOpen(false)} />
             <NavLinks onNavigate={() => setOpen(false)} />
+            <ExternePanels />
           </nav>
         )}
       </header>
@@ -119,6 +135,7 @@ export default function PortalShell({
         <aside className="hidden md:flex flex-col gap-2 w-56 shrink-0 p-4 border-r-4 border-ink min-h-[calc(100vh-4rem)]">
           <SiteSwitcher />
           <NavLinks />
+          <ExternePanels />
         </aside>
 
         <main className="flex-1 min-w-0 p-4 md:p-8">
