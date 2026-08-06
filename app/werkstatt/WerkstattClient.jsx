@@ -6,7 +6,7 @@ import { RefreshCw, Printer, Download } from 'lucide-react';
 
 // Atölye ekranı. Aynı parasız görünümden okuyor; satır süzgeci veritabanında,
 // bu yüzden başka atölyenin işini istese de çekemez.
-export default function WerkstattClient({ profile }) {
+export default function WerkstattClient({ profile, sites = [] }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,14 +50,18 @@ export default function WerkstattClient({ profile }) {
         </p>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
-          {orders.map((o) => <JobCard key={o.id} order={o} />)}
+          {orders.map((o) => (
+            <JobCard key={o.id} order={o}
+              siteName={sites.find((s) => s.id === o.site_id)?.name}
+              mehrereSites={sites.length > 1} />
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-function JobCard({ order }) {
+function JobCard({ order, siteName, mehrereSites }) {
   const status = ORDER_STATUS[order.status] ?? ORDER_STATUS.neu;
   const items = Array.isArray(order.items) ? order.items : [];
 
@@ -65,6 +69,9 @@ function JobCard({ order }) {
     <article className="border-4 border-ink bg-white shadow-brutalist break-inside-avoid">
       <header className="flex flex-wrap items-center gap-3 p-4 border-b-2 border-ink">
         <span className="font-black text-xl tabular-nums">#{order.order_no}</span>
+        {mehrereSites && siteName && (
+          <span className="text-[9px] font-black uppercase px-2 py-1 bg-ink text-white">{siteName}</span>
+        )}
         <span className={`text-[9px] font-black uppercase px-2 py-1 ${status.cls}`}>{status.label}</span>
         <span className="ml-auto text-[11px] opacity-50 tabular-nums">
           {new Date(order.created_at).toLocaleDateString('de-DE')}

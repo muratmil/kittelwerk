@@ -1,13 +1,14 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { ORDER_STATUS, SOURCE_LABELS } from '@/lib/portal';
+import { ORDER_STATUS, SOURCE_LABELS, KIND_LABELS } from '@/lib/portal';
 import { RefreshCw, ChevronDown, ChevronUp, Send, Inbox, Factory } from 'lucide-react';
 
 // Vertrieb'in ekranı. Bilerek `orders_produktion` görünümünden okuyor —
 // `orders` tablosuna erişimi yok, dolayısıyla fiyatlar buraya hiç gelmiyor.
 // Görünümde para sütunu bulunmadığı için ekranda "gizlenecek" bir şey de yok.
 export default function BestellungClient({ profile, sites = [] }) {
+  const [siteFilter, setSiteFilter] = useState('');
   const [orders, setOrders] = useState([]);
   const [werkstaetten, setWerkstaetten] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,8 +49,10 @@ export default function BestellungClient({ profile, sites = [] }) {
     setBusyId(null);
   };
 
-  const offen = orders.filter((o) => !o.werkstatt_id);
-  const zugewiesen = orders.filter((o) => o.werkstatt_id);
+  const siteName = (id) => sites.find((s) => s.id === id)?.name ?? id;
+  const sichtbar = siteFilter ? orders.filter((o) => o.site_id === siteFilter) : orders;
+  const offen = sichtbar.filter((o) => !o.werkstatt_id);
+  const zugewiesen = sichtbar.filter((o) => o.werkstatt_id);
 
   return (
     <div className="space-y-8">
@@ -59,6 +62,13 @@ export default function BestellungClient({ profile, sites = [] }) {
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
           Aktualisieren
         </button>
+        {sites.length > 1 && (
+          <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)}
+            className="border-2 border-ink p-2 text-[11px] font-black uppercase tracking-widest bg-white focus:bg-sun outline-none">
+            <option value="">Alle Seiten</option>
+            {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+        )}
         <span className="text-[11px] font-bold uppercase tracking-widest opacity-50">
           {offen.length} offen · {zugewiesen.length} zugewiesen
         </span>
@@ -76,7 +86,7 @@ export default function BestellungClient({ profile, sites = [] }) {
         orders={offen}
         openId={openId} setOpenId={setOpenId}
         werkstaetten={werkstaetten} onAssign={assign} busyId={busyId}
-        loading={loading}
+        loading={loading} siteName={siteName} mehrereSites={sites.length > 1}
       />
 
       <Section
@@ -86,13 +96,13 @@ export default function BestellungClient({ profile, sites = [] }) {
         orders={zugewiesen}
         openId={openId} setOpenId={setOpenId}
         werkstaetten={werkstaetten} onAssign={assign} busyId={busyId}
-        loading={loading}
+        loading={loading} siteName={siteName} mehrereSites={sites.length > 1}
       />
     </div>
   );
 }
 
-function Section({ icon, title, hint, empty, orders, openId, setOpenId, werkstaetten, onAssign, busyId, loading }) {
+function Section({ icon, title, hint, empty, orders, openId, setOpenId, werkstaetten, onAssign, busyId, loading, siteName, mehrereSites }) {
   return (
     <section>
       <div className="flex items-baseline gap-3 mb-3">
@@ -115,6 +125,7 @@ function Section({ icon, title, hint, empty, orders, openId, setOpenId, werkstae
               onToggle={() => setOpenId(openId === o.id ? null : o.id)}
               werkstaetten={werkstaetten}
               onAssign={onAssign}
+              siteName={siteName} mehrereSites={mehrereSites}
               busy={busyId === o.id} />
           ))}
         </div>
@@ -123,7 +134,7 @@ function Section({ icon, title, hint, empty, orders, openId, setOpenId, werkstae
   );
 }
 
-function OrderRow({ order, open, onToggle, werkstaetten, onAssign, busy }) {
+function OrderRow({ order, open, onToggle, werkstaetten, onAssign, busy, siteName, mehrereSites }) {
   const [target, setTarget] = useState(order.werkstatt_id ?? '');
   const status = ORDER_STATUS[order.status] ?? ORDER_STATUS.neu;
   const items = Array.isArray(order.items) ? order.items : [];
@@ -135,6 +146,16 @@ function OrderRow({ order, open, onToggle, werkstaetten, onAssign, busy }) {
       <button onClick={onToggle} aria-expanded={open}
         className="w-full flex flex-wrap items-center gap-x-4 gap-y-2 p-4 text-left hover:bg-sun/30 transition-colors">
         <span className="font-black text-lg tabular-nums">#{order.order_no}</span>
+        {mehrereSites && (
+          <span className="text-[9px] font-black uppercase px-2 py-1 bg-ink text-white">
+            {siteName(order.site_id)}
+          </span>
+        )}
+        {order.kind === 'angebot' && (
+          <span className="text-[9px] font-black uppercase px-2 py-1 border-2 border-sun bg-sun/30">
+            {KIND_LABELS.angebot}
+          </span>
+        )}
         <span className="font-bold text-sm">{order.company || order.name}</span>
         <span className={`text-[9px] font-black uppercase px-2 py-1 ${status.cls}`}>{status.label}</span>
         <span className="text-[10px] font-black uppercase tracking-widest border-2 border-ink px-2 py-0.5">

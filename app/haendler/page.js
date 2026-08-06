@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { getProfile } from '@/lib/session';
 import { loadCatalog } from '@/lib/catalog';
+import { loadSites, visibleSites, pickSite } from '@/lib/sites';
 import PortalShell from '@/components/portal/PortalShell';
 import HaendlerClient from './HaendlerClient';
 
@@ -10,11 +11,14 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function HaendlerPage() {
+export default async function HaendlerPage({ searchParams }) {
   const profile = await getProfile();
   if (!profile) redirect('/login');
 
   const supabase = await createClient();
+  const sp = await searchParams;
+  const alleSites = visibleSites(await loadSites(supabase), profile);
+  const siteId = pickSite(alleSites, profile, sp?.site);
 
   // Bayi kaydı — RLS yalnızca kendi satırını veriyor.
   const { data: haendler } = profile.role === 'haendler'
@@ -24,7 +28,7 @@ export default async function HaendlerPage() {
     : { data: null };
 
   // Fiyatlar bayinin koşullarıyla hesaplanıyor; admin/owner liste fiyatını görür.
-  const { products } = await loadCatalog(supabase, { haendler, siteId: 'kittelwerk' });
+  const { products } = await loadCatalog(supabase, { haendler, siteId });
 
   const bestellbar = products
     .filter((p) => !p.comingSoon && p.tiers?.length)
@@ -37,7 +41,8 @@ export default async function HaendlerPage() {
     }));
 
   return (
-    <PortalShell profile={profile} current="/haendler" title="Händler">
+    <PortalShell profile={profile} current="/haendler" title="Händler"
+      sites={alleSites} activeSite={siteId}>
       <HaendlerClient profile={profile} haendler={haendler} products={bestellbar} />
     </PortalShell>
   );

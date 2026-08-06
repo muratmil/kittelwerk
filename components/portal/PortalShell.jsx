@@ -22,6 +22,35 @@ export default function PortalShell({
     router.refresh();
   };
 
+  // Site seçici — yalnızca site bağlamı olan ekranlarda anlamlı.
+  // /bestellung ve /werkstatt zaten bütün sitelerin işini bir arada gösteriyor,
+  // orada seçici değil süzgeç var (satırlarda site rozeti ile).
+  const SiteSwitcher = ({ onNavigate }) => {
+    if (sites.length < 2 || !activeSite) return null;
+    return (
+      <div className="border-4 border-ink bg-white shadow-brutalist p-3 mb-2">
+        <p className="text-[9px] font-black uppercase tracking-[0.18em] opacity-50 mb-2">
+          Seite
+        </p>
+        <div className="flex flex-col gap-1.5">
+          {sites.map((s) => {
+            const aktiv = s.id === activeSite;
+            return (
+              <a key={s.id} href={`${current}?site=${s.id}`} onClick={onNavigate}
+                aria-current={aktiv ? 'true' : undefined}
+                className={`flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest border-2 border-ink transition-colors
+                  ${aktiv ? 'bg-sun' : 'bg-white hover:bg-sun/40'}`}>
+                <span aria-hidden="true"
+                  className={`w-2.5 h-2.5 border-2 border-ink shrink-0 ${aktiv ? 'bg-ink' : 'bg-white'}`} />
+                {s.name}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const NavLinks = ({ onNavigate }) => (
     <>
       {areas.map((a) => {
@@ -52,23 +81,6 @@ export default function PortalShell({
             Portal
           </span>
 
-          {/* Site değiştirici — tek admin, birden çok site */}
-          {sites.length > 1 && (
-            <div className="flex items-center gap-1 border-2 border-ink">
-              {sites.map((s) => {
-                const aktiv = s.id === activeSite;
-                return (
-                  <a key={s.id} href={`${current}?site=${s.id}`}
-                    aria-current={aktiv ? 'true' : undefined}
-                    className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-colors
-                      ${aktiv ? 'bg-ink text-white' : 'hover:bg-sun'}`}>
-                    {s.name}
-                  </a>
-                );
-              })}
-            </div>
-          )}
-
           {aktuelleSite?.admin_url && (
             <a href={aktuelleSite.admin_url} target="_blank" rel="noreferrer"
               title="Eigenes Panel dieser Seite (noch nicht übernommen)"
@@ -97,6 +109,7 @@ export default function PortalShell({
 
         {open && (
           <nav className="md:hidden border-t-2 border-ink p-4 flex flex-col gap-2 bg-paper">
+            <SiteSwitcher onNavigate={() => setOpen(false)} />
             <NavLinks onNavigate={() => setOpen(false)} />
           </nav>
         )}
@@ -104,6 +117,7 @@ export default function PortalShell({
 
       <div className="flex">
         <aside className="hidden md:flex flex-col gap-2 w-56 shrink-0 p-4 border-r-4 border-ink min-h-[calc(100vh-4rem)]">
+          <SiteSwitcher />
           <NavLinks />
         </aside>
 
