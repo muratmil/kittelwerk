@@ -92,20 +92,20 @@ export default function AdminClient({ profile, catalog, sites = [], activeSite =
           const active = tab === t.key;
           return (
             <button key={t.key} onClick={() => setTab(t.key)}
-              className={`border-2 border-ink px-4 py-2 text-[11px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors
-                ${active ? 'bg-ink text-white' : 'bg-white hover:bg-sun'}`}>
+              className={`border border-cch-line px-4 py-2 text-[11px] font-medium uppercase tracking-[0.14em] flex items-center gap-2 transition-colors
+                ${active ? 'bg-cch-mint text-white' : 'bg-white hover:bg-cch-ash'}`}>
               <Icon size={13} />{t.label}
             </button>
           );
         })}
         <button onClick={load} disabled={loading}
-          className="ml-auto border-2 border-ink px-4 py-2 text-[11px] font-black uppercase tracking-widest bg-white hover:bg-sun flex items-center gap-2 disabled:opacity-50">
+          className="ml-auto border border-cch-line px-4 py-2 text-[11px] font-medium uppercase tracking-[0.14em] bg-white hover:bg-cch-ash flex items-center gap-2 disabled:opacity-50">
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />Aktualisieren
         </button>
       </nav>
 
       {error && (
-        <p className="border-4 border-tomato bg-tomato/10 text-tomato p-4 text-sm font-bold flex items-start gap-2">
+        <p className="border-4 border-tomato bg-cch-danger/10 text-cch-danger p-4 text-sm font-bold flex items-start gap-2">
           <ShieldAlert size={16} className="shrink-0 mt-0.5" />{error}
         </p>
       )}
@@ -138,7 +138,7 @@ export default function AdminClient({ profile, catalog, sites = [], activeSite =
       )}
 
       {aktuelleSite && !aktuelleSite.manages_pricing && (
-        <p className="border-2 border-ink bg-white p-4 text-sm">
+        <p className="border border-cch-line bg-white p-4 text-sm">
           <strong>{aktuelleSite.name}</strong> wird hier nur <strong>angezeigt</strong> —
           Angebote und Bestellungen laufen im Portal zusammen, die Preise bleiben
           im eigenen Panel (siehe linke Spalte).
@@ -183,26 +183,26 @@ function SecretBox({ secret, onClose }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <div className="border-4 border-sun bg-sun/20 p-5 shadow-brutalist">
+    <div className="rounded-sm border-l-2 border-cch-mint bg-cch-soft/40 p-5 shadow-cch">
       <div className="flex items-start gap-3">
         <KeyRound size={18} className="shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
-          <h2 className="font-black text-sm uppercase tracking-widest">Passwort für {secret.email}</h2>
+          <h2 className="font-medium text-sm uppercase tracking-[0.14em]">Passwort für {secret.email}</h2>
           <p className="text-[11px] opacity-70 mt-1 mb-3 leading-relaxed">
             Dieses Passwort wird <strong>nur jetzt</strong> angezeigt. Es ist nirgendwo gespeichert
             und kann nicht erneut abgerufen werden — nur neu vergeben.
           </p>
           <div className="flex flex-wrap items-center gap-2">
-            <code className="bg-white border-2 border-ink px-3 py-2 font-mono text-base tracking-wider select-all break-all">
+            <code className="bg-white border border-cch-line px-3 py-2 font-mono text-base tracking-wider select-all break-all">
               {secret.password}
             </code>
             <button onClick={copy}
-              className="border-2 border-ink px-3 py-2 text-[11px] font-black uppercase tracking-widest bg-white hover:bg-sun flex items-center gap-2">
+              className="border border-cch-line px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] bg-white hover:bg-cch-ash flex items-center gap-2">
               {copied ? <Check size={13} /> : <Copy size={13} />}{copied ? 'Kopiert' : 'Kopieren'}
             </button>
           </div>
         </div>
-        <button onClick={onClose} aria-label="Schließen" className="border-2 border-ink p-1.5 hover:bg-tomato hover:text-white">
+        <button onClick={onClose} aria-label="Schließen" className="border border-cch-line p-1.5 hover:bg-cch-danger hover:text-white">
           <X size={14} />
         </button>
       </div>
@@ -220,15 +220,15 @@ function BenutzerTab({ profile, users, shops, loading, onCreate, onDelete, onPer
       <div className="flex flex-wrap items-center gap-3">
         {roles.length > 0 ? (
           <button onClick={() => setShowForm((v) => !v)}
-            className="bg-ink text-white px-4 py-2 text-[11px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-tomato shadow-brutalist">
+            className="bg-cch-mint text-white px-4 py-2 text-[11px] font-medium uppercase tracking-[0.14em] flex items-center gap-2 hover:bg-tomato shadow-cch">
             <UserPlus size={13} />{showForm ? 'Abbrechen' : 'Benutzer anlegen'}
           </button>
         ) : (
-          <p className="text-[11px] opacity-50 uppercase tracking-widest font-bold">
+          <p className="text-[11px] opacity-50 uppercase tracking-[0.14em] font-bold">
             Sie dürfen keine Konten anlegen.
           </p>
         )}
-        <span className="text-[11px] font-bold uppercase tracking-widest opacity-50">
+        <span className="text-[11px] font-bold uppercase tracking-[0.14em] opacity-50">
           {users.length} Konten
         </span>
       </div>
@@ -275,31 +275,31 @@ function CreateUserForm({ profile, roles, shops, onCancel, onSubmit }) {
   };
 
   return (
-    <form onSubmit={submit} className="border-4 border-ink bg-white shadow-brutalist p-5 space-y-4">
-      <h2 className="font-black text-sm uppercase tracking-widest border-b-2 border-ink pb-2">
+    <form onSubmit={submit} className="bg-white rounded-sm shadow-cch p-5 space-y-4">
+      <h2 className="font-medium text-sm uppercase tracking-[0.14em] border-b border-cch-line pb-2">
         Neues Konto
       </h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
-          <span className="text-[10px] font-black uppercase tracking-widest">E-Mail</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.14em]">E-Mail</span>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-            className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+            className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[10px] font-black uppercase tracking-widest">Rolle</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Rolle</span>
           <select value={role} onChange={(e) => setRole(e.target.value)}
-            className="border-2 border-ink p-2.5 text-sm bg-white focus:bg-sun outline-none">
+            className="border border-cch-line p-2.5 text-sm bg-white focus:border-cch-mint outline-none">
             {roles.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
           </select>
         </label>
 
         {role === 'werkstatt' && (
           <label className="flex flex-col gap-1">
-            <span className="text-[10px] font-black uppercase tracking-widest">Werkstatt</span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Werkstatt</span>
             <select value={werkstattId} onChange={(e) => setWerkstattId(e.target.value)} required
-              className="border-2 border-ink p-2.5 text-sm bg-white focus:bg-sun outline-none">
+              className="border border-cch-line p-2.5 text-sm bg-white focus:border-cch-mint outline-none">
               <option value="">— wählen —</option>
               {shops.filter((s) => s.active).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
@@ -308,16 +308,16 @@ function CreateUserForm({ profile, roles, shops, onCancel, onSubmit }) {
 
         {(role === 'haendler' || role === 'admin') && (
           <label className="flex flex-col gap-1">
-            <span className="text-[10px] font-black uppercase tracking-widest">Firma (optional)</span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Firma (optional)</span>
             <input type="text" value={company} onChange={(e) => setCompany(e.target.value)}
-              className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+              className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
           </label>
         )}
       </div>
 
       {role === 'admin' && (
-        <fieldset className="border-2 border-ink p-4">
-          <legend className="text-[10px] font-black uppercase tracking-widest px-2">Berechtigungen</legend>
+        <fieldset className="border border-cch-line p-4">
+          <legend className="text-[10px] font-medium uppercase tracking-[0.14em] px-2">Berechtigungen</legend>
           <p className="text-[11px] opacity-60 mb-3 leading-relaxed">
             Sie sehen nur die Kästchen, die Sie selbst besitzen — niemand kann eine
             Berechtigung weitergeben, die er nicht hat.
@@ -338,11 +338,11 @@ function CreateUserForm({ profile, roles, shops, onCancel, onSubmit }) {
 
       <div className="flex gap-2">
         <button type="submit" disabled={busy}
-          className="bg-ink text-white px-5 py-2.5 text-[11px] font-black uppercase tracking-widest hover:bg-tomato disabled:opacity-50">
+          className="bg-cch-mint text-white px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.14em] hover:bg-tomato disabled:opacity-50">
           {busy ? 'Wird angelegt…' : 'Anlegen'}
         </button>
         <button type="button" onClick={onCancel}
-          className="border-2 border-ink px-5 py-2.5 text-[11px] font-black uppercase tracking-widest hover:bg-sun">
+          className="border border-cch-line px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash">
           Abbrechen
         </button>
       </div>
@@ -362,31 +362,31 @@ function UserRow({ user, actor, shops, onDelete, onPermissions, onReset }) {
   const grantable = grantablePermissions(actor);
 
   return (
-    <article className="border-4 border-ink bg-white shadow-brutalist p-4">
+    <article className="bg-white rounded-sm shadow-cch p-4">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="font-bold text-sm break-all">{user.email}</span>
 
-        <span className={`text-[9px] font-black uppercase px-2 py-1 border-2 border-ink
-          ${user.is_owner ? 'bg-ink text-white' : 'bg-white'}`}>
+        <span className={`text-[9px] font-medium uppercase px-2 py-1 border border-cch-line
+          ${user.is_owner ? 'bg-cch-mint text-white' : 'bg-white'}`}>
           {user.is_owner ? 'Inhaber' : ROLE_LABELS[user.role] ?? user.role}
         </span>
 
-        {shop && <span className="text-[11px] font-bold text-olive">{shop.name}</span>}
+        {shop && <span className="text-[11px] font-bold text-cch-dark">{shop.name}</span>}
         {user.company && <span className="text-[11px] opacity-60">{user.company}</span>}
         {user.id === actor.id && (
-          <span className="text-[9px] font-black uppercase tracking-widest text-tomato">Sie</span>
+          <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-cch-danger">Sie</span>
         )}
 
         <div className="ml-auto flex flex-wrap gap-2">
           {mayEdit && (
             <button onClick={() => setEditing((v) => !v)}
-              className="border-2 border-ink px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-sun">
+              className="border border-cch-line px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash">
               Rechte
             </button>
           )}
           {mayReset && (
             <button onClick={() => onReset(user)}
-              className="border-2 border-ink px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-sun flex items-center gap-1.5">
+              className="border border-cch-line px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash flex items-center gap-1.5">
               <KeyRound size={12} />Passwort
             </button>
           )}
@@ -394,15 +394,15 @@ function UserRow({ user, actor, shops, onDelete, onPermissions, onReset }) {
             confirming ? (
               <span className="flex items-center gap-1.5">
                 <button onClick={() => { setConfirming(false); onDelete(user.id); }}
-                  className="bg-tomato text-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest">
+                  className="bg-tomato text-white px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em]">
                   Wirklich löschen
                 </button>
                 <button onClick={() => setConfirming(false)}
-                  className="border-2 border-ink px-2 py-1.5"><X size={12} /></button>
+                  className="border border-cch-line px-2 py-1.5"><X size={12} /></button>
               </span>
             ) : (
               <button onClick={() => setConfirming(true)}
-                className="border-2 border-tomato text-tomato px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-tomato hover:text-white flex items-center gap-1.5">
+                className="border-2 border-tomato text-cch-danger px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] hover:bg-cch-danger hover:text-white flex items-center gap-1.5">
                 <Trash2 size={12} />Löschen
               </button>
             )
@@ -423,7 +423,7 @@ function UserRow({ user, actor, shops, onDelete, onPermissions, onReset }) {
       )}
 
       {editing && (
-        <div className="border-t-2 border-ink mt-3 pt-3 space-y-3">
+        <div className="border-t border-cch-line mt-3 pt-3 space-y-3">
           <div className="grid sm:grid-cols-2 gap-2">
             {PERMISSIONS.filter((p) => grantable.includes(p.key)).map((p) => (
               <label key={p.key} className="flex items-center gap-2 text-[12px] cursor-pointer">
@@ -437,11 +437,11 @@ function UserRow({ user, actor, shops, onDelete, onPermissions, onReset }) {
           </div>
           <div className="flex gap-2">
             <button onClick={async () => { await onPermissions(user.id, perms); setEditing(false); }}
-              className="bg-ink text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-tomato">
+              className="bg-cch-mint text-white px-4 py-2 text-[10px] font-medium uppercase tracking-[0.14em] hover:bg-tomato">
               Speichern
             </button>
             <button onClick={() => { setPerms(user.permissions ?? []); setEditing(false); }}
-              className="border-2 border-ink px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-sun">
+              className="border border-cch-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash">
               Abbrechen
             </button>
           </div>
@@ -471,29 +471,29 @@ function WerkstattTab({ profile, shops, loading, onCreate, onToggle }) {
   return (
     <div className="space-y-5">
       {mayManage && (
-        <form onSubmit={submit} className="border-4 border-ink bg-white shadow-brutalist p-5 space-y-4">
-          <h2 className="font-black text-sm uppercase tracking-widest border-b-2 border-ink pb-2">
+        <form onSubmit={submit} className="bg-white rounded-sm shadow-cch p-5 space-y-4">
+          <h2 className="font-medium text-sm uppercase tracking-[0.14em] border-b border-cch-line pb-2">
             Neue Werkstatt
           </h2>
           <div className="grid gap-4 sm:grid-cols-3">
             <label className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest">Name</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Name</span>
               <input value={name} onChange={(e) => setName(e.target.value)} required
-                className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+                className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest">Ansprechpartner</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Ansprechpartner</span>
               <input value={contact} onChange={(e) => setContact(e.target.value)}
-                className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+                className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest">E-Mail</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">E-Mail</span>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+                className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
             </label>
           </div>
           <button type="submit" disabled={busy}
-            className="bg-ink text-white px-5 py-2.5 text-[11px] font-black uppercase tracking-widest hover:bg-tomato disabled:opacity-50">
+            className="bg-cch-mint text-white px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.14em] hover:bg-tomato disabled:opacity-50">
             {busy ? 'Wird angelegt…' : 'Anlegen'}
           </button>
         </form>
@@ -504,17 +504,17 @@ function WerkstattTab({ profile, shops, loading, onCreate, onToggle }) {
       ) : (
         <div className="flex flex-col gap-3">
           {shops.map((s) => (
-            <article key={s.id} className="border-4 border-ink bg-white shadow-brutalist p-4 flex flex-wrap items-center gap-3">
+            <article key={s.id} className="bg-white rounded-sm shadow-cch p-4 flex flex-wrap items-center gap-3">
               <span className="font-bold text-sm">{s.name}</span>
               {s.contact_name && <span className="text-[11px] opacity-60">{s.contact_name}</span>}
               {s.email && <span className="text-[11px] opacity-60">{s.email}</span>}
-              <span className={`text-[9px] font-black uppercase px-2 py-1 border-2
-                ${s.active ? 'border-olive text-olive bg-olive/10' : 'border-ink/30 text-ink/40'}`}>
+              <span className={`text-[9px] font-medium uppercase px-2 py-1 border-2
+                ${s.active ? 'border-cch-mint text-cch-dark bg-cch-soft' : 'border-cch-line text-cch-muted'}`}>
                 {s.active ? 'Aktiv' : 'Inaktiv'}
               </span>
               {mayManage && (
                 <button onClick={() => onToggle(s.id, !s.active)}
-                  className="ml-auto border-2 border-ink px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-sun">
+                  className="ml-auto border border-cch-line px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash">
                   {s.active ? 'Deaktivieren' : 'Aktivieren'}
                 </button>
               )}

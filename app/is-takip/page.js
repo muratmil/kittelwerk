@@ -51,8 +51,8 @@ export default async function IsTakipPage({ searchParams }) {
 function Sekme({ aktif, href, children }) {
   return (
     <Link href={href}
-      className={`border-2 border-ink px-4 py-2 text-[11px] font-black uppercase tracking-widest
-        ${aktif ? 'bg-ink text-white' : 'bg-white hover:bg-sun'}`}>
+      className={`px-4 py-2 rounded-sm text-[11px] font-medium uppercase tracking-[0.16em] transition-colors
+        ${aktif ? 'bg-cch-mint text-white' : 'bg-white text-cch-muted hover:text-cch-slate'}`}>
       {children}
     </Link>
   );
@@ -61,7 +61,7 @@ function Sekme({ aktif, href, children }) {
 function MusteriListesi({ musteriler }) {
   if (musteriler.length === 0) {
     return (
-      <p className="border-2 border-dashed border-ink/30 p-6 text-sm opacity-50">
+      <p className="bg-white rounded-sm border border-dashed border-cch-line p-8 text-sm text-cch-muted text-center">
         Henüz müşteri yok. Sesle kayıt açtığında burada görünecek.
       </p>
     );
@@ -74,26 +74,26 @@ function MusteriListesi({ musteriler }) {
     <div className="flex flex-col gap-3">
       {sirali.map((m) => (
         <Link key={m.id} href={`/is-takip/${m.id}`}
-          className="border-4 border-ink bg-white shadow-brutalist p-4 hover:bg-sun/20 block">
+          className="bg-white rounded-sm shadow-cch p-4 block border-l-2 border-transparent hover:border-cch-mint hover:shadow-cch-lg transition-all">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="font-black uppercase tracking-wide">{m.ad}</span>
-            {m.telefon && <span className="text-[11px] opacity-50">{m.telefon}</span>}
+            <span className="font-medium tracking-[0.06em]">{m.ad}</span>
+            {m.telefon && <span className="text-[11px] text-cch-muted">{m.telefon}</span>}
             <span className="ml-auto flex flex-wrap gap-x-4 gap-y-1 justify-end">
               {m.bakiye.length === 0
-                ? <span className="text-[11px] opacity-40 uppercase tracking-widest">hareket yok</span>
+                ? <span className="text-[11px] text-cch-muted uppercase tracking-[0.14em]">hareket yok</span>
                 : m.bakiye.map((b) => (
                     <span key={b.para_birimi} className="text-right">
-                      <span className={`font-black ${Number(b.kalan) > 0 ? 'text-tomato' : 'opacity-40'}`}>
+                      <span className={`font-medium ${Number(b.kalan) > 0 ? 'text-cch-danger' : 'text-cch-muted'}`}>
                         {para(b.kalan, b.para_birimi)}
                       </span>
-                      <span className="block text-[10px] opacity-50 uppercase tracking-widest">
+                      <span className="block text-[10px] text-cch-muted uppercase tracking-[0.14em]">
                         {para(b.borc, b.para_birimi)} iş · {para(b.tahsilat, b.para_birimi)} tahsil
                       </span>
                     </span>
                   ))}
             </span>
           </div>
-          {m.notlar && <p className="text-[11px] opacity-60 mt-2">{m.notlar}</p>}
+          {m.notlar && <p className="text-[11px] text-cch-muted mt-2">{m.notlar}</p>}
         </Link>
       ))}
     </div>
@@ -103,7 +103,7 @@ function MusteriListesi({ musteriler }) {
 function VadeListesi({ isler }) {
   if (isler.length === 0) {
     return (
-      <p className="border-2 border-dashed border-ink/30 p-6 text-sm opacity-50">
+      <p className="bg-white rounded-sm border border-dashed border-cch-line p-8 text-sm text-cch-muted text-center">
         Vadesi girilmiş açık iş yok.
       </p>
     );
@@ -115,16 +115,16 @@ function VadeListesi({ isler }) {
         const gecikmis = gun !== null && gun < 0;
         return (
           <Link key={i.id} href={`/is-takip/${i.musteri_id}`}
-            className={`border-4 border-ink shadow-brutalist p-4 block hover:bg-sun/20
-              ${gecikmis ? 'bg-tomato/10' : 'bg-white'}`}>
+            className={`rounded-sm shadow-cch p-4 block border-l-2 transition-all hover:shadow-cch-lg
+              ${gecikmis ? 'bg-white border-cch-danger' : 'bg-white border-transparent hover:border-cch-mint'}`}>
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-black uppercase tracking-wide">{i.musteri}</span>
-              <span className="text-[11px] opacity-60">{i.baslik}</span>
-              <span className="ml-auto font-black">{para(i.kalan, i.para_birimi)}</span>
+              <span className="font-medium tracking-[0.06em]">{i.musteri}</span>
+              <span className="text-[11px] text-cch-muted">{i.baslik}</span>
+              <span className="ml-auto font-medium">{para(i.kalan, i.para_birimi)}</span>
             </div>
-            <p className="text-[11px] opacity-60 mt-1">{i.kalem_ozeti}</p>
-            <p className={`text-[11px] mt-1 font-black uppercase tracking-widest
-              ${gecikmis ? 'text-tomato' : 'opacity-60'}`}>
+            <p className="text-[11px] text-cch-muted mt-1">{i.kalem_ozeti}</p>
+            <p className={`text-[11px] mt-1 font-medium uppercase tracking-[0.14em]
+              ${gecikmis ? 'text-cch-danger' : 'text-cch-muted'}`}>
               {tarih(i.vade)}
               {gun !== null && (gecikmis ? ` · ${Math.abs(gun)} gün gecikti` : ` · ${gun} gün kaldı`)}
             </p>

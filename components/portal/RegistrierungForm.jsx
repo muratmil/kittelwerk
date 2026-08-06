@@ -7,12 +7,12 @@ import { UserPlus, CheckCircle } from 'lucide-react';
 function Field({ id, label, value, onChange, type = 'text', required, autoComplete, hint }) {
   return (
     <label htmlFor={id} className="flex flex-col gap-1">
-      <span className="text-[10px] font-black uppercase tracking-widest">
-        {label}{required && <span className="text-tomato"> *</span>}
+      <span className="text-[10px] font-medium uppercase tracking-[0.14em]">
+        {label}{required && <span className="text-cch-danger"> *</span>}
       </span>
       <input id={id} name={id} type={type} required={required} autoComplete={autoComplete}
         value={value} onChange={onChange}
-        className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+        className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
       {hint && <span className="text-[10px] opacity-50">{hint}</span>}
     </label>
   );
@@ -48,14 +48,14 @@ export default function RegistrierungForm({ art }) {
 
   if (done) {
     return (
-      <div className="border-4 border-olive bg-olive/10 p-8 shadow-brutalist text-center space-y-3">
-        <CheckCircle size={32} className="mx-auto text-olive" />
-        <h2 className="font-black text-lg uppercase">Vielen Dank!</h2>
+      <div className="rounded-sm border-t-2 border-cch-mint bg-white p-8 shadow-cch text-center space-y-3">
+        <CheckCircle size={32} className="mx-auto text-cch-dark" />
+        <h2 className="font-medium text-lg uppercase">Vielen Dank!</h2>
         <p className="text-sm leading-relaxed max-w-sm mx-auto">
           Ihr Konto wurde angelegt und wartet auf Freigabe. Sobald wir es geprüft haben,
           können Sie sich anmelden — wir melden uns per E-Mail.
         </p>
-        <a href="/login" className="inline-block border-2 border-ink px-5 py-2.5 text-[11px] font-black uppercase tracking-widest hover:bg-sun">
+        <a href="/login" className="inline-block border border-cch-line px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash">
           Zur Anmeldung
         </a>
       </div>
@@ -67,9 +67,9 @@ export default function RegistrierungForm({ art }) {
   );
 
   return (
-    <form onSubmit={submit} className="border-4 border-ink bg-white shadow-brutalist p-6 md:p-8 space-y-5">
-      <div className="border-b-2 border-ink pb-3">
-        <h1 className="font-black text-xl uppercase">
+    <form onSubmit={submit} className="bg-white rounded-sm shadow-cch p-6 md:p-8 space-y-5">
+      <div className="border-b border-cch-line pb-3">
+        <h1 className="font-medium text-xl uppercase">
           {istWerkstatt ? 'Werkstatt registrieren' : 'Händler werden'}
         </h1>
         <p className="text-[11px] opacity-60 mt-1 leading-relaxed">
@@ -88,8 +88,8 @@ export default function RegistrierungForm({ art }) {
       </div>
 
       {!istWerkstatt && (
-        <fieldset className="border-2 border-ink p-4 grid gap-4 sm:grid-cols-2">
-          <legend className="text-[10px] font-black uppercase tracking-widest px-2">Firmendaten</legend>
+        <fieldset className="border border-cch-line p-4 grid gap-4 sm:grid-cols-2">
+          <legend className="text-[10px] font-medium uppercase tracking-[0.14em] px-2">Firmendaten</legend>
           {field('street', 'Straße & Nr.', { autoComplete: 'street-address' })}
           <div className="grid grid-cols-3 gap-2">
             <div className="col-span-1">{field('plz', 'PLZ', { autoComplete: 'postal-code' })}</div>
@@ -100,16 +100,16 @@ export default function RegistrierungForm({ art }) {
         </fieldset>
       )}
 
-      {error && <p className="text-[12px] text-tomato font-bold">{error}</p>}
+      {error && <p className="text-[12px] text-cch-danger font-bold">{error}</p>}
 
       <button type="submit" disabled={busy}
-        className="w-full bg-ink text-white py-4 font-black uppercase flex items-center justify-center gap-3 hover:bg-tomato transition-all shadow-brutalist disabled:opacity-50">
+        className="w-full bg-cch-mint text-white py-4 font-medium uppercase flex items-center justify-center gap-3 hover:bg-cch-dark rounded-sm transition-colors disabled:opacity-50">
         <UserPlus size={16} />
         {busy ? 'Wird gesendet…' : 'Registrieren'}
       </button>
 
       <p className="text-[11px] text-center">
-        Schon ein Konto? <a href="/login" className="font-bold underline hover:text-tomato">Anmelden</a>
+        Schon ein Konto? <a href="/login" className="font-bold underline hover:text-cch-danger">Anmelden</a>
       </p>
     </form>
   );

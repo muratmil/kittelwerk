@@ -32,11 +32,14 @@ export function olcuYaz(o) {
   return [o.aciklama, ebat, o.adet > 1 ? `×${o.adet}` : null].filter(Boolean).join(' · ');
 }
 
+// Durumlar ilerledikçe renk koyulaşıyor: nötr → nane tonu → dolu nane → soluk.
+// Toplu eşleme sırasında "Teklif" ile "Tamamlandı" aynı renge düşmüştü,
+// ekranda ikisi ayırt edilemiyordu.
 export const IS_DURUM = {
-  teklif:     { label: 'Teklif',      cls: 'bg-sun text-ink' },
-  devam:      { label: 'Devam ediyor', cls: 'bg-blue-100 text-blue-800' },
-  tamamlandi: { label: 'Tamamlandı',  cls: 'bg-olive/20 text-olive' },
-  teslim:     { label: 'Teslim',      cls: 'bg-ink/10 text-ink/50' },
+  teklif:     { label: 'Teklif',       cls: 'bg-cch-ash text-cch-slate' },
+  devam:      { label: 'Devam ediyor', cls: 'bg-cch-soft text-cch-dark' },
+  tamamlandi: { label: 'Tamamlandı',   cls: 'bg-cch-mint text-white' },
+  teslim:     { label: 'Teslim',       cls: 'bg-cch-slate/10 text-cch-muted' },
 };
 
 export const KALEM_DURUM = {

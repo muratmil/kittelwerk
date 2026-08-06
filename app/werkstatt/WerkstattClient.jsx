@@ -28,16 +28,16 @@ export default function WerkstattClient({ profile, sites = [] }) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3 print:hidden">
         <button onClick={load} disabled={loading}
-          className="border-2 border-ink px-4 py-2 text-[11px] font-black uppercase tracking-widest bg-white hover:bg-sun flex items-center gap-2 disabled:opacity-50">
+          className="border border-cch-line px-4 py-2 text-[11px] font-medium uppercase tracking-[0.14em] bg-white hover:bg-cch-ash flex items-center gap-2 disabled:opacity-50">
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
           Aktualisieren
         </button>
         <button onClick={() => window.print()}
-          className="border-2 border-ink px-4 py-2 text-[11px] font-black uppercase tracking-widest bg-white hover:bg-sun flex items-center gap-2">
+          className="border border-cch-line px-4 py-2 text-[11px] font-medium uppercase tracking-[0.14em] bg-white hover:bg-cch-ash flex items-center gap-2">
           <Printer size={13} />
           Drucken
         </button>
-        <span className="text-[11px] font-bold uppercase tracking-widest opacity-50">
+        <span className="text-[11px] font-bold uppercase tracking-[0.14em] opacity-50">
           {orders.length} aktive Aufträge
         </span>
       </div>
@@ -45,7 +45,7 @@ export default function WerkstattClient({ profile, sites = [] }) {
       {loading && orders.length === 0 ? (
         <p className="text-sm opacity-50 py-6">Wird geladen…</p>
       ) : orders.length === 0 ? (
-        <p className="border-2 border-dashed border-ink/30 p-8 text-sm opacity-50">
+        <p className="border border-dashed border-cch-line p-8 text-sm opacity-50">
           Keine aktiven Aufträge. Neue Aufträge erscheinen hier, sobald sie zugewiesen werden.
         </p>
       ) : (
@@ -66,13 +66,13 @@ function JobCard({ order, siteName, mehrereSites }) {
   const items = Array.isArray(order.items) ? order.items : [];
 
   return (
-    <article className="border-4 border-ink bg-white shadow-brutalist break-inside-avoid">
-      <header className="flex flex-wrap items-center gap-3 p-4 border-b-2 border-ink">
-        <span className="font-black text-xl tabular-nums">#{order.order_no}</span>
+    <article className="bg-white rounded-sm shadow-cch break-inside-avoid">
+      <header className="flex flex-wrap items-center gap-3 p-4 border-b border-cch-line">
+        <span className="font-medium text-xl tabular-nums">#{order.order_no}</span>
         {mehrereSites && siteName && (
-          <span className="text-[9px] font-black uppercase px-2 py-1 bg-ink text-white">{siteName}</span>
+          <span className="text-[9px] font-medium uppercase px-2 py-1 bg-cch-mint text-white">{siteName}</span>
         )}
-        <span className={`text-[9px] font-black uppercase px-2 py-1 ${status.cls}`}>{status.label}</span>
+        <span className={`text-[9px] font-medium uppercase px-2 py-1 ${status.cls}`}>{status.label}</span>
         <span className="ml-auto text-[11px] opacity-50 tabular-nums">
           {new Date(order.created_at).toLocaleDateString('de-DE')}
         </span>
@@ -80,7 +80,7 @@ function JobCard({ order, siteName, mehrereSites }) {
 
       <div className="p-4 space-y-3">
         <div>
-          <h3 className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">Versand an</h3>
+          <h3 className="text-[10px] font-medium uppercase tracking-[0.14em] opacity-50 mb-1">Versand an</h3>
           <p className="text-sm leading-relaxed">
             {order.name}{order.company && <> · {order.company}</>}<br />
             {order.street}, {order.plz} {order.city}
@@ -88,11 +88,11 @@ function JobCard({ order, siteName, mehrereSites }) {
         </div>
 
         <div>
-          <h3 className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">Produktion</h3>
+          <h3 className="text-[10px] font-medium uppercase tracking-[0.14em] opacity-50 mb-1">Produktion</h3>
           <table className="w-full text-sm">
             <tbody>
               {items.map((it, i) => (
-                <tr key={i} className="border-b border-ink/10">
+                <tr key={i} className="border-b border-cch-line">
                   <td className="py-1 font-bold tabular-nums w-12">{it.qty}×</td>
                   <td className="py-1">
                     {it.product}
@@ -111,12 +111,12 @@ function JobCard({ order, siteName, mehrereSites }) {
         </div>
 
         {order.notes && (
-          <p className="text-sm border-l-4 border-sun pl-3">{order.notes}</p>
+          <p className="text-sm border-l-2 border-cch-mint pl-3">{order.notes}</p>
         )}
 
         {order.logo_url && (
           <a href={order.logo_url} target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-2 border-2 border-ink px-3 py-2 text-[11px] font-black uppercase tracking-widest hover:bg-sun print:hidden">
+            className="inline-flex items-center gap-2 border border-cch-line px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash print:hidden">
             <Download size={13} /> Logo
           </a>
         )}

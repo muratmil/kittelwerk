@@ -126,17 +126,17 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
   return (
     <div className="space-y-8">
       {gesperrt && (
-        <p className="border-4 border-sun bg-sun/20 p-4 text-sm">
-          <strong className="block font-black uppercase text-[11px] tracking-widest mb-1">Konto in Prüfung</strong>
+        <p className="rounded-sm border-l-2 border-cch-mint bg-cch-soft/40 p-4 text-sm">
+          <strong className="block font-medium uppercase text-[11px] tracking-[0.14em] mb-1">Konto in Prüfung</strong>
           Ihr Händlerkonto ist noch nicht freigegeben. Sobald wir es geprüft haben, können Sie bestellen.
         </p>
       )}
 
       {istHaendler && haendler?.active && (
-        <div className="border-4 border-ink bg-white shadow-brutalist p-4 flex flex-wrap gap-x-8 gap-y-2 text-sm">
-          <div><span className="text-[10px] font-black uppercase tracking-widest opacity-50 block">Firma</span>{haendler.company}</div>
-          <div><span className="text-[10px] font-black uppercase tracking-widest opacity-50 block">Ihr Rabatt</span>
-            <strong className="text-olive">{Number(haendler.discount_rate)} %</strong></div>
+        <div className="bg-white rounded-sm shadow-cch p-4 flex flex-wrap gap-x-8 gap-y-2 text-sm">
+          <div><span className="text-[10px] font-medium uppercase tracking-[0.14em] opacity-50 block">Firma</span>{haendler.company}</div>
+          <div><span className="text-[10px] font-medium uppercase tracking-[0.14em] opacity-50 block">Ihr Rabatt</span>
+            <strong className="text-cch-dark">{Number(haendler.discount_rate)} %</strong></div>
           <div className="text-[11px] opacity-60 max-w-sm self-end">
             Alle unten gezeigten Preise sind bereits Ihre Konditionen.
           </div>
@@ -144,7 +144,7 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
       )}
 
       {!istHaendler && (
-        <p className="border-2 border-ink bg-white p-4 text-sm">
+        <p className="border border-cch-line bg-white p-4 text-sm">
           Sie bestellen hier <strong>im Namen der Firma</strong>. Solche Aufträge laufen als
           <code className="mx-1 text-[12px]">intern</code>, gehen nicht durch die Zahlung und
           zählen nicht als Umsatz. Niemand bestellt im Namen eines anderen.
@@ -156,11 +156,11 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
           <CheckCircle size={16} /> Bestellung #{success} ist eingegangen.
         </p>
       )}
-      {error && <p className="border-4 border-tomato bg-tomato/10 text-tomato p-4 text-sm font-bold">{error}</p>}
+      {error && <p className="border-4 border-tomato bg-cch-danger/10 text-cch-danger p-4 text-sm font-bold">{error}</p>}
 
       {!bestellbarHier && (
-        <p className="border-4 border-sun bg-sun/20 p-4 text-sm">
-          <strong className="block font-black uppercase text-[11px] tracking-widest mb-1">
+        <p className="rounded-sm border-l-2 border-cch-mint bg-cch-soft/40 p-4 text-sm">
+          <strong className="block font-medium uppercase text-[11px] tracking-[0.14em] mb-1">
             Nur Ansicht
           </strong>
           Bestellungen für <strong>{site?.name}</strong> entstehen auf der eigenen Seite.
@@ -169,13 +169,13 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
       )}
 
       {!gesperrt && bestellbarHier && (
-        <form onSubmit={submit} className="border-4 border-ink bg-white shadow-brutalist p-5 space-y-5">
-          <div className="flex flex-wrap items-center gap-3 border-b-2 border-ink pb-3">
-            <h2 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">
+        <form onSubmit={submit} className="bg-white rounded-sm shadow-cch p-5 space-y-5">
+          <div className="flex flex-wrap items-center gap-3 border-b border-cch-line pb-3">
+            <h2 className="font-medium text-sm uppercase tracking-[0.14em] flex items-center gap-2">
               <ShoppingCart size={16} />Neue Bestellung
             </h2>
             <button type="button" onClick={addLine}
-              className="ml-auto border-2 border-ink px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-sun flex items-center gap-1.5">
+              className="ml-auto border border-cch-line px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] hover:bg-cch-ash flex items-center gap-1.5">
               <Plus size={12} />Position
             </button>
           </div>
@@ -189,26 +189,26 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
                 const row = preview.rows.find((r) => r.key === l.key);
                 const unter = row.qty > 0 && row.qty < row.minQty;
                 return (
-                  <div key={l.key} className="border-2 border-ink p-4 space-y-3">
+                  <div key={l.key} className="border border-cch-line p-4 space-y-3">
                     <div className="grid gap-3 sm:grid-cols-3">
                       <label className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black uppercase tracking-widest">Produkt</span>
+                        <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Produkt</span>
                         <select value={l.productId} onChange={(e) => updateLine(l.key, { productId: e.target.value })}
-                          className="border-2 border-ink p-2 text-sm bg-white focus:bg-sun outline-none">
+                          className="border border-cch-line p-2 text-sm bg-white focus:border-cch-mint outline-none">
                           {products.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
                         </select>
                       </label>
                       <label className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black uppercase tracking-widest">Farbe</span>
+                        <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Farbe</span>
                         <select value={l.color} onChange={(e) => updateLine(l.key, { color: e.target.value })}
-                          className="border-2 border-ink p-2 text-sm bg-white focus:bg-sun outline-none">
+                          className="border border-cch-line p-2 text-sm bg-white focus:border-cch-mint outline-none">
                           {(p?.colors ?? []).map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
                         </select>
                       </label>
                       <label className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black uppercase tracking-widest">Druck</span>
+                        <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Druck</span>
                         <select value={l.print} onChange={(e) => updateLine(l.key, { print: e.target.value })}
-                          className="border-2 border-ink p-2 text-sm bg-white focus:bg-sun outline-none">
+                          className="border border-cch-line p-2 text-sm bg-white focus:border-cch-mint outline-none">
                           {printOptions(p ?? {}).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
                       </label>
@@ -217,31 +217,31 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
                     <div className="flex flex-wrap items-end gap-3">
                       {sizesOf(p ?? {}).map((s) => (
                         <label key={s} className="flex flex-col gap-1 w-16">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-center">
+                          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-center">
                             {s === '-' ? 'Stück' : s}
                           </span>
                           <input type="number" min="0" inputMode="numeric"
                             value={l.sizes[s] ?? 0}
                             onChange={(e) => updateLine(l.key, { sizes: { ...l.sizes, [s]: Math.max(0, Number(e.target.value) || 0) } })}
-                            className="border-2 border-ink p-2 text-sm text-center tabular-nums focus:bg-sun outline-none" />
+                            className="border border-cch-line p-2 text-sm text-center tabular-nums focus:border-cch-mint outline-none" />
                         </label>
                       ))}
 
                       <div className="ml-auto text-right">
-                        <span className="text-[10px] font-black uppercase tracking-widest opacity-50 block">
+                        <span className="text-[10px] font-medium uppercase tracking-[0.14em] opacity-50 block">
                           {row.qty} Stück{row.unit != null && ` × ${row.unit.toFixed(2)} €`}
                         </span>
                         <strong className="text-lg tabular-nums">{row.line.toFixed(2)} €</strong>
                       </div>
 
                       <button type="button" onClick={() => removeLine(l.key)} aria-label="Position entfernen"
-                        className="border-2 border-tomato text-tomato p-2 hover:bg-tomato hover:text-white">
+                        className="border-2 border-tomato text-cch-danger p-2 hover:bg-cch-danger hover:text-white">
                         <Trash2 size={14} />
                       </button>
                     </div>
 
                     {unter && (
-                      <p className="text-[11px] text-tomato font-bold">
+                      <p className="text-[11px] text-cch-danger font-bold">
                         Mindestmenge für {row.name}: {row.minQty} Stück.
                       </p>
                     )}
@@ -253,26 +253,26 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest">Auftragsname (optional)</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Auftragsname (optional)</span>
               <input value={jobName} onChange={(e) => setJobName(e.target.value)}
-                className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+                className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest">Notiz (optional)</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Notiz (optional)</span>
               <input value={notes} onChange={(e) => setNotes(e.target.value)}
-                className="border-2 border-ink p-2.5 text-sm focus:bg-sun outline-none" />
+                className="border border-cch-line p-2.5 text-sm focus:border-cch-mint outline-none" />
             </label>
           </div>
 
           {lines.length > 0 && (
-            <div className="border-t-2 border-ink pt-3 flex flex-wrap items-end justify-between gap-4">
+            <div className="border-t border-cch-line pt-3 flex flex-wrap items-end justify-between gap-4">
               <dl className="text-sm space-y-1 tabular-nums">
                 <div className="flex gap-6"><dt className="opacity-60">Zwischensumme</dt><dd className="ml-auto">{preview.subtotal.toFixed(2)} €</dd></div>
                 <div className="flex gap-6"><dt className="opacity-60">Versand</dt><dd className="ml-auto">{preview.shipping === 0 ? 'gratis' : preview.shipping.toFixed(2) + ' €'}</dd></div>
-                <div className="flex gap-6 font-black text-base border-t-2 border-ink pt-1"><dt>Gesamt</dt><dd className="ml-auto">{preview.total.toFixed(2)} €</dd></div>
+                <div className="flex gap-6 font-medium text-base border-t border-cch-line pt-1"><dt>Gesamt</dt><dd className="ml-auto">{preview.total.toFixed(2)} €</dd></div>
               </dl>
               <button type="submit" disabled={busy}
-                className="bg-ink text-white px-6 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-tomato shadow-brutalist disabled:opacity-50">
+                className="bg-cch-mint text-white px-6 py-3 text-[11px] font-medium uppercase tracking-[0.14em] hover:bg-tomato shadow-cch disabled:opacity-50">
                 {busy ? 'Wird gesendet…' : 'Verbindlich bestellen'}
               </button>
             </div>
@@ -285,11 +285,11 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
 
       <section>
         <div className="flex items-center gap-3 mb-3">
-          <h2 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">
+          <h2 className="font-medium text-sm uppercase tracking-[0.14em] flex items-center gap-2">
             <Package size={16} />Meine Bestellungen
           </h2>
           <button onClick={load} disabled={loading}
-            className="ml-auto border-2 border-ink px-3 py-1.5 text-[10px] font-black uppercase tracking-widest bg-white hover:bg-sun flex items-center gap-1.5 disabled:opacity-50">
+            className="ml-auto border border-cch-line px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] bg-white hover:bg-cch-ash flex items-center gap-1.5 disabled:opacity-50">
             <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />Aktualisieren
           </button>
         </div>
@@ -297,17 +297,17 @@ export default function HaendlerClient({ profile, haendler, products, site }) {
         {loading && orders.length === 0 ? (
           <p className="text-sm opacity-50 py-4">Wird geladen…</p>
         ) : orders.length === 0 ? (
-          <p className="border-2 border-dashed border-ink/30 p-6 text-sm opacity-50">Noch keine Bestellungen.</p>
+          <p className="border border-dashed border-cch-line p-6 text-sm opacity-50">Noch keine Bestellungen.</p>
         ) : (
           <div className="flex flex-col gap-3">
             {orders.map((o) => {
               const st = ORDER_STATUS[o.status] ?? ORDER_STATUS.neu;
               const items = Array.isArray(o.items) ? o.items : [];
               return (
-                <article key={o.id} className="border-4 border-ink bg-white shadow-brutalist p-4">
+                <article key={o.id} className="bg-white rounded-sm shadow-cch p-4">
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="font-black text-lg tabular-nums">#{o.order_no}</span>
-                    <span className={`text-[9px] font-black uppercase px-2 py-1 ${st.cls}`}>{st.label}</span>
+                    <span className="font-medium text-lg tabular-nums">#{o.order_no}</span>
+                    <span className={`text-[9px] font-medium uppercase px-2 py-1 ${st.cls}`}>{st.label}</span>
                     {o.job_name && <span className="text-sm font-bold">{o.job_name}</span>}
                     <span className="text-[11px] opacity-50 tabular-nums">
                       {new Date(o.created_at).toLocaleDateString('de-DE')}

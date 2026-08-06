@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import LoginClient from './LoginClient';
 
 export const metadata = {
-  title: 'Anmelden — Kittelwerk Portal',
+  title: 'Anmelden — Central Communication Hub (CCH)',
   robots: { index: false, follow: false },
 };
 

@@ -48,50 +48,69 @@ export default function LoginClient() {
   };
 
   return (
-    <div className="min-h-screen bg-paper flex items-center justify-center p-6">
-      <div className="w-full max-w-sm space-y-6">
-        <a href="/" className="block font-serif font-black text-4xl italic uppercase tracking-tighter">
-          Kittel<span className="text-tomato">werk</span>.
-        </a>
+    <div className="min-h-screen bg-cch-ash flex items-center justify-center p-6 text-cch-slate selection:bg-cch-soft selection:text-cch-dark">
+      <div className="w-full max-w-sm">
+        {/* Marka değil kimlik: portalın adı burada, dükkânın logosu değil. */}
+        <div className="text-center mb-7">
+          <p className="text-3xl font-light tracking-[0.4em] uppercase text-cch-slate pl-[0.4em]">
+            {PORTAL_SHORT}
+          </p>
+          <p className="text-[10px] font-light tracking-[0.28em] uppercase text-cch-muted mt-2">
+            {PORTAL_NAME}
+          </p>
+        </div>
 
-        <form onSubmit={handleLogin} className="bg-white border-4 border-ink shadow-brutalist p-8 space-y-4">
-          <div className="border-b-2 border-ink pb-3">
-            <h1 className="font-black text-xl uppercase leading-tight">
-              {PORTAL_NAME}
+        <form onSubmit={handleLogin} className="bg-white rounded-sm shadow-cch-lg overflow-hidden">
+          <div className="bg-cch-mint px-8 py-4">
+            <h1 className="text-[11px] font-medium uppercase tracking-[0.24em] text-white">
+              Anmelden
             </h1>
-            <p className="text-[10px] font-bold uppercase tracking-widest opacity-50 mt-1">
-              {PORTAL_SHORT} · Händler · Vertrieb · Werkstatt · Verwaltung
+          </div>
+
+          <div className="p-8 space-y-5">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="text-[10px] font-medium uppercase tracking-[0.18em] text-cch-muted">
+                E-Mail
+              </label>
+              <input id="email" name="email" type="email" autoComplete="username"
+                value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus
+                className="border-b border-cch-line py-2 text-sm outline-none transition-colors focus:border-cch-mint placeholder:text-cch-muted" />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="password" className="text-[10px] font-medium uppercase tracking-[0.18em] text-cch-muted">
+                Passwort
+              </label>
+              <input id="password" name="password" type="password" autoComplete="current-password"
+                value={password} onChange={(e) => setPassword(e.target.value)} required
+                className="border-b border-cch-line py-2 text-sm outline-none transition-colors focus:border-cch-mint" />
+            </div>
+
+            {error && (
+              <p className="text-[11px] text-cch-danger leading-snug border-l-2 border-cch-danger pl-3">
+                {error}
+              </p>
+            )}
+
+            <button type="submit" disabled={loading}
+              className="w-full bg-cch-mint text-white py-3.5 rounded-sm text-[11px] font-medium uppercase tracking-[0.2em] flex items-center justify-center gap-2.5 hover:bg-cch-dark transition-colors disabled:opacity-50">
+              <LogIn size={15} />
+              {loading ? 'Anmeldung läuft…' : 'Anmelden'}
+            </button>
+
+            <p className="text-[11px] text-center text-cch-muted pt-1">
+              <a href="/haendler/registrierung" className="hover:text-cch-dark transition-colors">
+                Händler werden
+              </a>
             </p>
           </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest">E-Mail</label>
-            <input id="email" name="email" type="email" autoComplete="username"
-              value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus
-              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest">Passwort</label>
-            <input id="password" name="password" type="password" autoComplete="current-password"
-              value={password} onChange={(e) => setPassword(e.target.value)} required
-              className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
-          </div>
-
-          {error && <p className="text-[11px] text-tomato font-bold uppercase leading-snug">{error}</p>}
-
-          <button type="submit" disabled={loading}
-            className="w-full bg-ink text-white py-4 font-black uppercase flex items-center justify-center gap-3 hover:bg-tomato transition-all shadow-brutalist disabled:opacity-50">
-            <LogIn size={16} />
-            {loading ? 'Anmeldung läuft…' : 'Anmelden'}
-          </button>
-
-          <p className="text-[11px] text-center pt-1">
-            <a href="/haendler/registrierung" className="font-bold underline hover:text-tomato">
-              Händler werden
-            </a>
-          </p>
         </form>
+
+        <p className="text-center mt-6">
+          <a href="/" className="text-[10px] uppercase tracking-[0.18em] text-cch-muted hover:text-cch-dark transition-colors">
+            ← kittelwerk.de
+          </a>
+        </p>
       </div>
     </div>
   );
