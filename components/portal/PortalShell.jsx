@@ -25,7 +25,22 @@ export default function PortalShell({
   // Site seçici — her portal sayfasında görünür. Seçili site hem fiyat/sipariş
   // bağlamını belirliyor hem de aşağıdaki dış panel bağlantılarını.
   const SiteSwitcher = ({ onNavigate }) => {
-    if (sites.length < 2) return null;
+    // Tek siteye kısıtlı hesapta seçici yerine sebebini yaz — sessizce
+    // kaybolması "özellik yok" gibi görünüyor.
+    if (sites.length < 2) {
+      if (!profile.is_owner && (profile.site_access ?? []).length > 0) {
+        return (
+          <div className="border-2 border-ink bg-white p-3 mb-2">
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] opacity-50 mb-1">Seite</p>
+            <p className="text-[11px] font-black uppercase tracking-widest">{sites[0]?.name}</p>
+            <p className="text-[10px] opacity-60 mt-1 leading-snug">
+              Ihr Konto ist auf diese Seite beschränkt.
+            </p>
+          </div>
+        );
+      }
+      return null;
+    }
     return (
       <div className="border-4 border-ink bg-white shadow-brutalist p-3 mb-2">
         <p className="text-[9px] font-black uppercase tracking-[0.18em] opacity-50 mb-2">
@@ -124,6 +139,14 @@ export default function PortalShell({
 
         {open && (
           <nav className="md:hidden border-t-2 border-ink p-4 flex flex-col gap-2 bg-paper">
+            {/* Hangi hesapla girildiği dar ekranda üst barda gizleniyor;
+                yanlış hesapla bakıp "özellik yok" sanmak kolay. */}
+            <p className="text-[11px] mb-1">
+              <span className="font-bold">{profile.email}</span>
+              <span className="block text-[9px] font-black uppercase tracking-widest text-tomato">
+                {profile.is_owner ? 'Inhaber' : ROLE_LABELS[profile.role]}
+              </span>
+            </p>
             <SiteSwitcher onNavigate={() => setOpen(false)} />
             <NavLinks onNavigate={() => setOpen(false)} />
             <ExternePanels />
