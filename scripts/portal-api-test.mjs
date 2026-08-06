@@ -52,6 +52,23 @@ async function call(cookie, path, method, body) {
 
 const uniq = () => Math.random().toString(36).slice(2, 8);
 
+// `db reset` biter bitmez çalıştırılırsa seed henüz yüklenmemiş olabiliyor ve
+// testler sahte 403'lerle düşüyor. Veri hazır olana kadar bekliyoruz.
+const svcHeadersEarly = {
+  apikey: env.SUPABASE_SERVICE_KEY,
+  Authorization: `Bearer ${env.SUPABASE_SERVICE_KEY}`,
+};
+for (let i = 0; i < 30; i++) {
+  try {
+    const rows = await (await fetch(
+      `${API}/rest/v1/profiles?select=permissions&email=eq.admin2@kittelwerk.de`,
+      { headers: svcHeadersEarly })).json();
+    if (rows?.[0]?.permissions?.length > 0) break;
+  } catch { /* stack henüz hazır değil */ }
+  if (i === 29) throw new Error('Seed verisi 30 saniyede hazır olmadı.');
+  await new Promise((r) => setTimeout(r, 1000));
+}
+
 const owner    = await login('murat@kittelwerk.de');
 const admin2   = await login('admin2@kittelwerk.de');   // yalnızca werkstatt yetkileri
 const vertrieb = await login('vertrieb@kittelwerk.de');
