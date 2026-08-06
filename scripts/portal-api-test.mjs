@@ -276,6 +276,19 @@ const haendlerSession = await login('haendler@test.local');
   check('ödemeye uğramıyor', o[0]?.payment_status === 'nicht_erforderlich');
 }
 
+console.log('\n=== Site kapsamı ===');
+{
+  const r = await call(haendlerSession, '/api/portal/bestellung', 'POST',
+    { site_id: 'wipello', items: [{ productId: 'triplex', sizes: { '-': 20000 } }] });
+  check('siparişe kapalı sitede sipariş verilemez → 409', r.status === 409,
+    `HTTP ${r.status} ${JSON.stringify(r.data)}`);
+}
+{
+  const r = await call(owner, '/api/portal/bestellung', 'POST',
+    { site_id: 'olmayan-site', items: [{ productId: 'tshirt', sizes: { L: 20 } }] });
+  check('bilinmeyen site reddedilir → 400', r.status === 400, `HTTP ${r.status}`);
+}
+
 console.log('\n=== Fiyat yetkileri ===');
 {
   const r = await call(vertrieb, '/api/portal/preise', 'PATCH',

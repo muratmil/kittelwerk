@@ -43,7 +43,8 @@ export default async function HaendlerPage({ searchParams }) {
   return (
     <PortalShell profile={profile} current="/haendler" title="Händler"
       sites={alleSites} activeSite={siteId}>
-      <HaendlerClient profile={profile} haendler={haendler} products={bestellbar} />
+      <HaendlerClient profile={profile} haendler={haendler} products={bestellbar}
+        site={alleSites.find((s) => s.id === siteId)} />
     </PortalShell>
   );
 }

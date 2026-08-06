@@ -25,6 +25,15 @@ export async function POST(request) {
 
   const svc = serviceClient();
 
+  // Site siparişi portala devretmiş mi? Arayüzde formu gizlemek yetmez;
+  // uç da reddetmeli, yoksa doğrudan istek atan geçer.
+  const { data: site } = await svc
+    .from('sites').select('id, name, allows_ordering, active').eq('id', siteId).single();
+  if (!site?.active) return json({ error: 'Unbekannte Seite.' }, 400);
+  if (!site.allows_ordering) {
+    return json({ error: `Bestellungen für ${site.name} laufen über die eigene Seite.` }, 409);
+  }
+
   // Bayi kaydı ve koşulları — oturumdan, gövdeden değil.
   let haendler = null;
   if (istHaendler) {

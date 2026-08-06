@@ -29,7 +29,7 @@ function printOptions(p) {
 
 const sizesOf = (p) => (p.hasSizes ? (p.sizes ?? DEFAULT_SIZES) : ['-']);
 
-export default function HaendlerClient({ profile, haendler, products }) {
+export default function HaendlerClient({ profile, haendler, products, site }) {
   const istHaendler = profile.role === 'haendler';
   const [lines, setLines] = useState([]);
   const [jobName, setJobName] = useState('');
@@ -119,6 +119,9 @@ export default function HaendlerClient({ profile, haendler, products }) {
   };
 
   const gesperrt = istHaendler && haendler && !haendler.active;
+  // Site siparişi portala devretmediyse burada form gösterme — Wipello'nun
+  // siparişi kendi sitesinden geliyor, portal onu yalnızca gösteriyor.
+  const bestellbarHier = site?.allows_ordering ?? true;
 
   return (
     <div className="space-y-8">
@@ -155,7 +158,17 @@ export default function HaendlerClient({ profile, haendler, products }) {
       )}
       {error && <p className="border-4 border-tomato bg-tomato/10 text-tomato p-4 text-sm font-bold">{error}</p>}
 
-      {!gesperrt && (
+      {!bestellbarHier && (
+        <p className="border-4 border-sun bg-sun/20 p-4 text-sm">
+          <strong className="block font-black uppercase text-[11px] tracking-widest mb-1">
+            Nur Ansicht
+          </strong>
+          Bestellungen für <strong>{site?.name}</strong> entstehen auf der eigenen Seite.
+          Im Portal laufen sie nur zusammen — unten sehen Sie sie.
+        </p>
+      )}
+
+      {!gesperrt && bestellbarHier && (
         <form onSubmit={submit} className="border-4 border-ink bg-white shadow-brutalist p-5 space-y-5">
           <div className="flex flex-wrap items-center gap-3 border-b-2 border-ink pb-3">
             <h2 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">

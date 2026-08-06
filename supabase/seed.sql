@@ -6,8 +6,10 @@
 -- ============================================================================
 
 -- --- siteler -----------------------------------------------------------------
-insert into public.sites (id, name, domain, sort_order, links) values
-  ('wipello', 'Wipello', 'www.wipello.com', 1,
+-- Bayraklar burada veriliyor, göçte değil: `sites` satırı seed'de doğuyor ve
+-- göçler ondan önce çalışıyor — göçteki UPDATE hiçbir satıra denk gelmiyordu.
+insert into public.sites (id, name, domain, sort_order, manages_pricing, allows_ordering, links) values
+  ('wipello', 'Wipello', 'www.wipello.com', 1, false, false,
    '[{"label":"Angebote","url":"https://www.wipello.com/admin/teklifler"},
      {"label":"Preise","url":"https://www.wipello.com/admin/fiyat"}]'::jsonb)
 on conflict (id) do nothing;
@@ -100,39 +102,25 @@ update public.products set cost_price = 155.00 where id = 'bistro';
 update public.products set cost_price = 120.00 where id = 'cap';
 update public.products set cost_price = 265.00 where id = 'polo';
 
--- --- Wipello ürünleri --------------------------------------------------------
--- Islak mendil: birim fiyat kuruş seviyesinde, asgari 10.000 adet.
--- Kademeler 10/20/40/80 bin. Marj modunda çalışıyor — Kittelwerk elle.
-insert into public.products (site_id, id, name, category, min_qty, price_mode, cost_currency, cost_price, sort_order) values
-  ('wipello','triplex','Triplex Feuchttuch','accessoires',10000,'marge','TRY', 1.85, 0),
-  ('wipello','coated', 'Kuşe Feuchttuch',   'accessoires',10000,'marge','TRY', 1.72, 1),
-  ('wipello','kraft',  'Kraft Feuchttuch',  'accessoires',10000,'marge','TRY', 1.68, 2),
-  ('wipello','duplex', 'Duplex Feuchttuch', 'accessoires',10000,'marge','TRY', 1.55, 3),
-  ('wipello','koeln',  'Kolonyalı Mendil',  'accessoires',10000,'manuell','TRY', 2.10, 4);
-
-insert into public.product_prices (site_id, product_id, min_qty, price, margin) values
-  ('wipello','triplex',10000, null, 55), ('wipello','triplex',20000, null, 48),
-  ('wipello','triplex',40000, null, 42), ('wipello','triplex',80000, null, 35),
-  ('wipello','coated', 10000, null, 55), ('wipello','coated', 20000, null, 48),
-  ('wipello','coated', 40000, null, 42), ('wipello','coated', 80000, null, 35),
-  ('wipello','kraft',  10000, null, 55), ('wipello','kraft',  20000, null, 48),
-  ('wipello','kraft',  40000, null, 42), ('wipello','kraft',  80000, null, 35),
-  ('wipello','duplex', 10000, null, 55), ('wipello','duplex', 20000, null, 48),
-  ('wipello','duplex', 40000, null, 42), ('wipello','duplex', 80000, null, 35),
-  -- Kolonyalı elle fiyatlanmış: marj modu kapalı, fiyat sabit.
-  ('wipello','koeln',  10000, 0.09, null), ('wipello','koeln',  20000, 0.08, null),
-  ('wipello','koeln',  40000, 0.07, null), ('wipello','koeln',  80000, 0.06, null);
+-- --- Wipello ---------------------------------------------------------------
+-- Wipello portalda YALNIZCA GÖRÜNTÜLENİYOR: fiyat yönetimi kendi panelinde
+-- (çarpan bazlı, 124 varyantlı model). Bu yüzden burada ürün/fiyat satırı yok;
+-- yalnızca gelen teklif ve siparişler duruyor.
 
 -- Wipello siparişleri (teklif üzerinden gelen işler)
-insert into public.orders (site_id, source, name, company, email, street, plz, city,
-                           items, subtotal, total, status)
+-- Biri sipariş, biri teklif: portalda ikisinin de nasıl göründüğü belli olsun.
+insert into public.orders (site_id, kind, source, external_ref, name, company, email,
+                           street, plz, city, items,
+                           subtotal, net_total, vat_rate, vat_amount, total, locale, status)
 values
-  ('wipello','web','Ayşe Demir','Café Mood','info@moodburger.de','Georgstr. 5','30159','Hannover',
-   '[{"productId":"triplex","product":"Triplex Feuchttuch","color":"Weiß","sizes":{"-":20000},"qty":20000,"print":"front","unitPrice":0.07,"linePrice":1400.00}]'::jsonb,
-   1400.00, 1400.00, 'neu'),
-  ('wipello','web','Stefan Klein','Hotel Adler','post@adler-hotel.de','Bahnhofstr. 2','30159','Hannover',
-   '[{"productId":"koeln","product":"Kolonyalı Mendil","color":"Weiß","sizes":{"-":40000},"qty":40000,"print":"front","unitPrice":0.07,"linePrice":2800.00}]'::jsonb,
-   2800.00, 2800.00, 'neu');
+  ('wipello','bestellung','web', null,
+   'Ayşe Demir','Café Mood','info@moodburger.de','Georgstr. 5','30159','Hannover',
+   '[{"productId":"triplex","product":"Triplex · 6x8","scent":"Zitrone","size":"6x8","package":"triplex","sizes":{"-":20000},"qty":20000,"print":"front","unitPrice":0.07,"linePrice":1400.00}]'::jsonb,
+   1400.00, 1400.00, 19, 266.00, 1666.00, 'de', 'in_produktion'),
+  ('wipello','angebot','web','WP-2026-0002',
+   'Stefan Klein','Hotel Adler','post@adler-hotel.de','Bahnhofstr. 2','30159','Hannover',
+   '[{"productId":"kraft","product":"Kraft · 7x12","scent":"Kolonya","size":"7x12","package":"kraft","sizes":{"-":40000},"qty":40000,"print":"both","unitPrice":0.07,"linePrice":2800.00}]'::jsonb,
+   2800.00, 2800.00, 19, 532.00, 3332.00, 'de', 'angebot_kontaktiert');
 
 -- Yalnızca Kittelwerk'e erişebilen admin — site kısıtının test öznesi.
 update public.profiles set site_access = array['kittelwerk']

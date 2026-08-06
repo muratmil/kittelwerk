@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { PERMISSIONS, ROLE_LABELS } from '@/lib/portal';
@@ -15,13 +15,16 @@ import BestellungenTab from './BestellungenTab';
 import PreiseTab from './PreiseTab';
 import FreigabenTab from './FreigabenTab';
 
-function tabsFor(profile) {
+function tabsFor(profile, site) {
   const t = [{ key: 'bestellungen', label: 'Bestellungen', icon: Package }];
   if (hasPerm(profile, 'haendler_verwalten') || hasPerm(profile, 'werkstatt_verwalten')
       || hasPerm(profile, 'haendler_konditionen')) {
     t.push({ key: 'freigaben', label: 'Freigaben', icon: BadgeCheck });
   }
-  if (hasPerm(profile, 'preise_sehen') || hasPerm(profile, 'preise_pflegen')) {
+  // Fiyat sekmesi yalnızca fiyatı PORTAL yönetiyorsa. Wipello'nunki kendi
+  // panelinde kaldığı için orada boş bir ekran göstermenin anlamı yok.
+  if ((site?.manages_pricing ?? true)
+      && (hasPerm(profile, 'preise_sehen') || hasPerm(profile, 'preise_pflegen'))) {
     t.push({ key: 'preise', label: 'Preise', icon: Tag });
   }
   t.push({ key: 'benutzer', label: 'Benutzer', icon: Users });
@@ -39,7 +42,8 @@ function hasPerm(p, key) {
 }
 
 export default function AdminClient({ profile, catalog, sites = [], activeSite = null }) {
-  const TABS = tabsFor(profile);
+  const aktuelleSite = sites.find((s) => s.id === activeSite);
+  const TABS = useMemo(() => tabsFor(profile, aktuelleSite), [profile, aktuelleSite]);
   const [tab, setTab] = useState(TABS[0].key);
   const [users, setUsers] = useState([]);
   const [shops, setShops] = useState([]);
@@ -63,6 +67,11 @@ export default function AdminClient({ profile, catalog, sites = [], activeSite =
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  // Site değişince görünmeyen bir sekmede kalınmasın.
+  useEffect(() => {
+    if (!TABS.some((t) => t.key === tab)) setTab(TABS[0].key);
+  }, [TABS, tab]);
 
   const call = async (url, method, body) => {
     setError('');
@@ -126,6 +135,14 @@ export default function AdminClient({ profile, catalog, sites = [], activeSite =
           onCreate={(payload) => call('/api/portal/werkstatt', 'POST', payload)}
           onToggle={(id, active) => call('/api/portal/werkstatt', 'PATCH', { id, active })}
         />
+      )}
+
+      {aktuelleSite && !aktuelleSite.manages_pricing && (
+        <p className="border-2 border-ink bg-white p-4 text-sm">
+          <strong>{aktuelleSite.name}</strong> wird hier nur <strong>angezeigt</strong> —
+          Angebote und Bestellungen laufen im Portal zusammen, die Preise bleiben
+          im eigenen Panel (siehe linke Spalte).
+        </p>
       )}
 
       {tab === 'bestellungen' && <BestellungenTab profile={profile} sites={sites} />}
