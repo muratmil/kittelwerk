@@ -1,47 +1,16 @@
-// CCH'nin adresi tek yerde: taşınırsa burada bir satır değişir.
-const CCH = 'https://www.gastrocollect.de';
-
-/**
- * Yönetim adreslerinin tamamı → CCH.
- *
- * `:path*` olan ve olmayan hâlleri ayrı yazılmak zorunda: Next'te `/admin/:path*`
- * çıplak `/admin`'i YAKALAMAZ, ikisi de gerekiyor. Bu unutulursa kök adres
- * sessizce 404 döner — yönlendirme çalışıyor sanılır.
- */
-function portalYonlendirmeleri() {
-  // Portalın kittelwerk.de altındayken kullandığı adresler.
-  const alanlar = ['admin', 'monitor', 'bestellung', 'werkstatt', 'haendler', 'is-takip', 'login'];
-
-  // Dört panelli eski dünyadan kalan adresler → CCH'deki karşılıkları.
-  const eski = {
-    '/reseller/login':    '/login',
-    '/verkauf/login':     '/login',
-    '/atolye/login':      '/login',
-    '/backend/login':     '/login',
-    '/reseller/register': '/haendler/registrierung',
-    '/atolye/kayit':      '/werkstatt/registrierung',
-    '/reseller':          '/haendler',
-    '/reseller/:path*':   '/haendler/:path*',
-    '/atolye/merkez':     '/bestellung',
-    '/atolye':            '/werkstatt',
-    '/atolye/:path*':     '/werkstatt/:path*',
-    '/backend':           '/admin',
-    '/backend/:path*':    '/admin/:path*',
-    // /verkauf tamamen kalktı: Vertrieb sipariş girmiyor.
-    '/verkauf':           '/bestellung',
-    '/verkauf/:path*':    '/bestellung',
-  };
-
-  return [
-    ...alanlar.flatMap((a) => [
-      { source: `/${a}`,        destination: `${CCH}/${a}`,        permanent: true },
-      { source: `/${a}/:path*`, destination: `${CCH}/${a}/:path*`, permanent: true },
-    ]),
-    ...Object.entries(eski).map(([source, hedef]) => ({
-      source, destination: `${CCH}${hedef}`, permanent: true,
-    })),
-  ];
-}
+// kittelwerk.de YALNIZCA dükkân.
+//
+// Yönetim adresleri (/admin, /monitor, /bestellung, /werkstatt, /haendler,
+// /is-takip, /login) ve dört panelli eski dünyadan kalanlar (/backend,
+// /reseller, /atolye, /verkauf) burada BİLEREK yok — yönlendirme bile yok,
+// 404 dönüyorlar. Murat'ın kararı: yönetim yalnız gastrocollect.de'de.
+//
+// Yönlendirme bırakmak, dükkânın adresinden yönetimin nerede olduğunu
+// söylemek demekti. Bedeli: bu adreslere ait eski yer imleri ve arama motoru
+// kayıtları artık 404 alıyor — kabul edildi.
+//
+// Buraya yönetim adresi EKLEME. Bayi kaydına giden bağlantı dükkânın
+// footer'ında ve doğrudan gastrocollect.de'yi gösteriyor.
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -53,16 +22,6 @@ const nextConfig = {
         destination: 'https://www.kittelwerk.de/:path*',
         permanent: true,
       },
-
-      // --- Yönetim artık burada değil -------------------------------------
-      // CCH kendi uygulamasına çıktı (gastrocollect.de). Bu dosyadaki her
-      // yönetim adresi oraya gidiyor; kittelwerk.de yalnız dükkân.
-      //
-      // İki kuşak yer imi var ve ikisi de korunuyor:
-      //   1) dört panelli eski dünya (/reseller, /atolye, /backend, /verkauf)
-      //   2) portalın kittelwerk.de altındaki hâli (/admin, /haendler, …)
-      // Hepsi kalıcı (308) — arama motorları da eski adresleri bıraksın.
-      ...portalYonlendirmeleri(),
     ];
   },
 
