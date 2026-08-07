@@ -6,6 +6,7 @@ import { loadSites, visibleSites } from '@/lib/sites';
 import { areaLabel, PORTAL_TITLE } from '@/lib/portal';
 import { loadMusteri } from '@/lib/is-takip';
 import PortalShell from '@/components/portal/PortalShell';
+import ArsivDugmesi from '../ArsivDugmesi';
 import { para, tarih, kalanGun, olcuYaz, IS_DURUM, KALEM_DURUM } from '../bicim';
 
 export const metadata = {
@@ -23,6 +24,11 @@ export default async function MusteriDetay({ params }) {
   if (!veri) notFound();
 
   const { musteri, cari, isler, odemeler } = veri;
+
+  // Arşivdekiler ana listeden ayrılıyor ama silinmiyor — cari hesap ikisini de
+  // sayıyor, o yüzden gözden kaybolmaları değil, aşağı inmeleri doğru.
+  const aktifIsler = isler.filter((i) => !i.arsiv);
+  const arsivIsler = isler.filter((i) => i.arsiv);
 
   // `sites` menüyü kuruyor — verilmezse yan menüde yalnız WWS kalır.
   const sites = visibleSites(await loadSites(await createClient()), profile);
@@ -64,11 +70,13 @@ export default async function MusteriDetay({ params }) {
         {/* --- işler --- */}
         <section>
           <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-cch-muted mb-3">İşler</h2>
-          {isler.length === 0 ? (
-            <p className="bg-white rounded-sm border border-dashed border-cch-line p-8 text-sm text-cch-muted text-center">İş kaydı yok.</p>
+          {aktifIsler.length === 0 ? (
+            <p className="bg-white rounded-sm border border-dashed border-cch-line p-8 text-sm text-cch-muted text-center">
+              {arsivIsler.length ? 'Aktif iş yok — hepsi arşivde.' : 'İş kaydı yok.'}
+            </p>
           ) : (
             <div className="flex flex-col gap-3">
-              {isler.map((is) => {
+              {aktifIsler.map((is) => {
                 const durum = IS_DURUM[is.durum] ?? { label: is.durum, cls: 'bg-ink/10' };
                 const gun = kalanGun(is.vade);
                 const gecikmis = Number(is.kalan) > 0 && gun !== null && gun < 0;
@@ -80,6 +88,7 @@ export default async function MusteriDetay({ params }) {
                         {durum.label}
                       </span>
                       <span className="ml-auto text-[11px] text-cch-muted">{tarih(is.olusturma)}</span>
+                      <ArsivDugmesi isId={is.id} kalan={is.kalan} kucuk />
                     </header>
 
                     {is.aciklama && <p className="text-[11px] text-cch-muted mt-1">{is.aciklama}</p>}
@@ -130,6 +139,30 @@ export default async function MusteriDetay({ params }) {
             </div>
           )}
         </section>
+
+        {/* --- arşiv --- */}
+        {arsivIsler.length > 0 && (
+          <section>
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-cch-muted mb-3">
+              Arşiv ({arsivIsler.length})
+            </h2>
+            <div className="bg-white rounded-sm shadow-cch divide-y divide-cch-line">
+              {arsivIsler.map((is) => (
+                <div key={is.id} className="p-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span className="text-[13px] text-cch-muted">{is.baslik ?? '(başlıksız)'}</span>
+                  <span className="text-[11px] text-cch-muted">{is.kalem_ozeti}</span>
+                  <span className="ml-auto text-[11px] text-cch-muted">{para(is.tutar, is.para_birimi)}</span>
+                  {Number(is.kalan) > 0 && (
+                    <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-cch-danger">
+                      {para(is.kalan, is.para_birimi)} açık
+                    </span>
+                  )}
+                  <ArsivDugmesi isId={is.id} arsivde kucuk />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* --- ödeme geçmişi --- */}
         <section>

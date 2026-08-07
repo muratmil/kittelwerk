@@ -22,7 +22,7 @@ export default async function BestellungPage({ searchParams }) {
   return (
     <PortalShell profile={profile} current="/bestellung"
       sites={sites} activeSite={siteId} title="Bestellungen">
-      <BestellungClient profile={profile} sites={sites} />
+      <BestellungClient profile={profile} sites={sites} activeSite={siteId} />
     </PortalShell>
   );
 }

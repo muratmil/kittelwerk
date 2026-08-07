@@ -7,8 +7,10 @@ import { RefreshCw, ChevronDown, ChevronUp, Send, Inbox, Factory } from 'lucide-
 // Vertrieb'in ekranı. Bilerek `orders_produktion` görünümünden okuyor —
 // `orders` tablosuna erişimi yok, dolayısıyla fiyatlar buraya hiç gelmiyor.
 // Görünümde para sütunu bulunmadığı için ekranda "gizlenecek" bir şey de yok.
-export default function BestellungClient({ profile, sites = [] }) {
-  const [siteFilter, setSiteFilter] = useState('');
+// Liste menüde hangi sistemin altından girildiyse ONA kilitli: Kittelwerk'in
+// Bestellungen'i yalnız Kittelwerk'i, Wipello'nunki yalnız Wipello'yu gösterir.
+// Sistemler arası tek bakış bilerek burada değil, WWS → Tüm Siparişler'de.
+export default function BestellungClient({ profile, sites = [], activeSite = null }) {
   const [orders, setOrders] = useState([]);
   const [werkstaetten, setWerkstaetten] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,7 @@ export default function BestellungClient({ profile, sites = [] }) {
   };
 
   const siteName = (id) => sites.find((s) => s.id === id)?.name ?? id;
-  const sichtbar = siteFilter ? orders.filter((o) => o.site_id === siteFilter) : orders;
+  const sichtbar = activeSite ? orders.filter((o) => o.site_id === activeSite) : orders;
   const offen = sichtbar.filter((o) => !o.werkstatt_id);
   const zugewiesen = sichtbar.filter((o) => o.werkstatt_id);
 
@@ -62,12 +64,12 @@ export default function BestellungClient({ profile, sites = [] }) {
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
           Aktualisieren
         </button>
-        {sites.length > 1 && (
-          <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)}
-            className="border border-cch-line p-2 text-[11px] font-medium uppercase tracking-[0.14em] bg-white focus:border-cch-mint outline-none">
-            <option value="">Alle Seiten</option>
-            {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
+        {/* Seçici yerine hangi sistemde olunduğunu yazan sabit etiket: liste
+            artık menüdeki sisteme kilitli, seçilecek bir şey yok. */}
+        {activeSite && sites.length > 1 && (
+          <span className={`text-[9px] font-medium uppercase tracking-[0.12em] px-2 py-1 rounded-sm ${siteTone(activeSite).badge}`}>
+            {siteName(activeSite)}
+          </span>
         )}
         <span className="text-[11px] font-bold uppercase tracking-[0.14em] opacity-50">
           {offen.length} offen · {zugewiesen.length} zugewiesen
@@ -86,7 +88,7 @@ export default function BestellungClient({ profile, sites = [] }) {
         orders={offen}
         openId={openId} setOpenId={setOpenId}
         werkstaetten={werkstaetten} onAssign={assign} busyId={busyId}
-        loading={loading} siteName={siteName} mehrereSites={sites.length > 1}
+        loading={loading} siteName={siteName} mehrereSites={false}
       />
 
       <Section
@@ -96,7 +98,7 @@ export default function BestellungClient({ profile, sites = [] }) {
         orders={zugewiesen}
         openId={openId} setOpenId={setOpenId}
         werkstaetten={werkstaetten} onAssign={assign} busyId={busyId}
-        loading={loading} siteName={siteName} mehrereSites={sites.length > 1}
+        loading={loading} siteName={siteName} mehrereSites={false}
       />
     </div>
   );

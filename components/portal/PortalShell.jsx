@@ -60,7 +60,9 @@ export default function PortalShell({
         id: 'is-takip', ad: wws.label, ton: siteTone('is-takip'),
         cocuklar: [
           { href: '/is-takip', label: 'Müşteriler', path: '/is-takip' },
+          { href: '/is-takip?sekme=siparisler', label: 'Tüm Siparişler', path: '/is-takip' },
           { href: '/is-takip?sekme=yaklasan', label: 'Vadeler', path: '/is-takip' },
+          { href: '/is-takip?sekme=arsiv', label: 'Arşiv', path: '/is-takip' },
         ],
       });
     }
