@@ -27,7 +27,10 @@ export default function Footer() {
             <li><a href="/ueber-uns" className="hover:text-tomato transition-colors">Über uns</a></li>
             <li><a href="/kontakt" className="hover:text-tomato transition-colors">Kontakt</a></li>
             <li>
-              <a href="/reseller/register"
+              {/* Bayi kaydı CCH'de (gastrocollect.de). Doğrudan oraya
+                  bağlanıyor; eski /reseller/register adresi de yönlendirmede
+                  duruyor ama iç bağlantı boşuna bir sıçrama yapmasın. */}
+              <a href="https://www.gastrocollect.de/haendler/registrierung"
                 className="inline-block mt-2 border border-sun text-sun px-3 py-1.5 hover:bg-sun hover:text-ink transition-all font-black tracking-widest">
                 Händler werden →
               </a>

@@ -1,3 +1,48 @@
+// CCH'nin adresi tek yerde: taşınırsa burada bir satır değişir.
+const CCH = 'https://www.gastrocollect.de';
+
+/**
+ * Yönetim adreslerinin tamamı → CCH.
+ *
+ * `:path*` olan ve olmayan hâlleri ayrı yazılmak zorunda: Next'te `/admin/:path*`
+ * çıplak `/admin`'i YAKALAMAZ, ikisi de gerekiyor. Bu unutulursa kök adres
+ * sessizce 404 döner — yönlendirme çalışıyor sanılır.
+ */
+function portalYonlendirmeleri() {
+  // Portalın kittelwerk.de altındayken kullandığı adresler.
+  const alanlar = ['admin', 'monitor', 'bestellung', 'werkstatt', 'haendler', 'is-takip', 'login'];
+
+  // Dört panelli eski dünyadan kalan adresler → CCH'deki karşılıkları.
+  const eski = {
+    '/reseller/login':    '/login',
+    '/verkauf/login':     '/login',
+    '/atolye/login':      '/login',
+    '/backend/login':     '/login',
+    '/reseller/register': '/haendler/registrierung',
+    '/atolye/kayit':      '/werkstatt/registrierung',
+    '/reseller':          '/haendler',
+    '/reseller/:path*':   '/haendler/:path*',
+    '/atolye/merkez':     '/bestellung',
+    '/atolye':            '/werkstatt',
+    '/atolye/:path*':     '/werkstatt/:path*',
+    '/backend':           '/admin',
+    '/backend/:path*':    '/admin/:path*',
+    // /verkauf tamamen kalktı: Vertrieb sipariş girmiyor.
+    '/verkauf':           '/bestellung',
+    '/verkauf/:path*':    '/bestellung',
+  };
+
+  return [
+    ...alanlar.flatMap((a) => [
+      { source: `/${a}`,        destination: `${CCH}/${a}`,        permanent: true },
+      { source: `/${a}/:path*`, destination: `${CCH}/${a}/:path*`, permanent: true },
+    ]),
+    ...Object.entries(eski).map(([source, hedef]) => ({
+      source, destination: `${CCH}${hedef}`, permanent: true,
+    })),
+  ];
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async redirects() {
@@ -9,27 +54,15 @@ const nextConfig = {
         permanent: true,
       },
 
-      // Eski panel adresleri → portal. Mevcut kullanıcıların yer imleri
-      // bozulmasın diye kalıcı (301) yönlendirme.
-      { source: '/reseller/login',    destination: '/login', permanent: true },
-      { source: '/verkauf/login',     destination: '/login', permanent: true },
-      { source: '/atolye/login',      destination: '/login', permanent: true },
-      { source: '/backend/login',     destination: '/login', permanent: true },
-
-      { source: '/reseller/register', destination: '/haendler/registrierung',  permanent: true },
-      { source: '/atolye/kayit',      destination: '/werkstatt/registrierung', permanent: true },
-
-      { source: '/reseller',          destination: '/haendler',    permanent: true },
-      { source: '/reseller/:path*',   destination: '/haendler/:path*', permanent: true },
-      { source: '/atolye/merkez',     destination: '/bestellung',  permanent: true },
-      { source: '/atolye',            destination: '/werkstatt',   permanent: true },
-      { source: '/atolye/:path*',     destination: '/werkstatt/:path*', permanent: true },
-      { source: '/backend',           destination: '/admin',       permanent: true },
-      { source: '/backend/:path*',    destination: '/admin/:path*', permanent: true },
-
-      // /verkauf tamamen kalktı: Vertrieb sipariş girmiyor.
-      { source: '/verkauf',           destination: '/bestellung',  permanent: true },
-      { source: '/verkauf/:path*',    destination: '/bestellung',  permanent: true },
+      // --- Yönetim artık burada değil -------------------------------------
+      // CCH kendi uygulamasına çıktı (gastrocollect.de). Bu dosyadaki her
+      // yönetim adresi oraya gidiyor; kittelwerk.de yalnız dükkân.
+      //
+      // İki kuşak yer imi var ve ikisi de korunuyor:
+      //   1) dört panelli eski dünya (/reseller, /atolye, /backend, /verkauf)
+      //   2) portalın kittelwerk.de altındaki hâli (/admin, /haendler, …)
+      // Hepsi kalıcı (308) — arama motorları da eski adresleri bıraksın.
+      ...portalYonlendirmeleri(),
     ];
   },
 
