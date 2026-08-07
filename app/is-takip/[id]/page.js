@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { createClient } from '@/utils/supabase/server';
 import { getProfile } from '@/lib/session';
+import { loadSites, visibleSites } from '@/lib/sites';
+import { areaLabel, PORTAL_TITLE } from '@/lib/portal';
 import { loadMusteri } from '@/lib/is-takip';
 import PortalShell from '@/components/portal/PortalShell';
 import { para, tarih, kalanGun, olcuYaz, IS_DURUM, KALEM_DURUM } from '../bicim';
 
 export const metadata = {
-  title: 'Müşteri — İş Takip — Central Communication Hub (CCH)',
+  title: `Müşteri — ${areaLabel('/is-takip')} — ${PORTAL_TITLE}`,
   robots: { index: false, follow: false },
 };
 
@@ -21,8 +24,12 @@ export default async function MusteriDetay({ params }) {
 
   const { musteri, cari, isler, odemeler } = veri;
 
+  // `sites` menüyü kuruyor — verilmezse yan menüde yalnız WWS kalır.
+  const sites = visibleSites(await loadSites(await createClient()), profile);
+
   return (
-    <PortalShell profile={profile} current="/is-takip" title={musteri.ad}>
+    <PortalShell profile={profile} current="/is-takip" title={musteri.ad}
+      sites={sites}>
       <div className="space-y-6">
         <Link href="/is-takip" className="text-[11px] uppercase tracking-[0.16em] text-cch-muted hover:text-cch-dark transition-colors">
           ← Müşteriler

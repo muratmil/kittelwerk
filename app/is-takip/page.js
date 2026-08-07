@@ -1,12 +1,17 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { createClient } from '@/utils/supabase/server';
 import { getProfile } from '@/lib/session';
+import { loadSites, visibleSites } from '@/lib/sites';
+import { areaLabel, PORTAL_TITLE } from '@/lib/portal';
 import { loadMusteriler, loadYaklasan } from '@/lib/is-takip';
 import PortalShell from '@/components/portal/PortalShell';
 import { para, tarih, kalanGun } from './bicim';
 
+const WWS = areaLabel('/is-takip');
+
 export const metadata = {
-  title: 'İş Takip — Central Communication Hub (CCH)',
+  title: `${WWS} — ${PORTAL_TITLE}`,
   robots: { index: false, follow: false },
 };
 
@@ -19,17 +24,21 @@ export default async function IsTakipPage({ searchParams }) {
   const sp = await searchParams;
   const sekme = sp?.sekme === 'yaklasan' ? 'yaklasan' : 'musteriler';
 
-  const [musteriler, yaklasan] = await Promise.all([
+  const supabase = await createClient();
+  const [musteriler, yaklasan, sites] = await Promise.all([
     loadMusteriler(profile),
     loadYaklasan(profile),
+    loadSites(supabase),
   ]);
 
   const gecikmis = yaklasan.filter((i) => (kalanGun(i.vade) ?? 0) < 0);
 
-  // Site seçici bilerek verilmiyor: iş takibin Kittelwerk/Wipello ayrımıyla
-  // ilgisi yok, seçici burada tıklanınca hiçbir şey değiştirmezdi.
+  // `sites` menüyü kuruyor, seçici değil — verilmezse yan menüden Kittelwerk
+  // ve Wipello komple kaybolur, yalnız WWS kalır. `activeSite` yok:
+  // WWS'in Kittelwerk/Wipello ayrımıyla ilgisi yok, kendi sistemi.
   return (
-    <PortalShell profile={profile} current="/is-takip" title="İş Takip">
+    <PortalShell profile={profile} current="/is-takip" title={WWS}
+      sites={visibleSites(sites, profile)}>
       <div className="space-y-4">
         <nav className="flex flex-wrap gap-2">
           <Sekme aktif={sekme === 'musteriler'} href="/is-takip">

@@ -52,10 +52,12 @@ export default function PortalShell({
       }
     }
 
-    // İş takip bir siteye bağlı değil, kendi sistemi.
-    if (areas.some((a) => a.path === '/is-takip')) {
+    // WWS bir siteye bağlı değil, kendi sistemi. Adı AREAS'tan okunuyor ki
+    // menü ile sayfa başlığı ayrışmasın.
+    const wws = areas.find((a) => a.path === '/is-takip');
+    if (wws) {
       liste.push({
-        id: 'is-takip', ad: 'İş Takip', ton: siteTone('is-takip'),
+        id: 'is-takip', ad: wws.label, ton: siteTone('is-takip'),
         cocuklar: [
           { href: '/is-takip', label: 'Müşteriler', path: '/is-takip' },
           { href: '/is-takip?sekme=yaklasan', label: 'Vadeler', path: '/is-takip' },
