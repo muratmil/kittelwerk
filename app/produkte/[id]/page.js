@@ -1,4 +1,3 @@
-import { PRODUCTS } from '@/data/products';
 import { notFound } from 'next/navigation';
 import ProductDetailPage from './ProductDetailPage';
 import { createPublicClient } from '@/utils/supabase/public';
@@ -50,8 +49,12 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export function generateStaticParams() {
-  return PRODUCTS.map(p => ({ id: p.id }));
+// Ürün listesi de veritabanından: kodda ürün kalmadı. Derleme anında
+// okunuyor, sayfanın kendisi zaten aynı veritabanına gidiyor.
+export async function generateStaticParams() {
+  const { data } = await createPublicClient()
+    .from('products').select('id').eq('site_id', 'kittelwerk');
+  return (data ?? []).map((p) => ({ id: p.id }));
 }
 
 export default async function Page({ params }) {

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Ruler, ChevronDown } from 'lucide-react';
 
-// Maßtabelle — nur für Produkte mit `sizeChart` in data/products.js.
+// Maßtabelle — nur für Produkte mit `sizeChart` in products.meta (DB).
 // Spalten kommen aus `product.sizes`, Zeilen aus `sizeChart.rows`.
 export default function SizeChart({ sizes, chart }) {
   const [isOpen, setIsOpen] = useState(false);

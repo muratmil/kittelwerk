@@ -1,10 +1,15 @@
-import { PRODUCTS } from '@/data/products';
+import { createPublicClient } from '@/utils/supabase/public';
 
-export default function sitemap() {
+// Ürünler veritabanından: yeni ürün eklendiğinde site haritasına elle satır
+// eklemek gerekmiyor, `products` tablosuna düşen her ürün buraya da düşer.
+export default async function sitemap() {
   const base = 'https://www.kittelwerk.de';
   const now = new Date();
 
-  const productPages = PRODUCTS.map(p => ({
+  const { data: produkte } = await createPublicClient()
+    .from('products').select('id').eq('site_id', 'kittelwerk').eq('active', true).order('sort_order');
+
+  const productPages = (produkte ?? []).map(p => ({
     url: `${base}/produkte/${p.id}`,
     lastModified: now,
     changeFrequency: 'weekly',
