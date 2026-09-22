@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
@@ -10,6 +11,10 @@ import ProductImage from '@/components/atoms/ProductImage';
  *
  * Eklenenler: büyütme penceresi (klavye + parmakla kaydırma), müşteri
  * çekimlerinin ayrı işaretlenmesi, etiketin görünmesi ve RENGE GÖRE SÜZME.
+ *
+ * Büyütme penceresi `document.body`ye taşınıyor (portal): galeri yapışkan
+ * (sticky) bir kutunun içinde durduğu için `fixed` katman o kutunun yığın
+ * bağlamına hapsoluyordu — sayfanın metinleri fotoğrafın ÜSTÜNE biniyordu.
  *
  * Renk: yönetimde bir fotoğrafa renk atanmışsa (`farbe`), müşteri o rengi
  * seçince o fotoğraflar ÖNE alınır ve ilki büyük görsele geçer. Gizlemiyoruz,
@@ -33,7 +38,10 @@ export default function ProductGallery({ product, farbe = null }) {
   const [aktivSrc, setAktivSrc] = useState(liste[0]?.src ?? null);
   const letzteFarbe = useRef(farbe);
   const [gross, setGross] = useState(false);
+  const [bereit, setBereit] = useState(false);     // portal ancak tarayıcıda
   const dokunma = useRef(null);
+
+  useEffect(() => setBereit(true), []);
 
   // Renk değiştiğinde büyük görsel o rengin ilk fotoğrafına atlar.
   useEffect(() => {
@@ -137,9 +145,9 @@ export default function ProductGallery({ product, farbe = null }) {
         ))}
       </div>
 
-      {gross && (
+      {gross && bereit && createPortal(
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/95 p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/95 p-4"
           onClick={() => setGross(false)}
           onTouchStart={wischStart}
           onTouchEnd={wischEnde}
@@ -173,7 +181,8 @@ export default function ProductGallery({ product, farbe = null }) {
             className="absolute right-2 md:right-6 border-2 border-paper/40 p-2 text-paper hover:border-paper">
             <ChevronRight size={22} />
           </button>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
