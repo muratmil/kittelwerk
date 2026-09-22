@@ -24,7 +24,9 @@ export default function ProductGallery({ product, farbe = null }) {
 
   const liste = useMemo(() => {
     if (!farbe || !alle.some((b) => b.farbe === farbe)) return alle;
-    const rang = (b) => (b.farbe === farbe ? 0 : !b.farbe ? 1 : 2);
+    // Müşteri çekimleri HER ZAMAN ürün çekimlerinden sonra: yoksa "Schwarz"
+    // seçili açılan üründe galeri müşteri fotoğrafıyla başlıyordu.
+    const rang = (b) => (b.art === 'kunde' ? 10 : 0) + (b.farbe === farbe ? 0 : !b.farbe ? 1 : 2);
     return [...alle].sort((a, b) => rang(a) - rang(b));
   }, [alle, farbe]);
 
@@ -37,7 +39,8 @@ export default function ProductGallery({ product, farbe = null }) {
   useEffect(() => {
     if (letzteFarbe.current === farbe) return;
     letzteFarbe.current = farbe;
-    const treffer = alle.find((b) => b.farbe === farbe);
+    const treffer = alle.find((b) => b.farbe === farbe && b.art !== 'kunde')
+      ?? alle.find((b) => b.farbe === farbe);
     if (treffer) setAktivSrc(treffer.src);
   }, [farbe, alle]);
 
