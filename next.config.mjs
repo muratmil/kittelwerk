@@ -14,6 +14,20 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Ürün fotoğrafları artık iki yerden gelebiliyor: repodaki eski dosyalar ve
+  // CCH'den yüklenen yeni dosyalar (Supabase kovası). İkincisi uzak adres
+  // olduğu için `next/image`'a açıkça tanıtılıyor (2026-09-22).
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'rtmddkhvhtdkekdzhopw.supabase.co',
+        pathname: '/storage/v1/object/public/produkt-bilder/**',
+      },
+    ],
+  },
+
   async redirects() {
     return [
       {

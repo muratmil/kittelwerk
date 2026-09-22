@@ -1,16 +1,36 @@
-export default function ProductImage({ src, backSrc, alt }) {
+import Image from 'next/image';
+
+/**
+ * Ürün kapak görseli (2026-09-22'de `next/image`'a geçti).
+ *
+ * Eskiden düz `<img>` idi: telefon 1600 pikselik dosyayı indirip 400 piksele
+ * sıkıştırıyordu ve görsel yüklenene kadar sayfa zıplıyordu. Artık Next
+ * boyutu ve biçimi (AVIF/WebP) isteğe göre üretiyor; `sizes` hangi ekranda
+ * hangi genişliğin gerektiğini söylüyor.
+ *
+ * `mix-blend-multiply` duruyor: ürün çekimleri beyaz zeminli, kâğıt rengi
+ * arka planda böyle kesiliyor.
+ */
+export default function ProductImage({ src, backSrc, alt, priority = false }) {
+  if (!src) return <div className="aspect-square w-full border-2 border-ink bg-paper" />;
+
   return (
     <div className="relative aspect-square w-full overflow-hidden border-2 border-ink bg-paper group">
-      <img
+      <Image
         src={src}
         alt={alt}
-        className={`w-full h-full object-contain mix-blend-multiply scale-90 transition-all duration-500 ${backSrc ? 'group-hover:opacity-0 group-hover:scale-95' : 'group-hover:scale-95'}`}
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        priority={priority}
+        className={`object-contain mix-blend-multiply scale-90 transition-all duration-500 ${backSrc ? 'group-hover:opacity-0 group-hover:scale-95' : 'group-hover:scale-95'}`}
       />
       {backSrc && (
-        <img
+        <Image
           src={backSrc}
           alt={`${alt} Rückseite`}
-          className="absolute inset-0 w-full h-full object-contain mix-blend-multiply scale-95 opacity-0 group-hover:opacity-100 transition-all duration-500"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-contain mix-blend-multiply scale-95 opacity-0 group-hover:opacity-100 transition-all duration-500"
         />
       )}
     </div>

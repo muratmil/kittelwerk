@@ -206,7 +206,7 @@ export default function ProductDetailPage({ product }) {
           {/* Sol — Görsel */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="relative">
-              <ProductGallery product={product} />
+              <ProductGallery product={product} farbe={selectedColor} />
               {product.badge && (
                 <span className="absolute top-4 left-4 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 z-10">
                   {product.badge}
