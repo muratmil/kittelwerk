@@ -99,8 +99,10 @@ export default function ProductGallery({ product, farbe = null }) {
         <span className="absolute bottom-2 right-2 flex items-center gap-1 bg-ink/85 text-paper text-[9px] font-black uppercase tracking-widest px-2 py-1">
           <ZoomIn size={12} />Zoom
         </span>
+        {/* Sol ÜST köşe kampanya rozetinin yeri (detay sayfası oraya yazıyor),
+            bu yüzden müşteri işareti sol ALTA konuyor. */}
         {aktiv.art === 'kunde' && (
-          <span className="absolute top-2 left-2 bg-tomato text-paper text-[9px] font-black uppercase tracking-widest px-2 py-1">
+          <span className="absolute bottom-2 left-2 bg-tomato text-paper text-[9px] font-black uppercase tracking-widest px-2 py-1">
             Kundenfoto
           </span>
         )}
