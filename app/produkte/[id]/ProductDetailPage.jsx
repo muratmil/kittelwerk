@@ -25,7 +25,13 @@ export default function ProductDetailPage({ product }) {
   const minQty = product.minQty || MIN_QTY;
   const sizes = product.sizes || SIZES;
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
+  // Varsayılan renk = KAPAK fotoğrafının rengi (2026-09-22). Yoksa ilk renk.
+  // Kapak lacivert bir ceket gösterirken kutucukta siyah seçili durmasın:
+  // galeri o zaman seçili renge atlayıp yan görünüşle açılıyordu.
+  const kapakFarbe = product.gallery?.find((b) => b.src === product.image)?.farbe;
+  const [selectedColor, setSelectedColor] = useState(
+    product.colors.some((c) => c.name === kapakFarbe) ? kapakFarbe : product.colors[0].name,
+  );
   const [sizeQtys, setSizeQtys] = useState(
     product.hasSizes
       ? Object.fromEntries(sizes.map(s => [s, 0]))
