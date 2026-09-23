@@ -8,7 +8,9 @@ export const revalidate = 60;
 
 async function ladeProdukt(id) {
   const { products } = await loadCatalog(createPublicClient(), { includeInactive: true, siteId: 'kittelwerk' });
-  return products.find((p) => p.id === id) ?? null;
+  // Adres ya görünen slug ya da eski kimlik olabilir: eski bağlantılar
+  // (ve arama motorundaki kayıtlar) çalışmaya devam etmeli.
+  return products.find((p) => p.slug === id) ?? products.find((p) => p.id === id) ?? null;
 }
 
 const PRODUCT_DESCRIPTIONS = {
@@ -40,11 +42,11 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: `${product.name} | Kittelwerk`,
       description,
-      url: `https://www.kittelwerk.de/produkte/${id}`,
+      url: `https://www.kittelwerk.de/produkte/${product.slug ?? id}`,
       images: [{ url: product.image, width: 800, height: 800, alt: product.name }],
     },
     alternates: {
-      canonical: `https://www.kittelwerk.de/produkte/${id}`,
+      canonical: `https://www.kittelwerk.de/produkte/${product.slug ?? id}`,
     },
   };
 }
@@ -53,8 +55,9 @@ export async function generateMetadata({ params }) {
 // okunuyor, sayfanın kendisi zaten aynı veritabanına gidiyor.
 export async function generateStaticParams() {
   const { data } = await createPublicClient()
-    .from('products').select('id').eq('site_id', 'kittelwerk');
-  return (data ?? []).map((p) => ({ id: p.id }));
+    .from('products').select('id, meta').eq('site_id', 'kittelwerk');
+  // Önceden üretilen adres GÖRÜNEN adrestir; eski kimlik yönlendirmeyle çözülür.
+  return (data ?? []).map((p) => ({ id: p.meta?.slug ?? p.id }));
 }
 
 export default async function Page({ params }) {
@@ -93,7 +96,7 @@ export default async function Page({ params }) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Kittelwerk', item: 'https://www.kittelwerk.de' },
       { '@type': 'ListItem', position: 2, name: 'Produkte', item: 'https://www.kittelwerk.de/produkte' },
-      { '@type': 'ListItem', position: 3, name: product.name, item: `https://www.kittelwerk.de/produkte/${product.id}` },
+      { '@type': 'ListItem', position: 3, name: product.name, item: `https://www.kittelwerk.de/produkte/${product.slug ?? product.id}` },
     ],
   };
 

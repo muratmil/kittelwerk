@@ -49,7 +49,7 @@ export default function ProductCard({ product }) {
   if (product.comingSoon) {
     return (
       <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
-        <Link href={`/produkte/${product.id}`} className="relative block group/img">
+        <Link href={`/produkte/${product.slug ?? product.id}`} className="relative block group/img">
           <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
           <span className="absolute top-3 left-3 bg-ink text-sun text-[9px] font-black uppercase tracking-widest px-2 py-1">
             Bald hier
@@ -131,7 +131,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
-      <Link href={`/produkte/${product.id}`} className="relative block group/img">
+      <Link href={`/produkte/${product.slug ?? product.id}`} className="relative block group/img">
         <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
         {product.badge && (
           <span className="absolute top-3 left-3 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-2 py-1">

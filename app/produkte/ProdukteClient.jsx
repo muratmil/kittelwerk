@@ -9,9 +9,9 @@ import ProductCard from '@/components/molecules/ProductCard';
 
 
 const CATEGORIES = [
-  { key: 'bekleidung', label: 'Arbeitskleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
-  { key: 'schuerzen', label: 'Schürzen', sub: 'Vorbinder-, Latz- & Barista-Schürzen' },
-  { key: 'accessoires', label: 'Accessoires', sub: 'Kappen, Beanies & Extras' },
+  { key: 'bekleidung', slug: 'arbeitskleidung', label: 'Arbeitskleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
+  { key: 'schuerzen', slug: 'schuerzen', label: 'Schürzen', sub: 'Vorbinder-, Latz- & Barista-Schürzen' },
+  { key: 'accessoires', slug: 'accessoires', label: 'Accessoires', sub: 'Kappen, Beanies & Extras' },
 ];
 
 export default function ProdukteClient({ products = [] }) {
@@ -47,11 +47,14 @@ export default function ProdukteClient({ products = [] }) {
             if (items.length === 0) return null;
             return (
               <div key={cat.key} className="mb-16 last:mb-0">
-                <div className="flex items-baseline gap-4 border-b-4 border-ink pb-3 mb-8">
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b-4 border-ink pb-3 mb-8">
                   <h2 className="font-serif font-black text-3xl md:text-4xl uppercase italic tracking-tighter">
-                    {cat.label}
+                    <Link href={`/produkte/${cat.slug}`} className="hover:text-tomato transition-colors">{cat.label}</Link>
                   </h2>
                   <span className="text-[10px] font-black uppercase tracking-widest opacity-50">{cat.sub}</span>
+                  <Link href={`/produkte/${cat.slug}`} className="ml-auto text-[10px] font-black uppercase tracking-widest text-tomato hover:underline">
+                    Alle ansehen →
+                  </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {items.map((product) => (

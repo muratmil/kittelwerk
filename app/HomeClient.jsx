@@ -4,14 +4,15 @@ import AlertBar from '@/components/layout/AlertBar';
 import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
 import TrustBar from '@/components/sections/TrustBar';
+import Link from 'next/link';
 import ProductCard from '@/components/molecules/ProductCard';
 
 // Ürünler sayfasındakiyle AYNI sıra ve adlar; ikisi ayrışırsa müşteri
 // ana sayfada gördüğü grubu listede bulamaz.
 const KATEGORIEN = [
-  { key: 'bekleidung', label: 'Arbeitskleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
-  { key: 'schuerzen', label: 'Schürzen', sub: 'Vorbinder-, Latz- & Barista-Schürzen' },
-  { key: 'accessoires', label: 'Accessoires', sub: 'Kappen, Beanies & Extras' },
+  { key: 'bekleidung', slug: 'arbeitskleidung', label: 'Arbeitskleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
+  { key: 'schuerzen', slug: 'schuerzen', label: 'Schürzen', sub: 'Vorbinder-, Latz- & Barista-Schürzen' },
+  { key: 'accessoires', slug: 'accessoires', label: 'Accessoires', sub: 'Kappen, Beanies & Extras' },
 ];
 import Calculator from '@/components/sections/Calculator';
 import Process from '@/components/sections/Process';
@@ -58,9 +59,12 @@ export default function HomeClient({ products = [] }) {
                 <div key={kat.key}>
                   <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b-4 border-ink pb-3 mb-8">
                     <h3 className="font-serif font-black text-2xl md:text-3xl uppercase italic tracking-tighter leading-none">
-                      {kat.label}
+                      <Link href={`/produkte/${kat.slug}`} className="hover:text-tomato transition-colors">{kat.label}</Link>
                     </h3>
                     <span className="text-[10px] font-black uppercase tracking-widest opacity-50">{kat.sub}</span>
+                    <Link href={`/produkte/${kat.slug}`} className="ml-auto text-[10px] font-black uppercase tracking-widest text-tomato hover:underline">
+                      Alle ansehen →
+                    </Link>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {liste.map((product) => (

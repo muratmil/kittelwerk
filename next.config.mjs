@@ -30,6 +30,9 @@ const nextConfig = {
 
   async redirects() {
     return [
+      // Ürün artık Barista-Schürze; eski adres kalıcı olarak yenisine gidiyor
+      // (2026-09-23). Ürün kimliği veritabanında `bistro` olarak kaldı.
+      { source: '/produkte/bistro', destination: '/produkte/barista-schuerze', permanent: true },
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'kittelwerk.de' }],
