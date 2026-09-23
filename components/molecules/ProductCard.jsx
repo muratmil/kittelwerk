@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { ShoppingBag, Plus, Minus } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
 import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
+import { STANDARD_GROESSEN, groessenAufpreis } from '@/lib/groessen';
 
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const SIZES = STANDARD_GROESSEN;
 const MIN_QTY = 10;
 
 const PRINT_OPTIONS = [
@@ -346,7 +347,12 @@ export default function ProductCard({ product }) {
                   </div>
                   {sizeQtys[size] > 0 && (
                     <span className="text-[10px] opacity-50">
-                      = {(totalUnitPrice * sizeQtys[size]).toFixed(2)}€
+                      = {((totalUnitPrice + groessenAufpreis(product, size)) * sizeQtys[size]).toFixed(2)}€
+                    </span>
+                  )}
+                  {groessenAufpreis(product, size) > 0 && sizeQtys[size] === 0 && (
+                    <span className="text-[9px] font-black text-tomato opacity-80">
+                      +{groessenAufpreis(product, size).toFixed(2)}€
                     </span>
                   )}
                 </div>

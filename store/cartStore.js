@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { zeilenSumme } from '@/lib/groessen';
 
 export const FREE_PRINT_TYPES = ['none', 'front', 'back', 'both'];
 export const LOGO_SERVICE_FEE = 100;
@@ -50,6 +51,8 @@ export const useCartStore = create((set, get) => ({
           ),
         };
       }
+      // `sizeSurcharge` ürünle birlikte satıra kopyalanıyor: sepetteki satır
+      // kendi başına hesaplanabilir olmalı (sunucu yine kendi hesabını yapar).
       return { items: [...state.items, { ...product, color, sizes, qty, price, printType, fabric }] };
     });
   },
@@ -70,7 +73,7 @@ export const useCartStore = create((set, get) => ({
 
   removeCode: () => set({ appliedCode: null, discountPercent: 0 }),
 
-  getSubtotal: () => get().items.reduce((acc, item) => acc + (item.price * item.qty), 0),
+  getSubtotal: () => get().items.reduce((acc, item) => acc + zeilenSumme(item), 0),
   getDiscountAmount: () => {
     const subtotal = get().getSubtotal();
     return subtotal * get().discountPercent / 100;
@@ -86,6 +89,6 @@ export const useCartStore = create((set, get) => ({
     return subtotal - discount + shipping + logoFee + fileCheckFee;
   },
 
-  getTotalPrice: () => get().items.reduce((acc, item) => acc + (item.price * item.qty), 0),
+  getTotalPrice: () => get().items.reduce((acc, item) => acc + zeilenSumme(item), 0),
   getTotalQty: () => get().items.reduce((acc, item) => acc + item.qty, 0),
 }));

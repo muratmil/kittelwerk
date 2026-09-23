@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import { esc } from '@/lib/escapeHtml';
 import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 import { loadCatalog, priceOf } from '@/lib/catalog';
+import { groessenAufpreis } from '@/lib/groessen';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -93,14 +94,19 @@ export async function POST(req) {
       : (PRINT_PRICES[item.printType] ?? 0);
     const unitPrice = basePrice + printPrice;
 
+    // Büyük beden farkı (3XL/4XL): ürünün kendi tablosundan, istemciden DEĞİL.
+    const aufpreis = Object.entries(item.sizes ?? {}).reduce(
+      (toplam, [groesse, adet]) => toplam + (Number(adet) || 0) * groessenAufpreis(product, groesse), 0,
+    );
+
     // Maliyet anlık görüntüsü — kur sonradan değişse de bu siparişin kârı bozulmaz.
     const unitCost = product.staffel?.[0]?.costEur ?? null;
     if (unitCost != null) costTotal += unitCost * qty;
 
-    recalcItems.push({ ...item, price: unitPrice, basePrice, unitCost });
+    recalcItems.push({ ...item, price: unitPrice, basePrice, unitCost, groessenAufpreis: aufpreis });
   }
 
-  const subtotal = recalcItems.reduce((s, i) => s + i.price * i.qty, 0);
+  const subtotal = recalcItems.reduce((s, i) => s + i.price * i.qty + (i.groessenAufpreis ?? 0), 0);
 
   const discountPct = discountCode ? (DISCOUNT_CODES[discountCode.toUpperCase()] ?? 0) : 0;
   const discountAmount = discountPct > 0 ? parseFloat((subtotal * discountPct / 100).toFixed(2)) : 0;
@@ -147,7 +153,7 @@ export async function POST(req) {
       <td style="padding:8px;border-bottom:1px solid #eee;">${esc(i.color)} · ${formatSizes(i.sizes)}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${formatPrintType(i.printType)}</td>
       <td style="padding:8px;border-bottom:1px solid #eee;">${i.qty} Stück</td>
-      <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${(i.price * i.qty).toFixed(2)}€</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${(i.price * i.qty + (i.groessenAufpreis ?? 0)).toFixed(2)}€${i.groessenAufpreis ? `<br><span style="font-size:11px;color:#888;">inkl. ${i.groessenAufpreis.toFixed(2)}€ Größenaufpreis</span>` : ''}</td>
     </tr>`
   ).join('');
 

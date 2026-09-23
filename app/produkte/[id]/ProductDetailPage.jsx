@@ -8,9 +8,10 @@ import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
 import ProductGallery from '@/components/atoms/ProductGallery';
 import SizeChart from '@/components/molecules/SizeChart';
+import { STANDARD_GROESSEN, groessenAufpreis, hatAufpreis } from '@/lib/groessen';
 import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
 
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const SIZES = STANDARD_GROESSEN;
 const MIN_QTY = 10;
 
 const PRINT_OPTIONS = [
@@ -171,6 +172,10 @@ export default function ProductDetailPage({ product }) {
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
   const basePrice = getTieredPrice(product, totalQty);
   const totalUnitPrice = basePrice + effectivePrintPrice;
+  // Büyük bedenlerin parça farkı toplama ayrıca ekleniyor (sunucu da aynısını yapıyor).
+  const aufpreisGesamt = Object.entries(sizeQtys)
+    .reduce((s2, [groesse, adet]) => s2 + (adet || 0) * groessenAufpreis(product, groesse), 0);
+  const gesamtPreis = totalUnitPrice * totalQty + aufpreisGesamt;
   const savings = ((product.oldPrice - basePrice) / product.oldPrice * 100).toFixed(0);
 
   const updateSize = (size, val) => {
@@ -400,7 +405,12 @@ export default function ProductDetailPage({ product }) {
                       </div>
                       {sizeQtys[size] > 0 && (
                         <span className="text-[10px] font-black opacity-50">
-                          = {(totalUnitPrice * sizeQtys[size]).toFixed(2)}€
+                          = {((totalUnitPrice + groessenAufpreis(product, size)) * sizeQtys[size]).toFixed(2)}€
+                        </span>
+                      )}
+                      {groessenAufpreis(product, size) > 0 && sizeQtys[size] === 0 && (
+                        <span className="text-[9px] font-black uppercase tracking-wider text-tomato opacity-80">
+                          +{groessenAufpreis(product, size).toFixed(2)}€
                         </span>
                       )}
                     </div>
@@ -445,8 +455,11 @@ export default function ProductDetailPage({ product }) {
               <div className="border-4 border-ink bg-sun p-4 flex items-center justify-between">
                 <div>
                   <p className="text-[9px] font-black uppercase opacity-60">Gesamt</p>
-                  <p className="font-black text-2xl">{(totalUnitPrice * totalQty).toFixed(2)}€</p>
-                  <p className="text-[9px] opacity-60">{totalQty} Stück × {totalUnitPrice.toFixed(2)}€</p>
+                  <p className="font-black text-2xl">{gesamtPreis.toFixed(2)}€</p>
+                  <p className="text-[9px] opacity-60">
+                    {totalQty} Stück × {totalUnitPrice.toFixed(2)}€
+                    {aufpreisGesamt > 0 && ` + ${aufpreisGesamt.toFixed(2)}€ Größenaufpreis`}
+                  </p>
                 </div>
                 <button onClick={handleAddToCart}
                   className={`px-8 py-4 font-black text-sm uppercase flex items-center gap-2 shadow-brutalist transition-all

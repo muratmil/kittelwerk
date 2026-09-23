@@ -1,4 +1,5 @@
 'use client';
+import { aufpreisSumme } from '@/lib/groessen';
 import { useCartStore, FREE_SHIPPING_THRESHOLD, LOGO_SERVICE_FEE, FILE_CHECK_FEE } from '@/store/cartStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Tag, CheckCircle, PenLine, ScanSearch } from 'lucide-react';
@@ -88,6 +89,11 @@ export default function CartDrawer({ isOpen, onClose }) {
                         <SizeBreakdown sizes={item.sizes} />
                         <div className="flex justify-between items-end mt-2">
                           <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
+                          {aufpreisSumme(item) > 0 && (
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-tomato">
+                              + {aufpreisSumme(item).toFixed(2)}€ Größenaufpreis
+                            </span>
+                          )}
                           <button onClick={() => removeItem(item.id, item.color, item.printType, item.fabric)} className="text-tomato">
                             <Trash2 size={16} />
                           </button>

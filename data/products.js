@@ -5,6 +5,8 @@ export const PRODUCTS = [
     name: 'Gastro T-Shirt',
     desc: '24/1 Supreme Baumwolle · Premium Profi-Ware',
     deliveryTime: '1–2 Wochen',
+    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'],
+    sizeSurcharge: { '3XL': 1, '4XL': 1 },   // büyük bedende parça başına 1 € fark
     image: '/images/tshirt-02-vorn-herren.webp',
     backImage: '/images/tshirt-04-rueck.webp',
     gallery: [
@@ -123,6 +125,8 @@ export const PRODUCTS = [
     name: 'Premium Sweatshirt',
     desc: '320 g/m² · Hochwertig & Winterfest',
     deliveryTime: '3–4 Wochen',
+    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'],
+    sizeSurcharge: { '3XL': 1, '4XL': 1 },   // büyük bedende parça başına 1 € fark
     image: '/images/sweat-02-vorn-herren-rot.webp',
     backImage: '/images/sweat-04-rueck-damen-gelb.webp',
     gallery: [
@@ -188,6 +192,8 @@ export const PRODUCTS = [
     name: 'Fleece Jacke',
     desc: 'Anti-Pilling Fleece · Warm & Atmungsaktiv',
     deliveryTime: '3–4 Wochen',
+    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'],
+    sizeSurcharge: { '3XL': 1, '4XL': 1 },   // büyük bedende parça başına 1 € fark
     image: '/images/fleece-02-vorn-herren-rot.webp',
     backImage: '/images/fleece-04-rueck-herren-weiss.webp',
     gallery: [

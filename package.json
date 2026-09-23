@@ -9,7 +9,8 @@
     "lint": "next lint",
     "push:meta": "node scripts/push-products-meta.mjs",
     "test:pricing": "node scripts/pricing-test.mjs",
-    "test": "npm run test:pricing"
+    "test": "npm run test:pricing && npm run test:groessen",
+    "test:groessen": "node scripts/groessen-test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
