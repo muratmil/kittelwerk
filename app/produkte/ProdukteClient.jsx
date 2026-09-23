@@ -9,7 +9,7 @@ import ProductCard from '@/components/molecules/ProductCard';
 
 
 const CATEGORIES = [
-  { key: 'bekleidung', label: 'Bekleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
+  { key: 'bekleidung', label: 'Arbeitskleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
   { key: 'schuerzen', label: 'Schürzen', sub: 'Vorbinder-, Latz- & Barista-Schürzen' },
   { key: 'accessoires', label: 'Accessoires', sub: 'Kappen, Beanies & Extras' },
 ];

@@ -5,6 +5,14 @@ import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
 import TrustBar from '@/components/sections/TrustBar';
 import ProductCard from '@/components/molecules/ProductCard';
+
+// Ürünler sayfasındakiyle AYNI sıra ve adlar; ikisi ayrışırsa müşteri
+// ana sayfada gördüğü grubu listede bulamaz.
+const KATEGORIEN = [
+  { key: 'bekleidung', label: 'Arbeitskleidung', sub: 'T-Shirts, Polos, Hoodies, Jacken & mehr' },
+  { key: 'schuerzen', label: 'Schürzen', sub: 'Vorbinder-, Latz- & Barista-Schürzen' },
+  { key: 'accessoires', label: 'Accessoires', sub: 'Kappen, Beanies & Extras' },
+];
 import Calculator from '@/components/sections/Calculator';
 import Process from '@/components/sections/Process';
 import Benefits from '@/components/sections/Benefits';
@@ -36,13 +44,32 @@ export default function HomeClient({ products = [] }) {
               Die Kollektion. <span className="text-tomato">Ein Preis.</span>
             </h2>
             <p className="mt-3 text-sm font-medium opacity-60">
-              Alle Artikel in <strong>Schwarz · Weiß · Rot</strong> · Mindestbestellung: <strong>10 Stück gesamt</strong>
+              Logo-Druck inklusive · Mindestbestellung: <strong>10 Stück gesamt</strong> · Produkte kombinierbar
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+
+          {/* Ürünler kategori kategori (2026-09-23): tek uzun ızgarada önlük ile
+              tişört yan yana düşüyordu; müşteri aradığı grubu bulamıyordu. */}
+          <div className="space-y-16">
+            {KATEGORIEN.map((kat) => {
+              const liste = products.filter((p) => (p.category ?? 'arbeitskleidung') === kat.key);
+              if (liste.length === 0) return null;
+              return (
+                <div key={kat.key}>
+                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b-4 border-ink pb-3 mb-8">
+                    <h3 className="font-serif font-black text-2xl md:text-3xl uppercase italic tracking-tighter leading-none">
+                      {kat.label}
+                    </h3>
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">{kat.sub}</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {liste.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <div className="mt-10 border-4 border-ink bg-sun p-6 shadow-brutalist">
             <p className="text-[10px] font-black uppercase tracking-widest text-ink/50 mb-3">Zusatzleistungen</p>
