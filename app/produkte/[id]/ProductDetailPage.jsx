@@ -176,7 +176,8 @@ export default function ProductDetailPage({ product }) {
   const aufpreisGesamt = Object.entries(sizeQtys)
     .reduce((s2, [groesse, adet]) => s2 + (adet || 0) * groessenAufpreis(product, groesse), 0);
   const gesamtPreis = totalUnitPrice * totalQty + aufpreisGesamt;
-  const savings = ((product.oldPrice - basePrice) / product.oldPrice * 100).toFixed(0);
+  const hatAltpreis = typeof product.oldPrice === 'number' && product.oldPrice > basePrice;
+  const savings = hatAltpreis ? ((product.oldPrice - basePrice) / product.oldPrice * 100).toFixed(0) : null;
 
   const updateSize = (size, val) => {
     const num = Math.max(0, parseInt(val) || 0);
@@ -223,9 +224,11 @@ export default function ProductDetailPage({ product }) {
                   {product.badge}
                 </span>
               )}
-              <span className="absolute top-4 right-4 bg-sun text-ink text-[9px] font-black uppercase px-3 py-1.5 z-10">
-                -{savings}%
-              </span>
+              {hatAltpreis && (
+                <span className="absolute top-4 right-4 bg-sun text-ink text-[9px] font-black uppercase px-3 py-1.5 z-10">
+                  -{savings}%
+                </span>
+              )}
             </div>
           </div>
 
@@ -251,9 +254,9 @@ export default function ProductDetailPage({ product }) {
             <div className="border-4 border-ink bg-white p-5 shadow-brutalist">
               <div className="flex items-baseline gap-3 mb-3">
                 <span className="font-black text-4xl text-ink">{basePrice.toFixed(2)}€</span>
-                <span className="text-base line-through opacity-40">{product.oldPrice.toFixed(2)}€</span>
+                {hatAltpreis && <span className="text-base line-through opacity-40">{product.oldPrice.toFixed(2)}€</span>}
                 <span className="text-[9px] font-black uppercase opacity-60">/ Stück</span>
-                <span className="ml-auto bg-tomato text-white text-[9px] font-black px-2 py-1">-{savings}%</span>
+                {hatAltpreis && <span className="ml-auto bg-tomato text-white text-[9px] font-black px-2 py-1">-{savings}%</span>}
               </div>
 
               <div className="border-t-2 border-ink/20 pt-3">

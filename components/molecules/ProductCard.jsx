@@ -106,7 +106,10 @@ export default function ProductCard({ product }) {
   const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
   const basePrice = getTieredPrice(product, totalQty);
   const totalUnitPrice = basePrice + effectivePrintPrice;
-  const savings = ((product.oldPrice - basePrice) / product.oldPrice * 100).toFixed(0);
+  // Eski fiyat olmayabilir (2026-09-23): yeni ürünlerde uydurma bir "durchgestrichener
+  // Preis" hem yanıltıcı hem Almanya'da riskli. Yoksa rozet de üstü çizili fiyat da çizilmiyor.
+  const hatAltpreis = typeof product.oldPrice === 'number' && product.oldPrice > basePrice;
+  const savings = hatAltpreis ? ((product.oldPrice - basePrice) / product.oldPrice * 100).toFixed(0) : null;
 
   const updateSize = (size, val) => {
     const num = Math.max(0, parseInt(val) || 0);
@@ -135,9 +138,11 @@ export default function ProductCard({ product }) {
             {product.badge}
           </span>
         )}
-        <span className="absolute top-3 right-3 bg-sun text-ink text-[9px] font-black uppercase px-2 py-1">
-          -{savings}%
-        </span>
+        {hatAltpreis && (
+          <span className="absolute top-3 right-3 bg-sun text-ink text-[9px] font-black uppercase px-2 py-1">
+            -{savings}%
+          </span>
+        )}
         <span className="absolute inset-0 bg-ink/0 group-hover/img:bg-ink/10 transition-all flex items-center justify-center">
           <span className="opacity-0 group-hover/img:opacity-100 bg-ink text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 transition-all">
             Details anzeigen →
@@ -155,7 +160,7 @@ export default function ProductCard({ product }) {
         <div className="border-2 border-ink p-3 bg-white space-y-1">
           <div className="flex items-baseline gap-3">
             <span className="font-black text-2xl text-ink">{basePrice.toFixed(2)}€</span>
-            <span className="text-sm line-through opacity-40">{product.oldPrice.toFixed(2)}€</span>
+            {hatAltpreis && <span className="text-sm line-through opacity-40">{product.oldPrice.toFixed(2)}€</span>}
             <span className="text-[9px] font-black uppercase opacity-60">/ Stück</span>
           </div>
           {product.tiers && (
