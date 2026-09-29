@@ -27,7 +27,7 @@ export const PRODUCTS = [
     colors: [{ name: 'Schwarz', hex: '#0a0a0a' }, { name: 'Weiß', hex: '#f5f5f0' }, { name: 'Rot', hex: '#c8102e' }],
     hasSizes: true,
     hasBackPrint: true,
-    longDesc: 'Unser Premium T-Shirt aus 100% Baumwolle (24/1 Premium-Garn, ca. 180–190 g/m²) wurde für den täglichen Einsatz in Gastronomie-Betrieben entwickelt. Das Naturmaterial ist atmungsaktiv und sorgt für angenehmes Tragen auch bei körperlich anspruchsvollen Schichten. Dank der hochwertigen Verarbeitung ist das Shirt maschinenwaschbar und behält bei sachgemäßer Pflege seine Form. Erhältlich in Schwarz, Weiß und Rot – mit optionalem Vorder- und Rückendruck für Ihr Firmenlogo, kostenlos inklusive.',
+    longDesc: 'Ein erstklassiges T-Shirt für die Gastronomie – gemacht für lange Schichten und unzählige Waschgänge. Unser Premium T-Shirt aus 100% Baumwolle (24/1 Premium-Garn, ca. 180–190 g/m²) wurde für den täglichen Einsatz in Gastronomie-Betrieben entwickelt. Das Naturmaterial ist atmungsaktiv und sorgt für angenehmes Tragen auch bei körperlich anspruchsvollen Schichten. Dank der hochwertigen Verarbeitung ist das Shirt maschinenwaschbar und behält bei sachgemäßer Pflege seine Form. Erhältlich in Schwarz, Weiß und Rot – mit optionalem Vorder- und Rückendruck für Ihr Firmenlogo, kostenlos inklusive.',
     details: [
       'Material: 100% reine Baumwolle.',
       'Stoffqualität: 24/1 Premium-Garn (190 g/m²).',
