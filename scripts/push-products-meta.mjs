@@ -52,6 +52,12 @@ for (const p of PRODUCTS) {
     continue;
   }
 
+  // Çeviriler (`meta.i18n`, 2026-09-29) bu dosyada değil, veritabanında
+  // duruyor: üzerine yazıp silmemek için mevcut değer korunuyor.
+  const { data: mevcut } = await db.from('products').select('meta')
+    .eq('site_id', 'kittelwerk').eq('id', p.id).maybeSingle();
+  if (mevcut?.meta?.i18n && !meta.i18n) meta.i18n = mevcut.meta.i18n;
+
   const { data, error } = await db
     .from('products')
     .update({ meta })

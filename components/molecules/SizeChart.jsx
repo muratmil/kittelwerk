@@ -1,11 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { Ruler, ChevronDown } from 'lucide-react';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 // Maßtabelle — nur für Produkte mit `sizeChart` in products.meta (DB).
 // Spalten kommen aus `product.sizes`, Zeilen aus `sizeChart.rows`.
 export default function SizeChart({ sizes, chart }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useSprache();
   if (!chart?.rows?.length || !sizes?.length) return null;
 
   const fmt = (v) => (v === null || v === undefined ? '–' : String(v).replace('.', ','));
@@ -18,7 +20,7 @@ export default function SizeChart({ sizes, chart }) {
         className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-sun transition-all"
       >
         <Ruler size={16} className="flex-shrink-0" />
-        <span className="text-[9px] font-black uppercase tracking-widest">Maßtabelle</span>
+        <span className="text-[9px] font-black uppercase tracking-widest">{t.produkt.masstabelle}</span>
         <span className="text-[9px] uppercase tracking-widest opacity-50 ml-auto mr-2 hidden sm:inline">
           {sizes[0]}–{sizes[sizes.length - 1]}
         </span>
@@ -32,7 +34,7 @@ export default function SizeChart({ sizes, chart }) {
               <thead>
                 <tr>
                   <th className="text-left font-black uppercase text-[9px] tracking-widest pb-2 pr-3 whitespace-nowrap">
-                    Maß in cm
+                    {t.produkt.massInCm}
                   </th>
                   {sizes.map((size) => (
                     <th key={size} className="font-black uppercase text-[10px] pb-2 px-1 text-center w-12">

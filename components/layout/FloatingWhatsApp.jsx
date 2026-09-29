@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 export default function FloatingWhatsApp() {
   const [hovered, setHovered] = useState(false);
+  const { t } = useSprache();
 
   return (
     <a
@@ -12,14 +14,14 @@ export default function FloatingWhatsApp() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className="fixed bottom-6 right-6 z-50 flex items-center gap-3 group"
-      aria-label="WhatsApp kontaktieren"
+      aria-label={t.whatsapp.label}
     >
       {/* Tooltip */}
       <span
         className={`bg-ink text-white text-[11px] font-black uppercase tracking-wide px-3 py-2 shadow-brutalist whitespace-nowrap transition-all duration-200
           ${hovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'}`}
       >
-        Schreiben Sie uns
+        {t.whatsapp.tooltip}
       </span>
 
       {/* Buton */}

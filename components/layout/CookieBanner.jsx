@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 /**
  * Çerez bilgilendirme kutusu.
@@ -30,6 +31,7 @@ export function hasAnalyticsConsent() {
 
 export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
+  const { t, p } = useSprache();
 
   useEffect(() => {
     try {
@@ -62,21 +64,20 @@ export default function CookieBanner() {
       {isVisible && (
         <motion.div
           initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
-          role="region" aria-label="Hinweis zu Cookies"
+          role="region" aria-label={t.cookie.region}
           className="fixed bottom-6 left-6 right-6 md:left-auto md:w-[400px] bg-ink text-white p-6 border-4 border-sun z-[200] shadow-brutalist-lg"
         >
-          <h5 className="font-serif font-black text-xl mb-2 italic text-sun">Kekse? 🍪</h5>
+          <h5 className="font-serif font-black text-xl mb-2 italic text-sun">{t.cookie.titel}</h5>
           <p className="text-[10px] leading-relaxed uppercase tracking-widest opacity-80 mb-4">
-            Wir speichern nur, was für die Seite nötig ist. Messungen finden nur statt,
-            wenn du zustimmst.{' '}
-            <a href="/datenschutz" className="underline hover:text-sun">Datenschutz</a>
+            {t.cookie.text}{' '}
+            <a href={p('/datenschutz')} className="underline hover:text-sun">{t.cookie.datenschutz}</a>
           </p>
           <div className="flex gap-3">
             <button type="button" onClick={() => karar('rejected')} className={dugme}>
-              Ablehnen
+              {t.cookie.ablehnen}
             </button>
             <button type="button" onClick={() => karar('accepted')} className={dugme}>
-              Einverstanden
+              {t.cookie.zustimmen}
             </button>
           </div>
         </motion.div>

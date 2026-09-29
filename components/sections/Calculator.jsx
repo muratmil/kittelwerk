@@ -1,16 +1,20 @@
 'use client';
 import { useState } from 'react';
 import { getTieredPrice } from '@/store/cartStore';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
+// Etiketler sözlükte: `rechner.produkte.<key>`.
 const CALC_PRODUCTS = [
-  { label: 'T-Shirt',     key: 'tshirt', default: 50 },
-  { label: 'Latzschürze', key: 'latz',   default: 20 },
-  { label: 'Schürze',     key: 'apron',  default: 20 },
-  { label: 'Kappe',       key: 'cap',    default: 10 },
-  { label: 'Sweatshirt',  key: 'sweat',  default: 20 },
+  { key: 'tshirt', default: 50 },
+  { key: 'latz',   default: 20 },
+  { key: 'apron',  default: 20 },
+  { key: 'cap',    default: 10 },
+  { key: 'sweat',  default: 20 },
 ];
 
 export default function Calculator({ products = [] }) {
+  const { t, f } = useSprache();
+  const r = t.rechner;
   const [qtys, setQtys] = useState(
     Object.fromEntries(CALC_PRODUCTS.map(p => [p.key, p.default]))
   );
@@ -27,25 +31,25 @@ export default function Calculator({ products = [] }) {
     <section id="rechner" className="py-24 bg-sun border-t-4 border-b-4 border-ink">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/60">— Live-Rechner —</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/60">{r.kicker}</span>
           <h2 className="font-serif font-black text-4xl md:text-6xl uppercase italic tracking-tighter mt-2 leading-none">
-            Was <span className="text-tomato">sparen</span> Sie?
+            {r.titel1}<span className="text-tomato">{r.titelRot}</span>{r.titel2}
           </h2>
-          <p className="mt-3 text-sm font-medium opacity-70">Lagerpreise vs. deutsche Marktpreise — live berechnet.</p>
+          <p className="mt-3 text-sm font-medium opacity-70">{r.text}</p>
         </div>
 
         <div className="flex gap-6 items-stretch max-w-4xl mx-auto">
           <div className="hidden md:block w-48 flex-shrink-0 border-4 border-ink overflow-hidden">
-            <img src="/images/toplutshirt.webp" alt="Gastro Textilien" className="w-full h-full object-cover" />
+            <img src="/images/toplutshirt.webp" alt={r.bildAlt} className="w-full h-full object-cover" />
           </div>
         <div className="bg-paper border-4 border-ink shadow-brutalist-lg p-8 flex-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-3">
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4">Stückzahlen eingeben</p>
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4">{r.eingeben}</p>
               {CALC_PRODUCTS.map((p) => (
                 <div key={p.key} className="flex items-center justify-between gap-4">
                   <span className="text-sm font-medium flex-1">
-                    {p.label} <span className="opacity-50 text-xs">({getTieredPrice(getProduct(p.key), qtys[p.key] || 0).toFixed(2)}€/Stk)</span>
+                    {r.produkte[p.key]} <span className="opacity-50 text-xs">({getTieredPrice(getProduct(p.key), qtys[p.key] || 0).toFixed(2)}€/{r.stk})</span>
                   </span>
                   <div className="flex items-center border-2 border-ink">
                     <button onClick={() => setQtys(q => ({ ...q, [p.key]: Math.max(0, (q[p.key] || 0) - 1) }))}
@@ -62,18 +66,18 @@ export default function Calculator({ products = [] }) {
             </div>
 
             <div className="bg-ink text-white p-6 flex flex-col justify-center">
-              <p className="text-[9px] uppercase tracking-widest text-sun mb-2">Ihre Ersparnis</p>
+              <p className="text-[9px] uppercase tracking-widest text-sun mb-2">{r.ersparnis}</p>
               <p className="font-serif font-black text-5xl text-sun leading-none">{savings.toFixed(0)} €</p>
-              <p className="text-xs opacity-60 mt-2">{pct}% gegenüber deutschen Marktpreisen</p>
+              <p className="text-xs opacity-60 mt-2">{f(r.gegenueber, { pct })}</p>
               <div className="mt-4 pt-4 border-t border-white/20 space-y-1 text-xs">
                 {CALC_PRODUCTS.map(p => qtys[p.key] > 0 && (
                   <div key={p.key} className="flex justify-between">
-                    <span className="opacity-70">{qtys[p.key]}× {p.label}</span>
+                    <span className="opacity-70">{qtys[p.key]}× {r.produkte[p.key]}</span>
                     <span className="text-sun font-bold">−{((getProduct(p.key).oldPrice - getTieredPrice(getProduct(p.key), qtys[p.key])) * qtys[p.key]).toFixed(0)}€</span>
                   </div>
                 ))}
                 <div className="flex justify-between font-black pt-2 border-t border-white/20 text-sun">
-                  <span>TOTAL gespart</span>
+                  <span>{r.total}</span>
                   <span>{savings.toFixed(0)}€</span>
                 </div>
               </div>

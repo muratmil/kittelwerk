@@ -3,20 +3,24 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cartStore';
 import { ShoppingBag, Menu, X } from 'lucide-react';
+import { useSprache } from '@/components/i18n/SpracheProvider';
+import SprachWahl from '@/components/i18n/SprachWahl';
 
+// Etiketler sözlükte (`nav.*`), adresler dile göre `p()` ile ön ekleniyor.
 const LINKS = [
-  { href: '/', label: 'Startseite' },
-  { href: '/produkte', label: 'Produkte' },
-  { href: '/druckinfo', label: 'Druck & Stickerei' },
-  { href: '/referenzen', label: 'Referenzen' },
-  { href: '/#rechner', label: 'Ersparnis-Rechner' },
-  { href: '/ueber-uns', label: 'Über uns' },
-  { href: '/kontakt', label: 'Kontakt' },
+  { href: '/', key: 'startseite' },
+  { href: '/produkte', key: 'produkte' },
+  { href: '/druckinfo', key: 'druck' },
+  { href: '/referenzen', key: 'referenzen' },
+  { href: '/#rechner', key: 'rechner' },
+  { href: '/ueber-uns', key: 'ueberUns' },
+  { href: '/kontakt', key: 'kontakt' },
 ];
 
 export default function Navbar({ onOpenCart }) {
   const totalQty = useCartStore((state) => state.getTotalQty());
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t, p } = useSprache();
 
   // Mobilmenü mit Escape schließen
   useEffect(() => {
@@ -29,18 +33,20 @@ export default function Navbar({ onOpenCart }) {
   return (
     <nav className="sticky top-0 z-50 bg-paper border-b-4 border-ink py-4">
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <Link href="/" className="font-serif font-black text-3xl tracking-tighter hover:opacity-80 transition-opacity">
+        <Link href={p('/')} className="font-serif font-black text-3xl tracking-tighter hover:opacity-80 transition-opacity">
           Kittel<span className="text-tomato">werk</span>.
         </Link>
         <div className="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-ink/60">
           {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="hover:text-tomato transition-colors">{l.label}</a>
+            <a key={l.href} href={p(l.href)} className="hover:text-tomato transition-colors">{t.nav[l.key]}</a>
           ))}
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={onOpenCart} className="bg-ink text-white px-4 py-3 flex items-center gap-2 shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
+        {/* Telefonda dar: dil düğmesi eklenince 390 px'e sığmıyordu. */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <SprachWahl />
+          <button onClick={onOpenCart} className="bg-ink text-white px-3 sm:px-4 py-3 flex items-center gap-2 shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
             <ShoppingBag size={18} />
-            <span className="hidden sm:inline font-bold text-sm uppercase">Warenkorb</span>
+            <span className="hidden sm:inline font-bold text-sm uppercase">{t.nav.warenkorb}</span>
             <span className="bg-sun text-ink w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black">
               {totalQty}
             </span>
@@ -48,7 +54,7 @@ export default function Navbar({ onOpenCart }) {
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
-            aria-label={menuOpen ? 'Menü schließen' : 'Menü öffnen'}
+            aria-label={menuOpen ? t.nav.menueSchliessen : t.nav.menueOeffnen}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             className="md:hidden border-2 border-ink p-2.5 bg-paper hover:bg-sun transition-colors"
@@ -63,11 +69,11 @@ export default function Navbar({ onOpenCart }) {
             {LINKS.map((l) => (
               <a
                 key={l.href}
-                href={l.href}
+                href={p(l.href)}
                 onClick={() => setMenuOpen(false)}
                 className="py-4 border-b border-ink/10 last:border-b-0 font-bold text-sm uppercase tracking-widest text-ink hover:text-tomato transition-colors"
               >
-                {l.label}
+                {t.nav[l.key]}
               </a>
             ))}
           </div>

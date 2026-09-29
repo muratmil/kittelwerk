@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Upload, Send, ChevronLeft, CheckCircle } from 'lucide-react';
 import { useCartStore, LOGO_SERVICE_FEE, FILE_CHECK_FEE } from '@/store/cartStore';
 import { createClient } from '@/utils/supabase/client';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 const Field = ({ label, type = 'text', value, onChange, required = true, placeholder = '' }) => (
   <div className="flex flex-col gap-1">
@@ -20,6 +21,8 @@ const Field = ({ label, type = 'text', value, onChange, required = true, placeho
 export default function OrderForm({ items, totalPrice, onBack }) {
   const { getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, appliedCode, logoService, fileCheck } = useCartStore();
   const [file, setFile] = useState(null);
+  const { t, lang } = useSprache();
+  const B = t.bestellung;
   const [status, setStatus] = useState('idle');
   const [form, setForm] = useState({
     name: '', company: '', email: '', phone: '', street: '', plz: '', city: '', notes: '',
@@ -70,6 +73,8 @@ export default function OrderForm({ items, totalPrice, onBack }) {
         fileCheck,
         fileCheckFee,
         customerNotes: form.notes,
+        // Müşteriye giden onay e-postasının dili; Murat'a giden e-posta Almanca kalır.
+        lang,
       }),
     });
 
@@ -80,8 +85,8 @@ export default function OrderForm({ items, totalPrice, onBack }) {
     return (
       <div className="text-center py-12 space-y-4">
         <CheckCircle size={56} className="text-olive mx-auto" />
-        <h3 className="font-serif font-black text-2xl uppercase italic">Anfrage gesendet!</h3>
-        <p className="text-sm opacity-70 max-w-xs mx-auto">Wir melden uns bald per E-Mail bei dir.</p>
+        <h3 className="font-serif font-black text-2xl uppercase italic">{B.gesendet}</h3>
+        <p className="text-sm opacity-70 max-w-xs mx-auto">{B.gesendetText}</p>
       </div>
     );
   }
@@ -89,42 +94,42 @@ export default function OrderForm({ items, totalPrice, onBack }) {
   return (
     <div className="space-y-6">
       <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase opacity-60 hover:opacity-100">
-        <ChevronLeft size={14} /> Zurück zum Warenkorb
+        <ChevronLeft size={14} /> {B.zurueck}
       </button>
 
       <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 border-2 border-ink shadow-brutalist">
-        <h3 className="font-serif font-black text-xl uppercase italic border-b-2 border-ink pb-2">Kontaktdaten</h3>
+        <h3 className="font-serif font-black text-xl uppercase italic border-b-2 border-ink pb-2">{B.kontaktdaten}</h3>
 
-        <Field label="Name / Vorname"     value={form.name}    onChange={setField('name')} />
-        <Field label="Restaurant / Firma" value={form.company} onChange={setField('company')} />
-        <Field label="E-Mail Adresse"     type="email" value={form.email} onChange={setField('email')} />
-        <Field label="Telefon"            type="tel"   value={form.phone} onChange={setField('phone')} placeholder="+49 123 456789" />
+        <Field label={B.name}     value={form.name}    onChange={setField('name')} />
+        <Field label={B.firma} value={form.company} onChange={setField('company')} />
+        <Field label={B.email}     type="email" value={form.email} onChange={setField('email')} />
+        <Field label={B.telefon}            type="tel"   value={form.phone} onChange={setField('phone')} placeholder="+49 123 456789" />
 
-        <h3 className="font-serif font-black text-xl uppercase italic border-b-2 border-ink pb-2 pt-2">Lieferadresse</h3>
+        <h3 className="font-serif font-black text-xl uppercase italic border-b-2 border-ink pb-2 pt-2">{B.lieferadresse}</h3>
 
-        <Field label="Straße / Hausnummer" value={form.street} onChange={setField('street')} placeholder="Musterstraße 12" />
+        <Field label={B.strasse} value={form.street} onChange={setField('street')} placeholder={B.strassePh} />
 
         <div className="grid grid-cols-[1fr_2fr] gap-2">
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase tracking-widest">PLZ <span className="text-tomato">*</span></label>
+            <label className="text-[10px] font-black uppercase tracking-widest">{B.plz} <span className="text-tomato">*</span></label>
             <input type="text" inputMode="numeric" maxLength={5}
               value={form.plz} onChange={(e) => setForm(p => ({ ...p, plz: e.target.value }))}
               placeholder="12345" required
               className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase tracking-widest">Stadt <span className="text-tomato">*</span></label>
+            <label className="text-[10px] font-black uppercase tracking-widest">{B.stadt} <span className="text-tomato">*</span></label>
             <input type="text" value={form.city} onChange={setField('city')}
-              placeholder="Berlin" required
+              placeholder={B.stadtPh} required
               className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm" />
           </div>
         </div>
 
         {/* Mockup bilgi kutusu */}
         <div className="bg-sun/40 border-2 border-ink p-4 text-[9px] leading-relaxed space-y-1">
-          <p className="font-black uppercase tracking-widest">Druckvorschau vor der Produktion</p>
-          <p>Nach Ihrer Bestellung senden wir Ihnen einen digitalen <strong>Korrekturabzug</strong> (Druckvorschau) zur Freigabe. Die Produktion startet erst nach Ihrer ausdrücklichen Freigabe.</p>
-          <p className="opacity-70">Standard-Druckflächen: Brust <strong>10×10 cm</strong> · Rücken <strong>max. 24 cm Breite</strong>. Abweichende Maße bitte unten als Notiz angeben.</p>
+          <p className="font-black uppercase tracking-widest">{B.vorschauTitel}</p>
+          <p>{B.vorschau1}<strong>{B.vorschauStark}</strong>{B.vorschau2}</p>
+          <p className="opacity-70">{B.flaechen1}<strong>{B.flaechenBrust}</strong>{B.flaechen2}<strong>{B.flaechenRuecken}</strong>{B.flaechen3}</p>
         </div>
 
         {/* Logo yükleme */}
@@ -135,21 +140,21 @@ export default function OrderForm({ items, totalPrice, onBack }) {
           <label htmlFor="logo-upload" className="flex flex-col items-center cursor-pointer text-center w-full">
             <Upload className={`mb-2 ${file ? 'text-olive' : 'text-tomato'}`} size={20} />
             <span className="text-[9px] font-black uppercase leading-tight">
-              {file ? `✓ ${file.name}` : 'Logo hochladen (PDF, PNG, SVG, AI, EPS)'}
+              {file ? `✓ ${file.name}` : B.logoHochladen}
             </span>
-            {!file && <span className="text-[8px] opacity-50 mt-1">Optional — oder per E-Mail nachsenden</span>}
+            {!file && <span className="text-[8px] opacity-50 mt-1">{B.logoOptional}</span>}
           </label>
         </div>
 
         {logoService && (
           <div className="border-2 border-tomato bg-tomato/5 px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase">
-            <span>Logo-Erstellungsservice</span>
+            <span>{t.warenkorb.logoService}</span>
             <span className="text-tomato">+{LOGO_SERVICE_FEE.toFixed(2)} €</span>
           </div>
         )}
         {fileCheck && (
           <div className="border-2 border-olive bg-olive/5 px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase">
-            <span>Professionelle Datei-Kontrolle</span>
+            <span>{t.warenkorb.dateiKontrolle}</span>
             <span className="text-olive">+{FILE_CHECK_FEE.toFixed(2)} €</span>
           </div>
         )}
@@ -157,27 +162,27 @@ export default function OrderForm({ items, totalPrice, onBack }) {
         {/* Anmerkungen */}
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-black uppercase tracking-widest">
-            Anmerkungen <span className="opacity-40 normal-case font-normal">(optional)</span>
+            {B.anmerkungen} <span className="opacity-40 normal-case font-normal">{B.optional}</span>
           </label>
           <textarea
             value={form.notes}
             onChange={setField('notes')}
             rows={3}
-            placeholder="z. B. abweichende Druckgröße, Positionswunsch, besondere Hinweise zum Logo..."
+            placeholder={B.anmerkungenPh}
             className="border-2 border-ink p-3 focus:bg-sun outline-none text-sm resize-none"
           />
         </div>
 
         {status === 'error' && (
-          <p className="text-[11px] text-tomato font-bold uppercase">Ein Fehler ist aufgetreten. Bitte versuche es erneut.</p>
+          <p className="text-[11px] text-tomato font-bold uppercase">{B.fehler}</p>
         )}
 
-        <p className="text-[9px] opacity-50 uppercase tracking-widest"><span className="text-tomato">*</span> Pflichtfeld</p>
+        <p className="text-[9px] opacity-50 uppercase tracking-widest"><span className="text-tomato">*</span> {B.pflicht}</p>
 
         <button type="submit" disabled={status === 'loading'}
           className="w-full bg-ink text-white py-4 font-black uppercase flex items-center justify-center gap-3 hover:bg-tomato transition-all shadow-brutalist disabled:opacity-50">
           <Send size={18} />
-          {status === 'loading' ? 'Wird gesendet...' : 'Anfrage absenden'}
+          {status === 'loading' ? B.senden : B.absenden}
         </button>
       </form>
     </div>

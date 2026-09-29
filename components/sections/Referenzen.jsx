@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 /**
  * Referenz galerisi (2026-09-29) — müşterilerimizin Kittelwerk'i giyerken
@@ -18,6 +19,9 @@ export default function Referenzen({ referenzen = [], vorschau = false }) {
   const [offen, setOffen] = useState(null);   // açık fotoğrafın sırası
   const [bereit, setBereit] = useState(false);
   const dokunma = useRef(null);
+  const { t, p, f } = useSprache();
+  const R = t.referenzen;
+  const G = t.galerie;
 
   useEffect(() => setBereit(true), []);
 
@@ -45,11 +49,11 @@ export default function Referenzen({ referenzen = [], vorschau = false }) {
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
       {referenzen.map((r, i) => (
         <figure key={r.id} className="group border-4 border-ink bg-white shadow-brutalist hover:-translate-x-1 hover:-translate-y-1 hover:shadow-brutalist-lg transition-all">
-          <button type="button" onClick={() => setOffen(i)} aria-label={`${r.titel || 'Referenz'} vergrößern`}
+          <button type="button" onClick={() => setOffen(i)} aria-label={f(R.vergroessern, { titel: r.titel || R.referenz })}
             className="relative block aspect-square w-full overflow-hidden border-b-4 border-ink bg-paper">
             <Image
               src={r.src}
-              alt={[r.titel, r.beschreibung].filter(Boolean).join(' — ') || 'Kittelwerk Kundenbeispiel'}
+              alt={[r.titel, r.beschreibung].filter(Boolean).join(' — ') || R.altStandard}
               fill
               sizes="(max-width: 768px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -61,7 +65,7 @@ export default function Referenzen({ referenzen = [], vorschau = false }) {
               {r.beschreibung && <p className="text-[11px] opacity-60 mt-1 leading-snug">{r.beschreibung}</p>}
               {r.produktHref && (
                 <Link href={r.produktHref} className="inline-block mt-2 text-[10px] font-black uppercase tracking-widest text-tomato hover:underline">
-                  Zum Produkt →
+                  {R.zumProdukt}
                 </Link>
               )}
             </figcaption>
@@ -84,25 +88,25 @@ export default function Referenzen({ referenzen = [], vorschau = false }) {
       }}
       role="dialog"
       aria-modal="true"
-      aria-label={aktiv.titel || 'Referenz'}>
-      <button type="button" onClick={() => setOffen(null)} aria-label="Schließen"
+      aria-label={aktiv.titel || R.referenz}>
+      <button type="button" onClick={() => setOffen(null)} aria-label={G.schliessen}
         className="absolute top-4 right-4 border-2 border-paper/40 p-2 text-paper hover:border-paper">
         <X size={20} />
       </button>
       {referenzen.length > 1 && (
-        <button type="button" onClick={(e) => { e.stopPropagation(); gehe(-1); }} aria-label="Vorheriges Bild"
+        <button type="button" onClick={(e) => { e.stopPropagation(); gehe(-1); }} aria-label={G.vorheriges}
           className="absolute left-2 md:left-6 z-10 border-2 border-paper/40 p-2 text-paper hover:border-paper">
           <ChevronLeft size={22} />
         </button>
       )}
       <figure className="relative h-[78vh] w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-        <Image src={aktiv.src} alt={aktiv.titel || 'Referenz'} fill sizes="100vw" className="object-contain" />
+        <Image src={aktiv.src} alt={aktiv.titel || R.referenz} fill sizes="100vw" className="object-contain" />
         <figcaption className="absolute -bottom-8 inset-x-0 text-center text-[10px] font-black uppercase tracking-widest text-paper/80">
           {[aktiv.titel, aktiv.beschreibung].filter(Boolean).join(' — ')} · {offen + 1}/{referenzen.length}
         </figcaption>
       </figure>
       {referenzen.length > 1 && (
-        <button type="button" onClick={(e) => { e.stopPropagation(); gehe(1); }} aria-label="Nächstes Bild"
+        <button type="button" onClick={(e) => { e.stopPropagation(); gehe(1); }} aria-label={G.naechstes}
           className="absolute right-2 md:right-6 z-10 border-2 border-paper/40 p-2 text-paper hover:border-paper">
           <ChevronRight size={22} />
         </button>
@@ -117,17 +121,17 @@ export default function Referenzen({ referenzen = [], vorschau = false }) {
     <section id="referenzen" className="py-24 bg-paper border-t-4 border-ink">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/60">— Referenzen —</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/60">{R.kicker}</span>
           <h2 className="font-serif font-black text-4xl md:text-6xl uppercase italic tracking-tighter mt-2 leading-none">
-            Getragen in <span className="text-tomato">echten Küchen.</span>
+            {R.titel1}<span className="text-tomato">{R.titelRot}</span>
           </h2>
-          <p className="mt-3 text-sm font-medium opacity-60">So sieht Kittelwerk bei unseren Kunden aus.</p>
+          <p className="mt-3 text-sm font-medium opacity-60">{R.text}</p>
         </div>
         {raster}
         <div className="mt-10 text-center">
-          <Link href="/referenzen"
+          <Link href={p('/referenzen')}
             className="inline-block bg-ink text-white px-8 py-4 font-black uppercase tracking-widest text-xs shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
-            Alle Referenzen ansehen →
+            {R.alle}
           </Link>
         </div>
       </div>

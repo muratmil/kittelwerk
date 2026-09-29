@@ -1,4 +1,8 @@
+'use client';
+import { useSprache } from '@/components/i18n/SpracheProvider';
+
 export default function VidofoodBanner() {
+  const { t } = useSprache();
   return (
     <section className="bg-paper border-t-4 border-ink">
       <div className="container mx-auto px-6 py-6">
@@ -10,12 +14,12 @@ export default function VidofoodBanner() {
         >
           <img src="/vidofood_logo.webp" alt="VidoFood" className="h-20 w-auto flex-shrink-0" />
           <div className="text-center sm:text-left">
-            <span className="text-[9px] font-black uppercase tracking-[0.25em] opacity-40">Partner-Empfehlung</span>
-            <p className="font-black text-base uppercase tracking-tight leading-none">Digitales Bestellsystem für Gastronomen</p>
-            <p className="text-[12px] opacity-50 mt-1">Stripe-Checkout · 3% Gebühr · Bondruck · Keine App</p>
+            <span className="text-[9px] font-black uppercase tracking-[0.25em] opacity-40">{t.vidofood.kicker}</span>
+            <p className="font-black text-base uppercase tracking-tight leading-none">{t.vidofood.titel}</p>
+            <p className="text-[12px] opacity-50 mt-1">{t.vidofood.text}</p>
           </div>
           <span className="text-[11px] font-black uppercase border-2 border-ink px-5 py-3 bg-[#5B21F5] text-white flex-shrink-0 sm:ml-auto">
-            Jetzt ansehen →
+            {t.vidofood.button}
           </span>
         </a>
       </div>

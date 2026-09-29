@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 /**
  * Ürün galerisi (2026-09-22'de yenilendi).
@@ -40,6 +41,8 @@ export default function ProductGallery({ product, farbe = null }) {
   const [gross, setGross] = useState(false);
   const [bereit, setBereit] = useState(false);     // portal ancak tarayıcıda
   const dokunma = useRef(null);
+  const { t, f } = useSprache();
+  const G = t.galerie;
 
   useEffect(() => setBereit(true), []);
 
@@ -97,24 +100,24 @@ export default function ProductGallery({ product, farbe = null }) {
         onTouchStart={wischStart}
         onTouchEnd={wischEnde}
         className="relative block aspect-square w-full overflow-hidden border-2 border-ink bg-paper cursor-zoom-in"
-        aria-label={`${product.name} vergrößern`}>
+        aria-label={f(t.produkt.vergroessern, { name: product.name })}>
         <Image
           key={aktiv.src}
           src={aktiv.src}
-          alt={`${product.name} — ${aktiv.label || 'Produktbild'}`}
+          alt={`${product.name} — ${aktiv.label || G.produktbild}`}
           fill
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
           className="object-contain mix-blend-multiply scale-90"
         />
         <span className="absolute bottom-2 right-2 flex items-center gap-1 bg-ink/85 text-paper text-[9px] font-black uppercase tracking-widest px-2 py-1">
-          <ZoomIn size={12} />Zoom
+          <ZoomIn size={12} />{G.zoom}
         </span>
         {/* Sol ÜST köşe kampanya rozetinin yeri (detay sayfası oraya yazıyor),
             bu yüzden müşteri işareti sol ALTA konuyor. */}
         {aktiv.art === 'kunde' && (
           <span className="absolute bottom-2 left-2 bg-tomato text-paper text-[9px] font-black uppercase tracking-widest px-2 py-1">
-            Kundenfoto
+            {G.kundenfoto}
           </span>
         )}
       </button>
@@ -154,12 +157,12 @@ export default function ProductGallery({ product, farbe = null }) {
           role="dialog"
           aria-modal="true"
           aria-label={product.name}>
-          <button type="button" onClick={() => setGross(false)} aria-label="Schließen"
+          <button type="button" onClick={() => setGross(false)} aria-label={G.schliessen}
             className="absolute top-4 right-4 border-2 border-paper/40 p-2 text-paper hover:border-paper">
             <X size={20} />
           </button>
 
-          <button type="button" onClick={(e) => { e.stopPropagation(); gehe(-1); }} aria-label="Vorheriges Bild"
+          <button type="button" onClick={(e) => { e.stopPropagation(); gehe(-1); }} aria-label={G.vorheriges}
             className="absolute left-2 md:left-6 border-2 border-paper/40 p-2 text-paper hover:border-paper">
             <ChevronLeft size={22} />
           </button>
@@ -167,7 +170,7 @@ export default function ProductGallery({ product, farbe = null }) {
           <figure className="relative h-[78vh] w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
             <Image
               src={aktiv.src}
-              alt={`${product.name} — ${aktiv.label || 'Produktbild'}`}
+              alt={`${product.name} — ${aktiv.label || G.produktbild}`}
               fill
               sizes="100vw"
               className="object-contain"
@@ -177,7 +180,7 @@ export default function ProductGallery({ product, farbe = null }) {
             </figcaption>
           </figure>
 
-          <button type="button" onClick={(e) => { e.stopPropagation(); gehe(1); }} aria-label="Nächstes Bild"
+          <button type="button" onClick={(e) => { e.stopPropagation(); gehe(1); }} aria-label={G.naechstes}
             className="absolute right-2 md:right-6 border-2 border-paper/40 p-2 text-paper hover:border-paper">
             <ChevronRight size={22} />
           </button>

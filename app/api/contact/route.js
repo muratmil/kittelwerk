@@ -1,6 +1,8 @@
 import { Resend } from 'resend';
 import { esc } from '@/lib/escapeHtml';
 import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
+import { woerterbuch } from '@/lib/i18n';
+import { istSprache } from '@/lib/i18n/config';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -14,10 +16,14 @@ export async function POST(req) {
   const { allowed, retryAfter } = rateLimit(req, { limit: 5, windowMs: 60 * 60_000 });
   if (!allowed) return rateLimitResponse(retryAfter);
 
-  const { name, email, company, subject, message } = await req.json();
+  const body = await req.json();
+  const { name, email, company, subject, message } = body;
+  // Hata mesajları ziyaretçinin dilinde; Murat'a giden e-posta Almanca.
+  const lang = istSprache(body.lang) ? body.lang : 'de';
+  const F = woerterbuch(lang).mail.fehler;
 
   if (!name || !email || !message) {
-    return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
+    return Response.json({ error: F.pflicht }, { status: 400 });
   }
 
   if (
@@ -27,11 +33,11 @@ export async function POST(req) {
     !validateLength(subject, 200) ||
     !validateLength(message, 2000)
   ) {
-    return Response.json({ error: 'Eingabe zu lang.' }, { status: 400 });
+    return Response.json({ error: F.zuLang }, { status: 400 });
   }
 
   if (!EMAIL_RE.test(String(email))) {
-    return Response.json({ error: 'Ungültige E-Mail-Adresse.' }, { status: 400 });
+    return Response.json({ error: F.email }, { status: 400 });
   }
 
   let result;
@@ -49,6 +55,7 @@ export async function POST(req) {
             <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
             ${company ? `<tr><td style="padding:6px;color:#555;">Restaurant</td><td><strong>${esc(company)}</strong></td></tr>` : ''}
             ${subject ? `<tr><td style="padding:6px;color:#555;">Thema</td><td><strong>${esc(subject)}</strong></td></tr>` : ''}
+            ${lang !== 'de' ? `<tr><td style="padding:6px;color:#555;">Sprache</td><td><strong>${lang.toUpperCase()}</strong> — bitte ggf. auf ${lang === 'tr' ? 'Türkisch' : 'Englisch'} antworten</td></tr>` : ''}
           </table>
           <div style="margin-top:24px;padding:16px;background:#f5f5f5;border-left:4px solid #111;">
             <p style="white-space:pre-wrap;margin:0;">${esc(message)}</p>
@@ -57,11 +64,11 @@ export async function POST(req) {
       `,
     });
   } catch (e) {
-    return Response.json({ error: 'Fehler beim Senden.' }, { status: 500 });
+    return Response.json({ error: F.sendenKontakt }, { status: 500 });
   }
 
   if (result?.error) {
-    return Response.json({ error: 'Fehler beim Senden.' }, { status: 500 });
+    return Response.json({ error: F.sendenKontakt }, { status: 500 });
   }
 
   return Response.json({ success: true });

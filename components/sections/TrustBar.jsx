@@ -1,3 +1,5 @@
+'use client';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 /**
  * Hero'nun altındaki güven şeridi (2026-09-23'te yeniden yazıldı).
  *
@@ -15,14 +17,8 @@
  * (ürüne göre), baskı ön + arka ücretsiz.
  */
 export default function TrustBar() {
-  const items = [
-    { num: 'AB 10', lbl: 'Stück · auch gemischt' },
-    { num: 'GRATIS', lbl: 'Logo-Druck vorne & hinten' },
-    { num: '1–4', lbl: 'Wochen Lieferzeit' },
-    { num: 'AB 300€', lbl: 'versandkostenfrei' },
-    { num: 'DIREKT', lbl: 'ab Werk, ohne Zwischenhandel' },
-    { num: 'JEDERZEIT', lbl: 'nachbestellbar' },
-  ];
+  const { t } = useSprache();
+  const items = t.trust;
   return (
     <div className="bg-ink text-white py-5 border-b-4 border-sun">
       <div className="container mx-auto px-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-center">

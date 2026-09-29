@@ -2,12 +2,15 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, CheckCircle } from 'lucide-react';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 export default function NewsletterPopup() {
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState('');
+  const { t, lang } = useSprache();
+  const n = t.newsletter;
 
   useEffect(() => {
     const seen = localStorage.getItem('kw-newsletter');
@@ -30,7 +33,7 @@ export default function NewsletterPopup() {
     const res = await fetch('/api/newsletter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, lang }),
     });
 
     const data = await res.json();
@@ -40,7 +43,7 @@ export default function NewsletterPopup() {
       localStorage.setItem('kw-newsletter', 'subscribed');
     } else {
       setStatus('error');
-      setErrorMsg(data.error || 'Ein Fehler ist aufgetreten.');
+      setErrorMsg(data.error || n.fehler);
     }
   };
 
@@ -59,9 +62,9 @@ export default function NewsletterPopup() {
               <button onClick={handleClose} className="absolute top-4 right-4 hover:text-tomato transition-colors">
                 <X size={20} />
               </button>
-              <span className="text-sun text-[10px] font-black uppercase tracking-[0.3em]">Exklusiv für Neukunden</span>
+              <span className="text-sun text-[10px] font-black uppercase tracking-[0.3em]">{n.exklusiv}</span>
               <h2 className="font-serif font-black text-4xl italic tracking-tighter mt-2 leading-none">
-                5% Rabatt<br />sichern.
+                {n.titel1}<br />{n.titel2}
               </h2>
             </div>
 
@@ -69,21 +72,21 @@ export default function NewsletterPopup() {
               {status === 'success' ? (
                 <div className="text-center py-4 space-y-4">
                   <CheckCircle size={48} className="text-olive mx-auto" />
-                  <p className="font-black text-lg uppercase">Dein Code ist unterwegs!</p>
+                  <p className="font-black text-lg uppercase">{n.erfolgTitel}</p>
                   <p className="text-sm font-medium opacity-80 leading-snug">
-                    Wir haben dir deinen persönlichen Rabattcode per E-Mail geschickt.
+                    {n.erfolgText}
                   </p>
                   <div className="bg-tomato text-white px-4 py-3 border-2 border-ink text-left">
                     <p className="text-[11px] font-black uppercase tracking-wide leading-snug">
-                      ⚠ Bitte prüfe auch deinen Spam-Ordner — unsere Mail könnte dort gelandet sein!
+                      {n.spam}
                     </p>
                   </div>
-                  <p className="text-[10px] opacity-50 uppercase tracking-widest">Der Code ist ausschließlich per E-Mail verfügbar.</p>
+                  <p className="text-[10px] opacity-50 uppercase tracking-widest">{n.nurEmail}</p>
                 </div>
               ) : (
                 <>
                   <p className="text-sm font-medium opacity-70 mb-4 leading-tight">
-                    Jetzt anmelden und <strong>5% Rabatt</strong> auf deine erste Bestellung erhalten. Code wird per E-Mail zugeschickt.
+                    {n.text1}<strong>{n.textRabatt}</strong>{n.text2}
                   </p>
                   <form onSubmit={handleSubmit} className="space-y-3">
                     <div className="flex border-2 border-ink">
@@ -94,7 +97,7 @@ export default function NewsletterPopup() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="deine@email.de"
+                        placeholder={n.placeholder}
                         required
                         className="flex-1 px-3 py-3 outline-none bg-transparent text-sm font-medium"
                       />
@@ -107,11 +110,11 @@ export default function NewsletterPopup() {
                       disabled={status === 'loading'}
                       className="w-full bg-ink text-white py-4 font-black uppercase shadow-brutalist hover:bg-tomato transition-all disabled:opacity-50"
                     >
-                      {status === 'loading' ? 'Wird gesendet...' : 'Code erhalten →'}
+                      {status === 'loading' ? n.senden : n.absenden}
                     </button>
                   </form>
                   <button onClick={handleClose} className="w-full text-center text-[10px] uppercase font-bold opacity-40 hover:opacity-70 mt-3 transition-all">
-                    Nein danke
+                    {n.nein}
                   </button>
                 </>
               )}

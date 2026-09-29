@@ -4,6 +4,8 @@ import { esc } from '@/lib/escapeHtml';
 import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 import { loadCatalog, priceOf } from '@/lib/catalog';
 import { groessenAufpreis } from '@/lib/groessen';
+import { woerterbuch, fuell } from '@/lib/i18n';
+import { istSprache } from '@/lib/i18n/config';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -54,9 +56,13 @@ export async function POST(req) {
 
   const body = await req.json();
   const { name, company, email, phone, street, plz, city, items, discountCode, logoUrl, logoService, fileCheck, customerNotes } = body;
+  // Vitrin dili (2026-09-29): müşteriye giden onay e-postası ve hata
+  // mesajları bu dilde. Sipariş kaydı ve Murat'a giden bildirim ALMANCA.
+  const lang = istSprache(body.lang) ? body.lang : 'de';
+  const M = woerterbuch(lang).mail;
 
   if (!name || !email || !items || items.length === 0) {
-    return Response.json({ error: 'Pflichtfelder fehlen.' }, { status: 400 });
+    return Response.json({ error: M.fehler.pflicht }, { status: 400 });
   }
 
   if (
@@ -69,7 +75,7 @@ export async function POST(req) {
     !validateLength(city, 100) ||
     !validateLength(customerNotes, 1000)
   ) {
-    return Response.json({ error: 'Eingabe zu lang.' }, { status: 400 });
+    return Response.json({ error: M.fehler.zuLang }, { status: 400 });
   }
 
   // Fiyatları server tarafında hesapla — kaynak veritabanı, kod değil.
@@ -80,13 +86,13 @@ export async function POST(req) {
   let costTotal = 0;
   for (const item of items) {
     const product = byId[item.id];
-    if (!product || product.comingSoon) return Response.json({ error: `Unbekanntes Produkt: ${item.id}` }, { status: 400 });
+    if (!product || product.comingSoon) return Response.json({ error: fuell(M.fehler.unbekannt, { id: item.id }) }, { status: 400 });
     const qty = item.qty;
     const minQty = product.minQty || 10;
-    if (!qty || qty < minQty) return Response.json({ error: `Mindestbestellmenge ${minQty} Stück.` }, { status: 400 });
+    if (!qty || qty < minQty) return Response.json({ error: fuell(M.fehler.minMenge, { min: minQty }) }, { status: 400 });
 
     const basePrice = priceOf(product, qty);
-    if (basePrice == null) return Response.json({ error: `Für ${product.name} ist kein Preis hinterlegt.` }, { status: 400 });
+    if (basePrice == null) return Response.json({ error: fuell(M.fehler.keinPreis, { name: product.name }) }, { status: 400 });
 
     // siebdruck, freeSiebdruck işaretli ürünlerde ücretsiz (tshirt, oversize)
     const printPrice = (item.printType === 'siebdruck' && product.freeSiebdruck)
@@ -103,7 +109,9 @@ export async function POST(req) {
     const unitCost = product.staffel?.[0]?.costEur ?? null;
     if (unitCost != null) costTotal += unitCost * qty;
 
-    recalcItems.push({ ...item, price: unitPrice, basePrice, unitCost, groessenAufpreis: aufpreis });
+    // Ad sunucudaki (Almanca) katalogdan: yabancı dildeki sayfadan gelen
+    // "Premium Tişört" siparişe ve CCH'ye düşmesin.
+    recalcItems.push({ ...item, name: product.name, price: unitPrice, basePrice, unitCost, groessenAufpreis: aufpreis });
   }
 
   const subtotal = recalcItems.reduce((s, i) => s + i.price * i.qty + (i.groessenAufpreis ?? 0), 0);
@@ -135,7 +143,7 @@ export async function POST(req) {
     .single();
 
   if (error) {
-    return Response.json({ error: 'Fehler beim Speichern der Bestellung.' }, { status: 500 });
+    return Response.json({ error: M.fehler.speichern }, { status: 500 });
   }
 
   // Logo için signed URL oluştur (48 saat geçerli)
@@ -157,40 +165,61 @@ export async function POST(req) {
     </tr>`
   ).join('');
 
+  // Müşterinin e-postası kendi dilinde: ürün adları, renkler, baskı türü.
+  const B = M.bestellung;
+  const farben = woerterbuch(lang).farben ?? {};
+  let namen = Object.fromEntries(catalog.map((p) => [p.id, p.name]));
+  if (lang !== 'de') {
+    const { products: lokal } = await loadCatalog(supabaseAdmin, { siteId: 'kittelwerk', lang });
+    namen = Object.fromEntries(lokal.map((p) => [p.id, p.name]));
+  }
+  const groessenText = (sizes) => (!sizes || sizes['-'] !== undefined
+    ? fuell(B.stueck, { n: sizes?.['-'] ?? '—' })
+    : Object.entries(sizes).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(' · '));
+  const kundenItemsHtml = recalcItems.map(i =>
+    `<tr>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(namen[i.id] ?? i.name)}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(farben[i.color] ?? i.color)} · ${esc(groessenText(i.sizes))}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(B.druckArten[i.printType] ?? i.printType)}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;">${esc(fuell(B.stueck, { n: i.qty }))}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${(i.price * i.qty + (i.groessenAufpreis ?? 0)).toFixed(2)}€${i.groessenAufpreis ? `<br><span style="font-size:11px;color:#888;">${esc(fuell(B.inklAufpreis, { preis: i.groessenAufpreis.toFixed(2) }))}</span>` : ''}</td>
+    </tr>`
+  ).join('');
+
   // Müşteriye onay e-postası
   await resend.emails.send({
     from: 'Kittelwerk <info@kittelwerk.de>',
     to: email,
-    subject: 'Deine Bestellanfrage bei Kittelwerk',
+    subject: B.betreff,
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">
         <h1 style="font-size:28px;font-weight:900;">Kittel<span style="color:#E63946">werk</span>.</h1>
-        <h2 style="margin-top:24px;">Danke, ${esc(name)}!</h2>
-        <p>Wir haben deine Bestellanfrage erhalten und melden uns bald bei dir.</p>
+        <h2 style="margin-top:24px;">${esc(fuell(B.danke, { name }))}</h2>
+        <p>${esc(B.erhalten)}</p>
         <p style="background:#FFF8D4;border:1px solid #111;padding:12px;font-size:12px;margin:16px 0;">
-          <strong>Druckvorschau:</strong> Vor der Produktion erhalten Sie einen digitalen Korrekturabzug zur Freigabe. Die Produktion startet erst nach Ihrer ausdrücklichen Freigabe.
+          <strong>${esc(B.vorschauStark)}</strong> ${esc(B.vorschau)}
         </p>
         <table style="width:100%;border-collapse:collapse;margin:24px 0;">
           <thead>
             <tr style="background:#111;color:#fff;">
-              <th style="padding:10px;text-align:left;">Produkt</th>
-              <th style="padding:10px;text-align:left;">Variante</th>
-              <th style="padding:10px;text-align:left;">Druck</th>
-              <th style="padding:10px;">Menge</th>
-              <th style="padding:10px;text-align:right;">Preis</th>
+              <th style="padding:10px;text-align:left;">${esc(B.produkt)}</th>
+              <th style="padding:10px;text-align:left;">${esc(B.variante)}</th>
+              <th style="padding:10px;text-align:left;">${esc(B.druck)}</th>
+              <th style="padding:10px;">${esc(B.menge)}</th>
+              <th style="padding:10px;text-align:right;">${esc(B.preis)}</th>
             </tr>
           </thead>
-          <tbody>${itemsHtml}</tbody>
+          <tbody>${kundenItemsHtml}</tbody>
         </table>
         <table style="width:100%;max-width:300px;margin-left:auto;">
-          <tr><td style="padding:4px;color:#555;">Zwischensumme</td><td style="text-align:right;">${subtotal.toFixed(2)}€</td></tr>
-          ${discountAmount > 0 ? `<tr><td style="padding:4px;color:#3D6B4F;">Rabatt (${esc(discountCode)})</td><td style="text-align:right;color:#3D6B4F;">−${discountAmount.toFixed(2)}€</td></tr>` : ''}
-          <tr><td style="padding:4px;color:#555;">Versandkosten</td><td style="text-align:right;">${shippingCost === 0 ? 'GRATIS' : shippingCost.toFixed(2) + '€'}</td></tr>
-          ${logoService ? `<tr><td style="padding:4px;color:#E63946;">Logo-Erstellungsservice</td><td style="text-align:right;color:#E63946;">+${logoServiceFee.toFixed(2)}€</td></tr>` : ''}
-          ${fileCheck ? `<tr><td style="padding:4px;color:#3D6B4F;">Professionelle Datei-Kontrolle</td><td style="text-align:right;color:#3D6B4F;">+${fileCheckFee.toFixed(2)}€</td></tr>` : ''}
-          <tr style="font-weight:900;font-size:18px;border-top:2px solid #111;"><td style="padding:8px 4px;">TOTAL</td><td style="text-align:right;">${total.toFixed(2)}€</td></tr>
+          <tr><td style="padding:4px;color:#555;">${esc(B.zwischensumme)}</td><td style="text-align:right;">${subtotal.toFixed(2)}€</td></tr>
+          ${discountAmount > 0 ? `<tr><td style="padding:4px;color:#3D6B4F;">${esc(B.rabatt)} (${esc(discountCode)})</td><td style="text-align:right;color:#3D6B4F;">−${discountAmount.toFixed(2)}€</td></tr>` : ''}
+          <tr><td style="padding:4px;color:#555;">${esc(B.versand)}</td><td style="text-align:right;">${shippingCost === 0 ? esc(B.gratis) : shippingCost.toFixed(2) + '€'}</td></tr>
+          ${logoService ? `<tr><td style="padding:4px;color:#E63946;">${esc(B.logoService)}</td><td style="text-align:right;color:#E63946;">+${logoServiceFee.toFixed(2)}€</td></tr>` : ''}
+          ${fileCheck ? `<tr><td style="padding:4px;color:#3D6B4F;">${esc(B.dateiKontrolle)}</td><td style="text-align:right;color:#3D6B4F;">+${fileCheckFee.toFixed(2)}€</td></tr>` : ''}
+          <tr style="font-weight:900;font-size:18px;border-top:2px solid #111;"><td style="padding:8px 4px;">${esc(B.total)}</td><td style="text-align:right;">${total.toFixed(2)}€</td></tr>
         </table>
-        ${customerNotes ? `<p style="background:#f5f5f5;border-left:3px solid #111;padding:10px 14px;font-size:12px;margin:16px 0;"><strong>Ihre Anmerkungen:</strong><br/>${esc(customerNotes)}</p>` : ''}
+        ${customerNotes ? `<p style="background:#f5f5f5;border-left:3px solid #111;padding:10px 14px;font-size:12px;margin:16px 0;"><strong>${esc(B.anmerkungen)}</strong><br/>${esc(customerNotes)}</p>` : ''}
         <hr style="margin:32px 0;border:none;border-top:2px solid #111;"/>
         <p style="color:#999;font-size:11px;">© 2026 Kittelwerk · info@kittelwerk.de</p>
       </div>
@@ -211,6 +240,7 @@ export async function POST(req) {
           <tr><td style="padding:6px;color:#555;">E-Mail</td><td><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
           <tr><td style="padding:6px;color:#555;">Telefon</td><td>${esc(phone)}</td></tr>
           <tr><td style="padding:6px;color:#555;">Adresse</td><td>${esc(street)}, ${esc(plz)} ${esc(city)}</td></tr>
+          ${lang !== 'de' ? `<tr><td style="padding:6px;color:#555;">Sprache</td><td><strong>${lang.toUpperCase()}</strong> — Kunde hat die Seite auf ${lang === 'tr' ? 'Türkisch' : 'Englisch'} benutzt</td></tr>` : ''}
           <tr><td style="padding:6px;color:#555;">Bestellwert</td><td><strong>${total.toFixed(2)}€</strong></td></tr>
           ${discountCode ? `<tr><td style="padding:6px;color:#555;">Rabattcode</td><td>${esc(discountCode)} (−${discountAmount.toFixed(2)}€)</td></tr>` : ''}
           ${logoDownloadUrl ? `<tr><td style="padding:6px;color:#555;">Logo</td><td><a href="${esc(logoDownloadUrl)}" style="color:#E63946;font-weight:bold;">📎 Logo herunterladen (48h)</a></td></tr>` : '<tr><td style="padding:6px;color:#555;">Logo</td><td style="color:#999;">Kein Logo hochgeladen</td></tr>'}

@@ -5,22 +5,27 @@ import { ShoppingBag, Plus, Minus } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
 import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
 import { STANDARD_GROESSEN, groessenAufpreis } from '@/lib/groessen';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 const SIZES = STANDARD_GROESSEN;
 const MIN_QTY = 10;
 
+// Etiketler sözlükte: `produkt.druck.<value>`.
 const PRINT_OPTIONS = [
-  { value: 'none',             label: 'Kein Druck',                  price: 0, minQty: 0   },
-  { value: 'front',            label: 'DTF Vorderdruck',             price: 5, minQty: 0   },
-  { value: 'back',             label: 'DTF Rückendruck',             price: 5, minQty: 0   },
-  { value: 'both',             label: 'DTF Vorder- & Rückendruck',   price: 8, minQty: 0   },
-  { value: 'siebdruck',        label: 'Siebdruck (ab 150 Stk)',      price: 3, minQty: 150 },
-  { value: 'bestickung_front', label: 'Bestickung Vorne',            price: 2, minQty: 0   },
-  { value: 'bestickung_back',  label: 'Bestickung Hinten',           price: 3, minQty: 0   },
-  { value: 'bestickung_both',  label: 'Bestickung Vorne + Hinten',   price: 5, minQty: 0   },
+  { value: 'none',             price: 0, minQty: 0   },
+  { value: 'front',            price: 5, minQty: 0   },
+  { value: 'back',             price: 5, minQty: 0   },
+  { value: 'both',             price: 8, minQty: 0   },
+  { value: 'siebdruck',        price: 3, minQty: 150 },
+  { value: 'bestickung_front', price: 2, minQty: 0   },
+  { value: 'bestickung_back',  price: 3, minQty: 0   },
+  { value: 'bestickung_both',  price: 5, minQty: 0   },
 ];
 
 export default function ProductCard({ product }) {
+  const { t, p, f, farbe } = useSprache();
+  const T = t.produkt;
+  const druckLabel = (v) => T.druck[v] ?? v;
   const minQty = product.minQty || MIN_QTY;
   const sizes = product.sizes || SIZES;
   const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
@@ -49,14 +54,14 @@ export default function ProductCard({ product }) {
   if (product.comingSoon) {
     return (
       <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
-        <Link href={`/produkte/${product.slug ?? product.id}`} className="relative block group/img">
+        <Link href={p(`/produkte/${product.slug ?? product.id}`)} className="relative block group/img">
           <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
           <span className="absolute top-3 left-3 bg-ink text-sun text-[9px] font-black uppercase tracking-widest px-2 py-1">
-            Bald hier
+            {T.baldHier}
           </span>
           <span className="absolute inset-0 bg-ink/0 group-hover/img:bg-ink/10 transition-all flex items-center justify-center">
             <span className="opacity-0 group-hover/img:opacity-100 bg-ink text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 transition-all">
-              Details anzeigen →
+              {T.details}
             </span>
           </span>
         </Link>
@@ -66,22 +71,22 @@ export default function ProductCard({ product }) {
             <p className="text-[10px] uppercase tracking-widest opacity-60 mt-1">{product.desc}</p>
           </div>
           <div className="border-2 border-ink p-3 bg-white">
-            <span className="font-black text-lg text-ink/60 uppercase tracking-widest">Preis in Kürze</span>
+            <span className="font-black text-lg text-ink/60 uppercase tracking-widest">{T.preisBald}</span>
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Farbe</p>
+            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.farbe}</p>
             <div className="flex gap-2">
               {product.colors.map((c) => (
-                <span key={c.name} title={c.name} style={{ backgroundColor: c.hex }} className="w-7 h-7 border-2 border-ink" />
+                <span key={c.name} title={farbe(c.name)} style={{ backgroundColor: c.hex }} className="w-7 h-7 border-2 border-ink" />
               ))}
             </div>
           </div>
           <a
-            href={`https://wa.me/491749623344?text=${encodeURIComponent(`Hallo! Ich interessiere mich für das Produkt "${product.name}" (bald verfügbar). Bitte informieren Sie mich, sobald es bestellbar ist.`)}`}
+            href={`https://wa.me/491749623344?text=${encodeURIComponent(f(T.whatsappBald, { name: product.name }))}`}
             target="_blank" rel="noopener noreferrer"
             className="w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all mt-auto bg-olive text-white hover:bg-ink active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
-            Bei Verfügbarkeit benachrichtigen
+            {T.benachrichtigen}
           </a>
         </div>
       </div>
@@ -131,7 +136,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
-      <Link href={`/produkte/${product.slug ?? product.id}`} className="relative block group/img">
+      <Link href={p(`/produkte/${product.slug ?? product.id}`)} className="relative block group/img">
         <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
         {product.badge && (
           <span className="absolute top-3 left-3 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-2 py-1">
@@ -145,7 +150,7 @@ export default function ProductCard({ product }) {
         )}
         <span className="absolute inset-0 bg-ink/0 group-hover/img:bg-ink/10 transition-all flex items-center justify-center">
           <span className="opacity-0 group-hover/img:opacity-100 bg-ink text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 transition-all">
-            Details anzeigen →
+            {T.details}
           </span>
         </span>
       </Link>
@@ -161,20 +166,20 @@ export default function ProductCard({ product }) {
           <div className="flex items-baseline gap-3">
             <span className="font-black text-2xl text-ink">{basePrice.toFixed(2)}€</span>
             {hatAltpreis && <span className="text-sm line-through opacity-40">{product.oldPrice.toFixed(2)}€</span>}
-            <span className="text-[9px] font-black uppercase opacity-60">/ Stück</span>
+            <span className="text-[9px] font-black uppercase opacity-60">{T.proStueck}</span>
           </div>
           {product.tiers && (
             <p className="text-[9px] opacity-50">
-              ab <span className="font-black">{product.tiers[product.tiers.length - 1].price.toFixed(0)}€</span>
+              {T.ab} <span className="font-black">{product.tiers[product.tiers.length - 1].price.toFixed(0)}€</span>
             </p>
           )}
           {product.tiers && (
             <div className="border-t border-ink/20 pt-2 mt-1">
               <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">
-                {isBestickung(printType) ? 'Staffelpreise zzgl. Bestickung'
-                  : printType === 'siebdruck' ? 'Staffelpreise zzgl. Siebdruck'
-                  : printType === 'none' ? 'Staffelpreise (ohne Druck)'
-                  : 'Staffelpreise inkl. DTF-Druck'}
+                {isBestickung(printType) ? T.staffelBestickung
+                  : printType === 'siebdruck' ? T.staffelSiebdruck
+                  : printType === 'none' ? T.staffelOhne
+                  : T.staffelDtf}
               </p>
               <div className="grid grid-cols-5 gap-x-1 gap-y-0.5">
                 {product.tiers.slice(0, -1).map((tier, i, arr) => {
@@ -184,7 +189,7 @@ export default function ProductCard({ product }) {
                     : totalQty >= tier.minQty && (isLastVisible || totalQty < product.tiers[i + 1].minQty);
                   return (
                     <div key={tier.minQty} className={`flex flex-col text-[9px] px-1 py-0.5 ${isActive ? 'bg-sun' : 'opacity-50'}`}>
-                      <span className="whitespace-nowrap">{isLastVisible ? `${tier.minQty}-100` : `${tier.minQty}`} Stk</span>
+                      <span className="whitespace-nowrap">{isLastVisible ? `${tier.minQty}-100` : `${tier.minQty}`} {T.stk}</span>
                       <span className="font-black">{tier.price.toFixed(2)}€</span>
                     </div>
                   );
@@ -194,20 +199,20 @@ export default function ProductCard({ product }) {
           )}
           {selectedPrint.price > 0 && (
             <div className="flex items-center justify-between text-[10px] font-bold uppercase border-t border-ink/20 pt-1">
-              <span className="opacity-60">{selectedPrint.label}</span>
+              <span className="opacity-60">{druckLabel(selectedPrint.value)}</span>
               {isFree ? (
                 <span className="flex items-center gap-1.5">
                   <span className="line-through opacity-40">+{selectedPrint.price.toFixed(2)}€</span>
-                  <span className="bg-olive text-white font-black px-1 py-0.5 text-[8px]">GRATIS</span>
+                  <span className="bg-olive text-white font-black px-1 py-0.5 text-[8px]">{T.gratis}</span>
                 </span>
               ) : (
-                <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ / Stück</span>
+                <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ {T.proStueck}</span>
               )}
             </div>
           )}
           {selectedPrint.price > 0 && !isFree && (
             <div className="flex items-center justify-between text-[11px] font-black uppercase border-t-2 border-ink pt-1">
-              <span>Gesamt / Stück</span>
+              <span>{T.gesamtProStueck}</span>
               <span>{totalUnitPrice.toFixed(2)}€</span>
             </div>
           )}
@@ -216,7 +221,7 @@ export default function ProductCard({ product }) {
         {/* Teslimat süresi */}
         {product.deliveryTime && (
           <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest">
-            <span className="opacity-50">Lieferzeit:</span>
+            <span className="opacity-50">{T.lieferzeit}</span>
             <span className={`px-2 py-0.5 ${product.deliveryTime.startsWith('1') ? 'bg-olive text-white' : 'bg-sun text-ink'}`}>
               {product.deliveryTime}
             </span>
@@ -225,10 +230,10 @@ export default function ProductCard({ product }) {
 
         {/* Renk */}
         <div>
-          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Farbe</p>
+          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.farbe}</p>
           <div className="flex gap-2">
             {product.colors.map((c) => (
-              <button key={c.name} onClick={() => setSelectedColor(c.name)} title={c.name}
+              <button key={c.name} onClick={() => setSelectedColor(c.name)} title={farbe(c.name)}
                 style={{ backgroundColor: c.hex }}
                 className={`w-7 h-7 border-2 transition-all ${selectedColor === c.name ? 'border-tomato scale-110' : 'border-ink'}`}
               />
@@ -241,7 +246,7 @@ export default function ProductCard({ product }) {
           const selected = product.fabricOptions.find(o => o.value === selectedFabric);
           return (
             <div>
-              <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Stoffqualität</p>
+              <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.stoffqualitaet}</p>
               <div className="relative">
                 <select
                   value={selectedFabric}
@@ -265,7 +270,7 @@ export default function ProductCard({ product }) {
 
         {/* Baskı — Dropdown */}
         <div>
-          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Druckoption</p>
+          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.druckoption}</p>
           <div className="relative">
             <select
               value={printType}
@@ -275,13 +280,13 @@ export default function ProductCard({ product }) {
               {availablePrints.map((opt) => {
                 const locked = totalQty < opt.minQty;
                 const suffix = locked
-                  ? ` — ab ${opt.minQty} Stk`
+                  ? f(T.abMenge, { n: opt.minQty })
                   : isOptFree(opt)
-                    ? (opt.price === 0 ? ' — Kostenlos' : ' — GRATIS')
-                    : ` — +${opt.price.toFixed(2)}€/Stk`;
+                    ? (opt.price === 0 ? ` — ${T.kostenlos}` : ` — ${T.gratis}`)
+                    : ` — +${opt.price.toFixed(2)}€/${T.stk}`;
                 return (
                   <option key={opt.value} value={opt.value} disabled={locked}>
-                    {opt.label}{suffix}
+                    {druckLabel(opt.value)}{suffix}
                   </option>
                 );
               })}
@@ -290,14 +295,14 @@ export default function ProductCard({ product }) {
           </div>
           {selectedPrint && selectedPrint.value !== 'none' && (
             <div className="mt-2 flex items-center justify-between px-3 py-2 border border-ink/20 bg-white text-[9px] font-black uppercase">
-              <span className="opacity-60">{selectedPrint.label}</span>
+              <span className="opacity-60">{druckLabel(selectedPrint.value)}</span>
               {isOptFree(selectedPrint) ? (
                 <span className="flex items-center gap-1.5">
                   {selectedPrint.price > 0 && <span className="line-through opacity-40">+{selectedPrint.price.toFixed(2)}€</span>}
-                  <span className="bg-olive text-white px-1.5 py-0.5">GRATIS</span>
+                  <span className="bg-olive text-white px-1.5 py-0.5">{T.gratis}</span>
                 </span>
               ) : (
-                <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ / Stk</span>
+                <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ / {T.stk}</span>
               )}
             </div>
           )}
@@ -306,17 +311,17 @@ export default function ProductCard({ product }) {
         {/* Baskı boyut notu */}
         {printType !== 'none' && !isBestickung(printType) && (
           <div className="text-[8px] leading-relaxed bg-sun/50 border border-ink/20 px-3 py-2 space-y-1">
-            <p className="font-black uppercase tracking-widest">Standardmaße</p>
-            <p>Brust: <strong>10×10 cm</strong> · Rücken: <strong>max. 24 cm Breite</strong></p>
-            <p className="opacity-70">Abweichende Maße? Bitte im Bestellformular als Notiz angeben.</p>
+            <p className="font-black uppercase tracking-widest">{T.standardmasse}</p>
+            <p>{T.masse1}<strong>{T.masseBrust}</strong>{T.masse2}<strong>{T.masseRuecken}</strong></p>
+            <p className="opacity-70">{T.masseAbweichend}</p>
             {printType !== 'siebdruck' && (
               <p className="opacity-60 border-t border-ink/10 pt-1">
-                DTF-Druck: Hohe Waschbeständigkeit. Nach ca. 20+ Wäschen kann die Farbintensität leicht nachlassen — Richtlinie der Technik.
+                {T.dtfHinweis}
               </p>
             )}
             {printType === 'siebdruck' && (
               <p className="opacity-60 border-t border-ink/10 pt-1">
-                Siebdruck: Langlebig & industriewaschfest. Voraussetzt mind. 100 Stk. pro Farbstoff.
+                {T.siebHinweis}
               </p>
             )}
           </div>
@@ -326,9 +331,9 @@ export default function ProductCard({ product }) {
         {product.hasSizes ? (
           <div>
             <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
-              Größe & Menge{' '}
+              {T.groesseMenge}{' '}
               <span className={totalQty >= minQty ? 'text-olive' : 'text-tomato'}>
-                (Gesamt: {totalQty} / Min. {minQty})
+                {f(T.gesamtMin, { n: totalQty, min: minQty })}
               </span>
             </p>
             <div className="space-y-2">
@@ -367,7 +372,7 @@ export default function ProductCard({ product }) {
         ) : (
           <div>
             <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">
-              Menge <span className="text-tomato">(Min. {minQty} Stück)</span>
+              {T.menge} <span className="text-tomato">{f(T.minStueck, { min: minQty })}</span>
             </p>
             <div className="flex items-center gap-3">
               <div className="flex items-center border-2 border-ink">
@@ -397,7 +402,7 @@ export default function ProductCard({ product }) {
           className={`w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all mt-auto
             ${added ? 'bg-olive text-white' : isValid ? 'bg-ink text-white hover:bg-tomato active:translate-x-1 active:translate-y-1 active:shadow-none' : 'bg-ink/30 text-white/50 cursor-not-allowed'}`}>
           <ShoppingBag size={16} />
-          {added ? 'Hinzugefügt!' : isValid ? 'In den Warenkorb' : `Min. ${minQty} Stück wählen`}
+          {added ? T.hinzugefuegt : isValid ? T.inWarenkorb : f(T.minWaehlen, { min: minQty })}
         </button>
       </div>
     </div>

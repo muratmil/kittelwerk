@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Tag, CheckCircle, PenLine, ScanSearch } from 'lucide-react';
 import OrderForm from './OrderForm';
 import { useState } from 'react';
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 function SizeBreakdown({ sizes }) {
   if (sizes['-'] !== undefined) return null;
@@ -25,6 +26,8 @@ export default function CartDrawer({ isOpen, onClose }) {
   } = useCartStore();
 
   const [showForm, setShowForm] = useState(false);
+  const { t, f, farbe } = useSprache();
+  const W = t.warenkorb;
   const [codeInput, setCodeInput] = useState('');
   const [codeError, setCodeError] = useState(false);
 
@@ -57,7 +60,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             className="fixed top-0 right-0 w-full max-w-md h-full bg-paper border-l-4 border-ink z-[101] flex flex-col shadow-2xl">
 
             <div className="p-6 border-b-4 border-ink flex justify-between items-center bg-white">
-              <h3 className="font-serif font-black text-2xl uppercase italic">Dein Warenkorb</h3>
+              <h3 className="font-serif font-black text-2xl uppercase italic">{W.titel}</h3>
               <button onClick={onClose} className="p-2 hover:bg-tomato hover:text-white border-2 border-ink transition-all">
                 <X size={20} />
               </button>
@@ -69,7 +72,7 @@ export default function CartDrawer({ isOpen, onClose }) {
               ) : (
                 <>
                   {items.length === 0 && (
-                    <div className="text-center py-8 font-serif italic opacity-40 uppercase text-sm">Dein Warenkorb ist noch leer...</div>
+                    <div className="text-center py-8 font-serif italic opacity-40 uppercase text-sm">{W.leer}</div>
                   )}
 
                   {items.map((item, idx) => (
@@ -79,7 +82,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-sm uppercase">{item.name}</h4>
-                        <p className="text-[10px] uppercase opacity-60">{item.color}</p>
+                        <p className="text-[10px] uppercase opacity-60">{farbe(item.color)}</p>
                         {item.fabric && (() => {
                           const opt = item.fabricOptions?.find(o => o.value === item.fabric);
                           return opt ? (
@@ -91,7 +94,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                           <span className="font-black text-lg">{item.qty} × {item.price.toFixed(2)}€</span>
                           {aufpreisSumme(item) > 0 && (
                             <span className="block text-[10px] font-bold uppercase tracking-wider text-tomato">
-                              + {aufpreisSumme(item).toFixed(2)}€ Größenaufpreis
+                              + {aufpreisSumme(item).toFixed(2)}€ {W.groessenaufpreis}
                             </span>
                           )}
                           <button onClick={() => removeItem(item.id, item.color, item.printType, item.fabric)} className="text-tomato">
@@ -109,8 +112,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                         <PenLine size={28} className="text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm uppercase">Logo-Erstellungsservice</h4>
-                        <p className="text-[10px] uppercase opacity-60">Vektorisierung · Partner-Grafiker</p>
+                        <h4 className="font-bold text-sm uppercase">{W.logoService}</h4>
+                        <p className="text-[10px] uppercase opacity-60">{W.logoServiceSub}</p>
                         <div className="flex justify-between items-end mt-2">
                           <span className="font-black text-lg">{LOGO_SERVICE_FEE.toFixed(2)}€</span>
                           <button onClick={() => setLogoService(false)} className="text-tomato">
@@ -124,10 +127,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                       className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-tomato hover:text-tomato transition-all group">
                       <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
                         <PenLine size={14} />
-                        Logo-Erstellungsservice hinzufügen
+                        {W.logoServiceAdd}
                       </span>
                       <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
-                        Kein Vektorlogo? Wir vermitteln einen Partner-Grafiker — {LOGO_SERVICE_FEE.toFixed(2)}€
+                        {f(W.logoServiceText, { preis: LOGO_SERVICE_FEE.toFixed(2) })}
                       </span>
                     </button>
                   )}
@@ -139,8 +142,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                         <ScanSearch size={28} className="text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm uppercase">Professionelle Datei-Kontrolle</h4>
-                        <p className="text-[10px] uppercase opacity-60">Druckfreigabe · Qualitätsprüfung</p>
+                        <h4 className="font-bold text-sm uppercase">{W.dateiKontrolle}</h4>
+                        <p className="text-[10px] uppercase opacity-60">{W.dateiKontrolleSub}</p>
                         <div className="flex justify-between items-end mt-2">
                           <span className="font-black text-lg">{FILE_CHECK_FEE.toFixed(2)}€</span>
                           <button onClick={() => setFileCheck(false)} className="text-tomato">
@@ -154,10 +157,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                       className="w-full border-2 border-dashed border-ink/40 p-4 text-center hover:border-olive hover:text-olive transition-all group">
                       <span className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
                         <ScanSearch size={14} />
-                        Datei-Kontrolle hinzufügen
+                        {W.dateiKontrolleAdd}
                       </span>
                       <span className="block text-[9px] opacity-50 mt-1 font-normal normal-case group-hover:opacity-70">
-                        Professionelle Prüfung Ihrer Druckdatei — {FILE_CHECK_FEE.toFixed(2)}€
+                        {f(W.dateiKontrolleText, { preis: FILE_CHECK_FEE.toFixed(2) })}
                       </span>
                     </button>
                   )}
@@ -169,12 +172,12 @@ export default function CartDrawer({ isOpen, onClose }) {
               <div className="p-6 border-t-4 border-ink bg-sun space-y-3">
                 {totalQty > 50 && (
                   <div className="bg-tomato text-white px-3 py-3 text-[11px] font-bold uppercase leading-tight border-2 border-ink">
-                    ⚠ Bei Bestellungen über 50 Stück ist eine individuelle Rücksprache erforderlich — die Produktionszeit kann sich verlängern. Bitte kontaktiere uns vorab unter info@kittelwerk.de.
+                    {W.ueber50}
                   </div>
                 )}
                 {remainingForFreeShipping > 0 && (
                   <div className="text-[10px] font-bold uppercase text-center bg-ink text-white py-2 px-3">
-                    Noch <span className="text-sun">{remainingForFreeShipping.toFixed(2)}€</span> bis zur kostenlosen Lieferung
+                    {W.nochBis1}<span className="text-sun">{remainingForFreeShipping.toFixed(2)}€</span>{W.nochBis2}
                   </div>
                 )}
 
@@ -187,7 +190,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                         value={codeInput}
                         onChange={(e) => { setCodeInput(e.target.value.toUpperCase()); setCodeError(false); }}
                         onKeyDown={(e) => e.key === 'Enter' && handleApplyCode()}
-                        placeholder="RABATTCODE"
+                        placeholder={W.rabattcode}
                         className="flex-1 px-2 py-2 text-[11px] font-black uppercase outline-none bg-transparent tracking-widest"
                       />
                     </div>
@@ -200,7 +203,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                   <div className="flex items-center justify-between bg-olive/20 border-2 border-olive px-3 py-2">
                     <div className="flex items-center gap-2">
                       <CheckCircle size={14} className="text-olive" />
-                      <span className="text-[11px] font-black uppercase text-olive">{appliedCode} — {discountPercent}% Rabatt</span>
+                      <span className="text-[11px] font-black uppercase text-olive">{appliedCode} — {discountPercent}% {W.rabatt}</span>
                     </div>
                     <button onClick={removeCode} className="text-[10px] font-bold opacity-50 hover:opacity-100 hover:text-tomato transition-all">
                       <X size={14} />
@@ -208,49 +211,49 @@ export default function CartDrawer({ isOpen, onClose }) {
                   </div>
                 )}
 
-                {codeError && <p className="text-[10px] font-bold text-tomato uppercase">Ungültiger Rabattcode.</p>}
+                {codeError && <p className="text-[10px] font-bold text-tomato uppercase">{W.ungueltig}</p>}
 
                 <div className="space-y-1.5 border-t-2 border-ink/30 pt-3">
                   <div className="flex justify-between text-[11px] font-bold uppercase">
-                    <span className="opacity-60">Zwischensumme</span>
+                    <span className="opacity-60">{W.zwischensumme}</span>
                     <span>{subtotal.toFixed(2)}€</span>
                   </div>
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-[11px] font-bold uppercase text-olive">
-                      <span>Rabatt ({discountPercent}%)</span>
+                      <span>{W.rabatt} ({discountPercent}%)</span>
                       <span>−{discountAmount.toFixed(2)}€</span>
                     </div>
                   )}
                   <div className="flex justify-between text-[11px] font-bold uppercase">
-                    <span className="opacity-60">Versandkosten</span>
+                    <span className="opacity-60">{W.versand}</span>
                     {shippingCost === 0 ? (
-                      <span className="text-olive font-black">GRATIS</span>
+                      <span className="text-olive font-black">{W.gratis}</span>
                     ) : (
                       <span>{shippingCost.toFixed(2)}€</span>
                     )}
                   </div>
                   {logoService && (
                     <div className="flex justify-between text-[11px] font-bold uppercase text-tomato">
-                      <span>Logo-Erstellungsservice</span>
+                      <span>{W.logoService}</span>
                       <span>+{LOGO_SERVICE_FEE.toFixed(2)}€</span>
                     </div>
                   )}
                   {fileCheck && (
                     <div className="flex justify-between text-[11px] font-bold uppercase text-olive">
-                      <span>Datei-Kontrolle</span>
+                      <span>{W.dateiKontrolleKurz}</span>
                       <span>+{FILE_CHECK_FEE.toFixed(2)}€</span>
                     </div>
                   )}
                 </div>
 
                 <div className="flex justify-between items-baseline font-serif font-black text-3xl italic border-t-2 border-ink pt-3">
-                  <span>TOTAL</span>
+                  <span>{W.total}</span>
                   <span>{finalTotal.toFixed(2)}€</span>
                 </div>
 
                 <button onClick={() => setShowForm(true)}
                   className="w-full bg-ink text-white py-5 font-black uppercase shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1">
-                  Zur Bestellanfrage
+                  {W.weiter}
                 </button>
               </div>
             )}

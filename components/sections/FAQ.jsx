@@ -1,30 +1,22 @@
 'use client';
 import { useState } from 'react';
-
-const ITEMS = [
-  { q: 'Wie funktioniert die Bestellung?', a: 'Produkte und Mengen wählen, Anfrage absenden und Logo hochladen. Wir senden Ihnen einen digitalen Korrekturabzug (Druckvorschau) zur Freigabe. Erst nach Ihrer Freigabe starten wir die Produktion.' },
-  { q: 'Was ist die Mindestbestellmenge?', a: 'Mindestens 10 Stück gesamt — verschiedene Produkte kombinierbar. Beispiel: 5 T-Shirts + 3 Schürzen + 2 Kappen = gültig.' },
-  { q: 'Welche Drucktechniken gibt es?', a: 'DTF-Druck: kostenlos, vollfarbig, ab 10 Stück. Siebdruck: ab 150 Stück, auf T-Shirts kostenlos, sonst +3€/Stk. Bestickung: ab 10 Stück, Brust vorne +2€/Stk — hochwertig und industriewaschfest. Mehr Infos auf unserer Druckinfo-Seite.' },
-  { q: 'Sehe ich das Logo vor der Produktion?', a: 'Ja — immer. Nach der Bestellung erhalten Sie einen kostenlosen digitalen Korrekturabzug. Produktion startet erst nach Ihrer Freigabe. Keine Überraschungen.' },
-  { q: 'Welche Größen gibt es?', a: 'T-Shirts und Sweatshirts in XS, S, M, L, XL und 2XL. Schürzen und Kappen sind One-Size.' },
-  { q: 'Wie lange dauert die Lieferung?', a: 'T-Shirts und Schürzen: 1–2 Wochen ab Zahlungseingang. Sweatshirts, Fleece-Jacken und Kappen: 3–4 Wochen. Versand per DHL oder DPD mit Sendungsverfolgung. Deutschlandweiter Versand.' },
-  { q: 'Was ist, wenn ich kein Vektorlogo habe?', a: 'Sie können beim Bestellen unseren Logo-Erstellungsservice für 50€ dazubuchen. Ein Partner-Grafiker vektorisiert Ihr Logo professionell — wir koordinieren alles.' },
-  { q: 'Wie läuft die Zahlung ab?', a: 'SEPA-Überweisung auf deutsches Konto. Keine Auslandsüberweisung. Rechnung mit USt. per Mail.' },
-];
+import { useSprache } from '@/components/i18n/SpracheProvider';
 
 export default function FAQ() {
   const [open, setOpen] = useState(null);
+  const { t } = useSprache();
+  const fq = t.faq;
   return (
     <section className="py-24 bg-paper border-t-4 border-ink" id="faq">
       <div className="container mx-auto px-6 max-w-3xl">
         <div className="text-center mb-12">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/60">— Häufige Fragen —</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/60">{fq.kicker}</span>
           <h2 className="font-serif font-black text-4xl md:text-6xl uppercase italic tracking-tighter mt-2 leading-none">
-            Kurz <span className="text-tomato">und</span> klar.
+            {fq.titel1}<span className="text-tomato">{fq.titelRot}</span>{fq.titel2}
           </h2>
         </div>
         <div className="border-t-2 border-ink">
-          {ITEMS.map((item, i) => (
+          {fq.liste.map((item, i) => (
             <div key={i} className="border-b-2 border-ink">
               <button
                 onClick={() => setOpen(open === i ? null : i)}
