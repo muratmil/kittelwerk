@@ -1,15 +1,16 @@
 import '../globals.css';
 import { notFound } from 'next/navigation';
-import { Fraunces, DM_Sans } from 'next/font/google';
+import { Fraunces, DM_Sans, Playfair_Display, Inter } from 'next/font/google';
 import { LOCALES, SPRACHEN, istSprache, alternates } from '@/lib/i18n/config';
 import { woerterbuch } from '@/lib/i18n';
 import { SpracheProvider } from '@/components/i18n/SpracheProvider';
 
-// `latin-ext` Türkçe için şart (ğ ş ı İ); eskiden yalnız `latin` yükleniyordu
-// ve bu harfler yedek yazı tipiyle çiziliyordu. Rusça gelirse: bu iki yazı
-// tipinde Kiril YOK — başka yazı tipi seçilmeli (bkz. lib/i18n/config.js).
+// `latin-ext` Türkçe için şart (ğ ş ı İ).
+// Rusça (Kiril) için Playfair Display & Inter kullanılır (aynı CSS değişkenleri).
 const fraunces = Fraunces({ subsets: ['latin', 'latin-ext'], weight: ['900'], style: ['italic'], variable: '--font-serif' });
 const dmSans = DM_Sans({ subsets: ['latin', 'latin-ext'], weight: ['400', '500', '700'], variable: '--font-sans' });
+const playfair = Playfair_Display({ subsets: ['cyrillic', 'latin'], weight: ['900'], style: ['italic'], variable: '--font-serif' });
+const inter = Inter({ subsets: ['cyrillic', 'latin'], weight: ['400', '500', '700'], variable: '--font-sans' });
 
 // Her dil derleme anında üretiliyor; listede olmayan ön ek 404.
 export const dynamicParams = false;
@@ -32,8 +33,15 @@ export async function generateMetadata({ params }) {
       url: alternates(lang, '/').canonical,
       siteName: 'Kittelwerk',
       locale: SPRACHEN[lang]?.og ?? 'de_DE',
+      alternateLocale: LOCALES.filter((l) => l !== lang).map((l) => SPRACHEN[l]?.og).filter(Boolean),
       type: 'website',
       images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: m.ogAlt }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: m.title,
+      description: m.description,
+      images: ['/images/og-image.jpg'],
     },
     robots: {
       index: true,
@@ -88,9 +96,12 @@ export default async function RootLayout({ children, params }) {
   const { lang } = await params;
   if (!istSprache(lang)) notFound();
 
+  const serifVar = lang === 'ru' ? playfair.variable : fraunces.variable;
+  const sansVar = lang === 'ru' ? inter.variable : dmSans.variable;
+
   return (
     <html lang={lang} className="scroll-smooth">
-      <body className={`${fraunces.variable} ${dmSans.variable} font-sans bg-paper text-ink selection:bg-sun selection:text-ink`}>
+      <body className={`${serifVar} ${sansVar} font-sans bg-paper text-ink selection:bg-sun selection:text-ink`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema(lang)) }}

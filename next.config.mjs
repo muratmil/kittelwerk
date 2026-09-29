@@ -34,7 +34,7 @@ const nextConfig = {
       // (2026-09-23). Ürün kimliği veritabanında `bistro` olarak kaldı.
       { source: '/produkte/bistro', destination: '/produkte/barista-schuerze', permanent: true },
       // Aynısı diğer dillerde (2026-09-29). Yeni dil eklenince buraya da yaz.
-      { source: '/:lang(en|tr)/produkte/bistro', destination: '/:lang/produkte/barista-schuerze', permanent: true },
+      { source: '/:lang(en|tr|fr|es|it|ru)/produkte/bistro', destination: '/:lang/produkte/barista-schuerze', permanent: true },
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'kittelwerk.de' }],

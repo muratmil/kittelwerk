@@ -1,5 +1,5 @@
 import { createPublicClient } from '@/utils/supabase/public';
-import { LOCALES, BASIS, pfad } from '@/lib/i18n/config';
+import { LOCALES, DEFAULT_LOCALE, BASIS, pfad } from '@/lib/i18n/config';
 
 // Ürünler veritabanından: yeni ürün eklendiğinde site haritasına elle satır
 // eklemek gerekmiyor, `products` tablosuna düşen her ürün buraya da düşer.
@@ -33,7 +33,10 @@ export default async function sitemap() {
 
   const url = (lang, p) => `${BASIS}${pfad(lang, p)}`;
   return seiten.flatMap((s) => {
-    const languages = Object.fromEntries(LOCALES.map((l) => [l, url(l, s.pfad)]));
+    const languages = {
+      ...Object.fromEntries(LOCALES.map((l) => [l, url(l, s.pfad)])),
+      'x-default': url(DEFAULT_LOCALE, s.pfad),
+    };
     return LOCALES.map((lang) => ({
       url: url(lang, s.pfad),
       lastModified: now,
