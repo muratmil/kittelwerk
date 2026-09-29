@@ -15,7 +15,7 @@ async function ladeProdukt(id) {
 }
 
 const PRODUCT_DESCRIPTIONS = {
-  tshirt: 'Gastro T-Shirt aus 100% Baumwolle mit kostenlosem Logo-Druck. Ab 16€/Stk ab 10 Stück — Schw., Weiß, Rot. Lieferzeit 1–2 Wochen. Deutschlandweiter Versand.',
+  tshirt: 'Premium T-Shirt aus 100% Baumwolle mit kostenlosem Logo-Druck. Ab 16€/Stk ab 10 Stück — Schw., Weiß, Rot. Lieferzeit 1–2 Wochen. Deutschlandweiter Versand.',
   oversize: 'Oversize T-Shirt aus 100% Baumwolle für Gastro-Teams — weiter Schnitt, tief angesetzte Schultern, Größen S–XXL mit Maßtabelle. Ab 19€/Stk ab 10 Stück inkl. kostenlosem Logo-Druck. Lieferzeit 3 Wochen. Deutschlandweiter Versand.',
   sweat: 'Premium Sweatshirt 320g/m² für Gastronomie mit kostenlosem DTF-Druck. Ab 24€/Stk ab 10 Stück. Lieferzeit 3–4 Wochen. Deutschlandweiter Versand.',
   fleece: 'Fleece Jacke Anti-Pilling für Gastronomie mit Bestickung. Ab 24€/Stk ab 10 Stück. Lieferzeit 3–4 Wochen. Deutschlandweiter Versand.',

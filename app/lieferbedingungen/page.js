@@ -29,7 +29,7 @@ export default function Lieferbedingungen() {
                 <span className="bg-olive text-white font-black text-[9px] uppercase px-2 py-1 whitespace-nowrap mt-0.5">1–2 Wochen</span>
                 <div>
                   <p className="font-black uppercase tracking-wide text-[11px] mb-1">T-Shirts & Schürzen</p>
-                  <p className="opacity-60">Gastro T-Shirt · Latzschürze · Vorbinder-Schürze</p>
+                  <p className="opacity-60">Premium T-Shirt · Latzschürze · Vorbinder-Schürze</p>
                 </div>
               </div>
               <div className="flex items-start gap-4 border-2 border-ink p-4">
