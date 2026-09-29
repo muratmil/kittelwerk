@@ -1,6 +1,7 @@
 import HomeClient from './HomeClient';
 import { createPublicClient } from '@/utils/supabase/public';
 import { loadCatalog } from '@/lib/catalog';
+import { loadReferenzen } from '@/lib/referenzen';
 
 // Fiyatlar veritabanından geliyor. Sayfa ISR ile önbelleklenir; yönetimden
 // yapılan fiyat değişikliği en geç bir dakika içinde vitrine yansır.
@@ -49,12 +50,17 @@ const faqSchema = {
 };
 
 export default async function Home() {
-  const { products } = await loadCatalog(createPublicClient(), { siteId: 'kittelwerk' });
+  const client = createPublicClient();
+  // Ana sayfadaki referans şeridi: CCH'deki sıranın ilk altısı.
+  const [{ products }, referenzen] = await Promise.all([
+    loadCatalog(client, { siteId: 'kittelwerk' }),
+    loadReferenzen(client, { limit: 6 }),
+  ]);
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <HomeClient products={products} />
+      <HomeClient products={products} referenzen={referenzen} />
     </>
   );
 }

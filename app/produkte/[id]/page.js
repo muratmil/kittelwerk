@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import ProductDetailPage from './ProductDetailPage';
 import { createPublicClient } from '@/utils/supabase/public';
 import { loadCatalog } from '@/lib/catalog';
+import { bildUrlAbsolut } from '@/lib/bildUrl';
 
 // Fiyatlar veritabanindan; sayfa ISR ile tazeleniyor.
 export const revalidate = 60;
@@ -72,7 +73,7 @@ export default async function Page({ params }) {
     '@type': 'Product',
     name: product.name,
     description: product.longDesc,
-    image: `https://www.kittelwerk.de${product.image}`,
+    image: bildUrlAbsolut(product.image),
     sku: product.id,
     category: 'Gastro-Textilien',
     brand: { '@type': 'Brand', name: 'Kittelwerk', url: 'https://www.kittelwerk.de' },

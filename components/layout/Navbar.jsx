@@ -8,6 +8,7 @@ const LINKS = [
   { href: '/', label: 'Startseite' },
   { href: '/produkte', label: 'Produkte' },
   { href: '/druckinfo', label: 'Druck & Stickerei' },
+  { href: '/referenzen', label: 'Referenzen' },
   { href: '/#rechner', label: 'Ersparnis-Rechner' },
   { href: '/ueber-uns', label: 'Über uns' },
   { href: '/kontakt', label: 'Kontakt' },

@@ -18,6 +18,7 @@ import Calculator from '@/components/sections/Calculator';
 import Process from '@/components/sections/Process';
 import Benefits from '@/components/sections/Benefits';
 import Testimonials from '@/components/sections/Testimonials';
+import Referenzen from '@/components/sections/Referenzen';
 import FAQ from '@/components/sections/FAQ';
 import FinalCTA from '@/components/sections/FinalCTA';
 import VidofoodBanner from '@/components/sections/VidofoodBanner';
@@ -27,7 +28,7 @@ import NewsletterPopup from '@/components/layout/NewsletterPopup';
 import Footer from '@/components/layout/Footer';
 
 
-export default function HomeClient({ products = [] }) {
+export default function HomeClient({ products = [], referenzen = [] }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
@@ -100,6 +101,7 @@ export default function HomeClient({ products = [] }) {
       <Calculator products={products} />
       <Process />
       <Benefits />
+      <Referenzen referenzen={referenzen} vorschau />
       <Testimonials />
       <FAQ />
       <FinalCTA />

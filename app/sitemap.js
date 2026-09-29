@@ -23,6 +23,7 @@ export default async function sitemap() {
     { url: `${base}/produkte/arbeitskleidung`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${base}/produkte/schuerzen`,       lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${base}/produkte/accessoires`,     lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${base}/referenzen`,         lastModified: now, changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${base}/kontakt`,            lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/ueber-uns`,          lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/druckinfo`,          lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
