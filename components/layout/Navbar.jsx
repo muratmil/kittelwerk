@@ -32,17 +32,18 @@ export default function Navbar({ onOpenCart }) {
 
   return (
     <nav className="sticky top-0 z-50 bg-paper border-b-4 border-ink py-4">
-      <div className="container mx-auto px-6 flex justify-between items-center">
-        <Link href={p('/')} className="font-serif font-black text-3xl tracking-tighter hover:opacity-80 transition-opacity">
+      <div className="container mx-auto px-6 flex justify-between items-center gap-6">
+        <Link href={p('/')} className="shrink-0 font-serif font-black text-3xl tracking-tighter hover:opacity-80 transition-opacity">
           Kittel<span className="text-tomato">werk</span>.
         </Link>
-        <div className="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-ink/60">
+        {/* Waagrecht erst ab xl, wenn alle Punkte einzeilig passen; darunter das ☰-Menü (2026-10-12) */}
+        <div className="hidden xl:flex min-w-0 gap-5 2xl:gap-8 font-bold text-[11px] 2xl:text-xs uppercase tracking-wider 2xl:tracking-widest text-ink/60">
           {LINKS.map((l) => (
-            <a key={l.href} href={p(l.href)} className="hover:text-tomato transition-colors">{t.nav[l.key]}</a>
+            <a key={l.href} href={p(l.href)} className="whitespace-nowrap hover:text-tomato transition-colors">{t.nav[l.key]}</a>
           ))}
         </div>
         {/* Telefonda dar: dil düğmesi eklenince 390 px'e sığmıyordu. */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="shrink-0 flex items-center gap-2 sm:gap-3">
           <SprachWahl />
           <button onClick={onOpenCart} className="bg-ink text-white px-3 sm:px-4 py-3 flex items-center gap-2 shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
             <ShoppingBag size={18} />
@@ -57,14 +58,14 @@ export default function Navbar({ onOpenCart }) {
             aria-label={menuOpen ? t.nav.menueSchliessen : t.nav.menueOeffnen}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            className="md:hidden border-2 border-ink p-2.5 bg-paper hover:bg-sun transition-colors"
+            className="xl:hidden border-2 border-ink p-2.5 bg-paper hover:bg-sun transition-colors"
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
       {menuOpen && (
-        <div id="mobile-menu" className="md:hidden absolute left-0 right-0 top-full bg-paper border-b-4 border-ink shadow-lg">
+        <div id="mobile-menu" className="xl:hidden absolute left-0 right-0 top-full bg-paper border-b-4 border-ink shadow-lg">
           <div className="container mx-auto px-6 py-2 flex flex-col">
             {LINKS.map((l) => (
               <a

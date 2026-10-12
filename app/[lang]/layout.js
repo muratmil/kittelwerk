@@ -65,18 +65,14 @@ function localBusinessSchema(lang) {
     openingHoursSpecification: [
       { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:00', closes: '17:00' },
     ],
+    // Gleiche Anschrift wie im Impressum (Vidomedia UG, 2026-10-12)
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Lange Str. 21',
-      addressLocality: 'Ronnenberg',
-      postalCode: '30952',
+      streetAddress: 'Koppeldamm 29',
+      addressLocality: 'Langenhagen',
+      postalCode: '30855',
       addressRegion: 'Niedersachsen',
       addressCountry: 'DE',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 52.3197,
-      longitude: 9.6558,
     },
     areaServed: [
       { '@type': 'City', name: 'Hannover' },
