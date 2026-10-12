@@ -5,6 +5,7 @@ import { ShoppingBag, Plus, Minus, ArrowLeft, Check } from 'lucide-react';
 import AlertBar from '@/components/layout/AlertBar';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import ProduktSeoBlock from './ProduktSeoBlock';
 import CartDrawer from '@/components/cart/CartDrawer';
 import ProductGallery from '@/components/atoms/ProductGallery';
 import SizeChart from '@/components/molecules/SizeChart';
@@ -25,7 +26,7 @@ const PRINT_OPTIONS = [
   { value: 'bestickung', price: 0 },
 ];
 
-export default function ProductDetailPage({ product }) {
+export default function ProductDetailPage({ product, seo = null }) {
   const { t, p, f, farbe } = useSprache();
   const T = t.produkt;
   const L = t.liste;
@@ -158,7 +159,8 @@ export default function ProductDetailPage({ product }) {
             </div>
           </div>
         </div>
-        <Footer />
+        <ProduktSeoBlock seo={seo} category={product.category} p={p} />
+      <Footer />
         <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       </main>
     );
@@ -557,6 +559,7 @@ export default function ProductDetailPage({ product }) {
         </div>
       </div>
 
+      <ProduktSeoBlock seo={seo} category={product.category} p={p} />
       <Footer />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </main>

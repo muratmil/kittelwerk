@@ -5,6 +5,7 @@ import { loadCatalog } from '@/lib/catalog';
 import { bildUrlAbsolut } from '@/lib/bildUrl';
 import { woerterbuch, fuell } from '@/lib/i18n';
 import { alternates, pfad, BASIS } from '@/lib/i18n/config';
+import { seoFuer } from '@/data/produkt-seo';
 
 // Fiyatlar veritabanindan; sayfa ISR ile tazeleniyor.
 export const revalidate = 60;
@@ -28,11 +29,13 @@ export async function generateMetadata({ params }) {
       ? fuell(m.ab, { name: product.name, desc: product.desc, preis: Number(product.tiers[0].price).toFixed(2), min: product.minQty || 10 })
       : fuell(m.bald, { name: product.name, desc: product.desc }));
   const alt = alternates(lang, `/produkte/${product.slug ?? id}`);
+  // Suchoptimierter Titel, wo es einen Ratgeber-Text gibt (data/produkt-seo.js)
+  const title = seoFuer(lang, product)?.title ?? `${product.name} | Kittelwerk`;
   return {
-    title: `${product.name} | Kittelwerk`,
+    title: { absolute: title },
     description,
     openGraph: {
-      title: `${product.name} | Kittelwerk`,
+      title,
       description,
       url: alt.canonical,
       images: [{ url: product.image, width: 800, height: 800, alt: product.name }],
@@ -91,11 +94,19 @@ export default async function Page({ params }) {
     ],
   };
 
+  const seo = seoFuer(lang, product);
+  const faqSchema = seo?.faq.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: seo.faq.map(({ q, a }) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+  } : null;
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <ProductDetailPage product={product} />
+      {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
+      <ProductDetailPage product={product} seo={seo} />
     </>
   );
 }
