@@ -57,6 +57,8 @@ function localBusinessSchema(lang) {
     '@type': 'LocalBusiness',
     name: 'Kittelwerk',
     description: t.description,
+    // Kittelwerk ist eine Marke der Vidomedia UG (Impressum, 2026-10-12)
+    parentOrganization: { '@type': 'Organization', name: 'Vidomedia UG (haftungsbeschränkt)', url: 'https://vidomedia.de/' },
     url: 'https://www.kittelwerk.de',
     email: 'info@kittelwerk.de',
     telephone: '+49-174-9623344',
@@ -82,7 +84,8 @@ function localBusinessSchema(lang) {
       { '@type': 'Country', name: 'Deutschland' },
     ],
     priceRange: '€',
-    paymentAccepted: 'SEPA, Kreditkarte, PayPal',
+    // Nur SEPA, bis Stripe kommt (2026-10-12) — gleich wie AGB und Lieferbedingungen
+    paymentAccepted: 'SEPA-Überweisung',
     currenciesAccepted: 'EUR',
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
