@@ -14,15 +14,22 @@ const eur = (n) => `${Number(n).toFixed(2).replace('.', ',')} €`;
 
 export async function GET() {
   const { products } = await loadCatalog(createPublicClient(), { siteId: 'kittelwerk', lang: 'de' });
-  const sichtbar = products.filter((p) => !p.comingSoon);
+  // "Demnächst" markierte Produkte haben eine Seite, sind aber noch nicht bestellbar
+  const sichtbar = products;
   const faq = woerterbuch('de').faq.liste;
 
   const produktZeile = (p) => {
-    const preise = (p.tiers ?? []).map((t) => t.price).filter((x) => x != null);
-    const ab = preise.length ? ` – ab ${eur(Math.min(...preise))} pro Stück (Staffelpreis ohne Druck)` : '';
-    const min = p.minQty ? `, Mindestmenge ${p.minQty} Stück` : '';
+    const tiers = (p.tiers ?? []).filter((t) => t.price != null).sort((a, b) => a.minQty - b.minQty);
+    let preis = '';
+    if (tiers.length) {
+      const erst = tiers[0], letzt = tiers[tiers.length - 1];
+      preis = tiers.length > 1 && letzt.price !== erst.price
+        ? ` – Staffelpreis ${eur(erst.price)} pro Stück (ab ${erst.minQty} Stück) bis ${eur(letzt.price)} (ab ${letzt.minQty} Stück)`
+        : ` – ${eur(erst.price)} pro Stück (ab ${erst.minQty} Stück)`;
+    }
+    const bald = p.comingSoon ? ' – demnächst verfügbar' : '';
     const text = p.subtitle ? `: ${p.subtitle}` : '';
-    return `- [${p.name}](${BASIS}/produkte/${p.slug})${text}${ab}${min}`;
+    return `- [${p.name}](${BASIS}/produkte/${p.slug})${text}${preis}${bald}`;
   };
 
   // Kategorien aus derselben Quelle wie die Kategorieseiten (data/kategorien.js)
