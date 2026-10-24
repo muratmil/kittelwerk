@@ -310,7 +310,7 @@ export default function ProductDetailPage({ product, seo = null }) {
                       return (
                         <div key={tier.minQty} className={`flex flex-col items-center text-center border-l-2 border-ink first:border-l-0 ${isActive ? 'bg-sun' : ''}`}>
                           <span className="text-[9px] font-bold uppercase px-1 py-1.5 w-full border-b-2 border-ink/15 leading-tight">
-                            {bis === null ? `${tier.minQty}+` : `${tier.minQty}–${bis}`}<br />{T.stueck}
+                            {T.ab} {tier.minQty}<br />{T.stueck}
                           </span>
                           <span className="font-black text-[12px] py-2">{tier.price.toFixed(2)}€</span>
                         </div>
