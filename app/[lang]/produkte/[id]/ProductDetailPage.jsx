@@ -223,8 +223,9 @@ export default function ProductDetailPage({ product, seo = null }) {
   let schrittNr = 0;
   const naechster = () => ++schrittNr;
   const tiers = [...(product.tiers || [])].sort((a, b) => a.minQty - b.minQty);
-  const abPreis = tiers.length ? Math.min(...tiers.map((x) => x.price)) : basePrice;
-  const abMenge = tiers.length ? tiers[tiers.length - 1].minQty : minQty;
+  // Kopfpreis = Preis der aktuell gewählten Menge (unter der Mindestmenge: erste Staffel).
+  // Kein "ab <günstigste Staffel>": der 100er-Preis ist kein realistischer Einstiegspreis.
+  const kopfPreis = tiers.length && totalQty < tiers[0].minQty ? tiers[0].price : basePrice;
   const aufpreisGroessen = sizes.filter((g) => groessenAufpreis(product, g) > 0);
   const tabs = [
     (product.details || product.marketingText) && ['details', T.produktdetails],
@@ -291,8 +292,8 @@ export default function ProductDetailPage({ product, seo = null }) {
               <div>
                 {/* Kein durchgestrichener Altpreis neben "ab": oldPrice bezieht sich auf die erste Staffel,
                     neben dem 100er-Preis würde er die Ersparnis übertreiben (-%-Rozette am Bild bleibt) */}
-                <span className="font-black text-4xl">{T.ab} {abPreis.toFixed(2)}€</span>
-                <p className="text-[10px] font-black uppercase opacity-50 mt-1">{f(T.abStueck, { n: abMenge })}</p>
+                <span className="font-black text-4xl">{kopfPreis.toFixed(2)}€</span>
+                <p className="text-[10px] font-black uppercase opacity-50 mt-1">{f(T.abStueck, { n: minQty })}</p>
               </div>
               {tiers.length > 0 && (
                 <div>
