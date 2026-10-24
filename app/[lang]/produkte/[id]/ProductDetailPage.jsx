@@ -26,6 +26,9 @@ const PRINT_OPTIONS = [
   { value: 'bestickung', price: 0 },
 ];
 
+// Stückpreise ohne ,00 (Murat: keine Cent-Optik), echte Cent bleiben (10.50)
+const eur = (n) => (Number.isInteger(n) ? `${n}€` : `${n.toFixed(2)}€`);
+
 // Nummerierter Schritt im Kittelwerk-Stil (schwarzes Quadrat, gelbe Ziffer)
 function Schritt({ nr, titel, children }) {
   return (
@@ -222,7 +225,9 @@ export default function ProductDetailPage({ product, seo = null }) {
 
   let schrittNr = 0;
   const naechster = () => ++schrittNr;
-  const tiers = [...(product.tiers || [])].sort((a, b) => a.minQty - b.minQty);
+  // Gleiche Preise hintereinander nur einmal zeigen ("ab 50", nicht auch "ab 100") — Murat 2026-10-24
+  const tiers = [...(product.tiers || [])].sort((a, b) => a.minQty - b.minQty)
+    .filter((x, i, arr) => i === 0 || x.price !== arr[i - 1].price);
   // Kopfpreis = Preis der aktuell gewählten Menge (unter der Mindestmenge: erste Staffel).
   // Kein "ab <günstigste Staffel>": der 100er-Preis ist kein realistischer Einstiegspreis.
   const kopfPreis = tiers.length && totalQty < tiers[0].minQty ? tiers[0].price : basePrice;
@@ -292,7 +297,7 @@ export default function ProductDetailPage({ product, seo = null }) {
               <div>
                 {/* Kein durchgestrichener Altpreis neben "ab": oldPrice bezieht sich auf die erste Staffel,
                     neben dem 100er-Preis würde er die Ersparnis übertreiben (-%-Rozette am Bild bleibt) */}
-                <span className="font-black text-4xl">{kopfPreis.toFixed(2)}€</span>
+                <span className="font-black text-4xl">{eur(kopfPreis)}</span>
                 <p className="text-[10px] font-black uppercase opacity-50 mt-1">{f(T.abStueck, { n: minQty })}</p>
               </div>
               {tiers.length > 0 && (
@@ -312,7 +317,7 @@ export default function ProductDetailPage({ product, seo = null }) {
                           <span className="text-[9px] font-bold uppercase px-1 py-1.5 w-full border-b-2 border-ink/15 leading-tight">
                             {T.ab} {tier.minQty}<br />{T.stueck}
                           </span>
-                          <span className="font-black text-[12px] py-2">{tier.price.toFixed(2)}€</span>
+                          <span className="font-black text-[12px] py-2">{eur(tier.price)}</span>
                         </div>
                       );
                     })}

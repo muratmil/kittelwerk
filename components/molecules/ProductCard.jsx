@@ -91,7 +91,7 @@ export default function ProductCard({ product }) {
         <div className="mt-auto pt-4 border-t-2 border-ink/15 flex items-center justify-between gap-3">
           <p className="text-[11px] uppercase">
             <span className="opacity-60">{T.ab} </span>
-            <span className="font-black text-lg">{startPreis.toFixed(2)}€</span>
+            <span className="font-black text-lg">{Number.isInteger(startPreis) ? startPreis : startPreis.toFixed(2)}€</span>
             <span className="opacity-60"> {T.proStueck}</span>
           </p>
           <Link href={href}
