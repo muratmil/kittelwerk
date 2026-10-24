@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Plus, Minus, ArrowLeft, Check, Truck, AlertCircle } from 'lucide-react';
+import { ShoppingBag, Plus, Minus, ArrowLeft, Check, Truck, AlertCircle, ChevronUp, ChevronDown } from 'lucide-react';
 import AlertBar from '@/components/layout/AlertBar';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -302,13 +302,14 @@ export default function ProductDetailPage({ product, seo = null }) {
                   <div className="grid border-2 border-ink bg-white" style={{ gridTemplateColumns: `repeat(${tiers.length}, minmax(0, 1fr))` }}>
                     {tiers.map((tier, i) => {
                       const bis = tiers[i + 1] ? tiers[i + 1].minQty - 1 : null;
-                      const isActive = totalQty === 0
+                      // Unter der ersten Staffel gilt deren Preis — also auch sie markieren
+                      const isActive = totalQty < tiers[0].minQty
                         ? i === 0
                         : totalQty >= tier.minQty && (bis === null || totalQty <= bis);
                       return (
                         <div key={tier.minQty} className={`flex flex-col items-center text-center border-l-2 border-ink first:border-l-0 ${isActive ? 'bg-sun' : ''}`}>
                           <span className="text-[9px] font-bold uppercase px-1 py-1.5 w-full border-b-2 border-ink/15 leading-tight">
-                            {bis === null ? `${tier.minQty}+` : `${tier.minQty}–${bis}`}<br />{T.stk}
+                            {bis === null ? `${tier.minQty}+` : `${tier.minQty}–${bis}`}<br />{T.stueck}
                           </span>
                           <span className="font-black text-[12px] py-2">{tier.price.toFixed(2)}€</span>
                         </div>
@@ -364,15 +365,24 @@ export default function ProductDetailPage({ product, seo = null }) {
               <Schritt nr={naechster()} titel={T.groessenStueck}>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2" style={sizes.length < 8 ? { gridTemplateColumns: `repeat(${Math.min(sizes.length, 8)}, minmax(0, 1fr))` } : undefined}>
                   {sizes.map((size) => (
-                    <label key={size} className="flex flex-col items-center gap-1.5">
-                      <span className="text-[11px] font-black uppercase">{size}</span>
-                      <input
-                        type="number" min="0" inputMode="numeric" value={sizeQtys[size] || ''} placeholder="0"
-                        onChange={(e) => updateSize(size, e.target.value)}
-                        aria-label={`${size} ${T.stueck}`}
-                        className={`w-full border-2 border-ink py-2.5 text-center font-black text-sm outline-none focus:bg-sun ${sizeQtys[size] > 0 ? 'bg-sun/40' : 'bg-white'}`}
-                      />
-                    </label>
+                    <div key={size} className="flex flex-col items-center gap-1.5">
+                      <label htmlFor={`groesse-${size}`} className="text-[11px] font-black uppercase">{size}</label>
+                      {/* Eingabefeld mit eigenen Pfeilen rechts (die des Browsers sind ausgeblendet) */}
+                      <div className={`w-full flex border-2 border-ink ${sizeQtys[size] > 0 ? 'bg-sun/40' : 'bg-white'}`}>
+                        <input
+                          id={`groesse-${size}`} type="number" min="0" inputMode="numeric" value={sizeQtys[size] || ''} placeholder="0"
+                          onChange={(e) => updateSize(size, e.target.value)}
+                          aria-label={`${size} ${T.stueck}`}
+                          className="w-full min-w-0 py-2.5 pl-1 text-center font-black text-sm outline-none bg-transparent focus:bg-sun [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        />
+                        <span className="flex flex-col border-l-2 border-ink shrink-0">
+                          <button type="button" onClick={() => updateSize(size, (sizeQtys[size] || 0) + 1)} aria-label={`${size} +1`}
+                            className="flex-1 px-1 hover:bg-sun border-b border-ink/30 flex items-center justify-center"><ChevronUp size={12} strokeWidth={3} /></button>
+                          <button type="button" onClick={() => updateSize(size, (sizeQtys[size] || 0) - 1)} aria-label={`${size} −1`}
+                            className="flex-1 px-1 hover:bg-sun flex items-center justify-center"><ChevronDown size={12} strokeWidth={3} /></button>
+                        </span>
+                      </div>
+                    </div>
                   ))}
                 </div>
                 <div className="flex justify-between gap-4 text-[10px] font-bold uppercase opacity-60">
