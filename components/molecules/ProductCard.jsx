@@ -1,55 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Plus, Minus } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
-import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
-import { STANDARD_GROESSEN, groessenAufpreis } from '@/lib/groessen';
 import { useSprache } from '@/components/i18n/SpracheProvider';
-
-const SIZES = STANDARD_GROESSEN;
-const MIN_QTY = 10;
-
-// Etiketler sözlükte: `produkt.druck.<value>`.
-const PRINT_OPTIONS = [
-  { value: 'none',             price: 0, minQty: 0   },
-  { value: 'front',            price: 5, minQty: 0   },
-  { value: 'back',             price: 5, minQty: 0   },
-  { value: 'both',             price: 8, minQty: 0   },
-  { value: 'siebdruck',        price: 3, minQty: 150 },
-  { value: 'bestickung_front', price: 2, minQty: 0   },
-  { value: 'bestickung_back',  price: 3, minQty: 0   },
-  { value: 'bestickung_both',  price: 5, minQty: 0   },
-];
 
 export default function ProductCard({ product }) {
   const { t, p, f, farbe } = useSprache();
   const T = t.produkt;
-  const druckLabel = (v) => T.druck[v] ?? v;
-  const minQty = product.minQty || MIN_QTY;
-  const sizes = product.sizes || SIZES;
-  const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
-  const [sizeQtys, setSizeQtys] = useState(
-    product.hasSizes
-      ? Object.fromEntries(sizes.map(s => [s, 0]))
-      : { '-': minQty }
-  );
-  const [printType, setPrintType] = useState('none');
-  const [selectedFabric, setSelectedFabric] = useState(
-    product.fabricOptions ? product.fabricOptions[0].value : null
-  );
-  const [added, setAdded] = useState(false);
-  const addItem = useCartStore((state) => state.addItem);
-
-  const totalQty = Object.values(sizeQtys).reduce((a, b) => a + b, 0);
-  const isValid = totalQty >= minQty;
-
-  useEffect(() => {
-    if (printType === 'siebdruck' && totalQty < 150) {
-      setPrintType('none');
-    }
-  }, [totalQty]);
-
   // Bald Hier — ürün henüz satista degil: fiyat/sepet yok, sade kart
   if (product.comingSoon) {
     return (
@@ -93,50 +50,17 @@ export default function ProductCard({ product }) {
     );
   }
 
-  const isBestickung = (v) => v === 'bestickung_front' || v === 'bestickung_back' || v === 'bestickung_both';
-
-  // tshirt/oversize: DTF+Siebdruck, kein Bestickung
-  // sweat/fleece: alles
-  // cap/apron/latz: kein Rücken, kein Bestickung Hinten
-  // Siebdruck ist immer sichtbar, aber disabled wenn qty < 150
-  const availablePrints = (() => {
-    const id = product.id;
-    if (id === 'tshirt' || id === 'oversize' || id === 'polo') return PRINT_OPTIONS.filter(o => !isBestickung(o.value));
-    if (id === 'sweat' || id === 'fleece') return PRINT_OPTIONS;
-    return PRINT_OPTIONS.filter(o => o.value !== 'back' && o.value !== 'both' && o.value !== 'bestickung_back' && o.value !== 'bestickung_both');
-  })();
-  const selectedPrint = PRINT_OPTIONS.find(o => o.value === printType);
-  const isOptFree = (opt) => FREE_PRINT_TYPES.includes(opt.value) || (opt.value === 'siebdruck' && product.freeSiebdruck);
-  const isFree = isOptFree(selectedPrint);
-  const effectivePrintPrice = isFree ? 0 : selectedPrint.price;
-  const basePrice = getTieredPrice(product, totalQty);
-  const totalUnitPrice = basePrice + effectivePrintPrice;
-  // Eski fiyat olmayabilir (2026-09-23): yeni ürünlerde uydurma bir "durchgestrichener
-  // Preis" hem yanıltıcı hem Almanya'da riskli. Yoksa rozet de üstü çizili fiyat da çizilmiyor.
-  const hatAltpreis = typeof product.oldPrice === 'number' && product.oldPrice > basePrice;
-  const savings = hatAltpreis ? ((product.oldPrice - basePrice) / product.oldPrice * 100).toFixed(0) : null;
-
-  const updateSize = (size, val) => {
-    const num = Math.max(0, parseInt(val) || 0);
-    setSizeQtys(prev => ({ ...prev, [size]: num }));
-  };
-
-  const handleAddToCart = () => {
-    if (!isValid) return;
-    const activeSizes = Object.fromEntries(Object.entries(sizeQtys).filter(([, v]) => v > 0));
-    addItem(product, selectedColor, activeSizes, totalQty, printType, selectedFabric);
-    setAdded(true);
-    setSizeQtys(
-      product.hasSizes
-        ? Object.fromEntries(sizes.map(s => [s, 0]))
-        : { '-': minQty }
-    );
-    setTimeout(() => setAdded(false), 1500);
-  };
+  // Katalogkarte ohne Konfiguration (2026-10-24, Murat): Bild, Name, Farben, Einstiegspreis,
+  // "Konfigurieren". Menge, Größe und Druck wählt man auf der Produktseite.
+  const tiers = [...(product.tiers || [])].sort((a, b) => a.minQty - b.minQty);
+  const startPreis = tiers.length ? tiers[0].price : product.newPrice;
+  const hatAltpreis = typeof product.oldPrice === 'number' && product.oldPrice > startPreis;
+  const savings = hatAltpreis ? ((product.oldPrice - startPreis) / product.oldPrice * 100).toFixed(0) : null;
+  const href = p(`/produkte/${product.slug ?? product.id}`);
 
   return (
     <div className="border-4 border-ink shadow-brutalist-lg bg-paper flex flex-col">
-      <Link href={p(`/produkte/${product.slug ?? product.id}`)} className="relative block group/img">
+      <Link href={href} className="relative block group/img">
         <ProductImage src={product.image} backSrc={product.backImage} alt={product.name} />
         {product.badge && (
           <span className="absolute top-3 left-3 bg-tomato text-white text-[9px] font-black uppercase tracking-widest px-2 py-1">
@@ -148,262 +72,33 @@ export default function ProductCard({ product }) {
             -{savings}%
           </span>
         )}
-        <span className="absolute inset-0 bg-ink/0 group-hover/img:bg-ink/10 transition-all flex items-center justify-center">
-          <span className="opacity-0 group-hover/img:opacity-100 bg-ink text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 transition-all">
-            {T.details}
-          </span>
-        </span>
       </Link>
 
       <div className="p-6 flex flex-col gap-4 flex-1">
         <div>
-          <h3 className="font-serif font-black text-2xl uppercase italic tracking-tighter">{product.name}</h3>
+          <h3 className="font-serif font-black text-2xl uppercase italic tracking-tighter">
+            <Link href={href} className="hover:text-tomato transition-colors">{product.name}</Link>
+          </h3>
           <p className="text-[10px] uppercase tracking-widest opacity-60 mt-1">{product.desc}</p>
         </div>
 
-        {/* Fiyat */}
-        <div className="border-2 border-ink p-3 bg-white space-y-1">
-          <div className="flex items-baseline gap-3">
-            <span className="font-black text-2xl text-ink">{basePrice.toFixed(2)}€</span>
-            {hatAltpreis && <span className="text-sm line-through opacity-40">{product.oldPrice.toFixed(2)}€</span>}
-            <span className="text-[9px] font-black uppercase opacity-60">{T.proStueck}</span>
-          </div>
-          {product.tiers && (
-            <p className="text-[9px] opacity-50">
-              {T.ab} <span className="font-black">{product.tiers[product.tiers.length - 1].price.toFixed(0)}€</span>
-            </p>
-          )}
-          {product.tiers && (
-            <div className="border-t border-ink/20 pt-2 mt-1">
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-1.5">
-                {isBestickung(printType) ? T.staffelBestickung
-                  : printType === 'siebdruck' ? T.staffelSiebdruck
-                  : printType === 'none' ? T.staffelOhne
-                  : T.staffelDtf}
-              </p>
-              <div className="grid grid-cols-5 gap-x-1 gap-y-0.5">
-                {product.tiers.slice(0, -1).map((tier, i, arr) => {
-                  const isLastVisible = i === arr.length - 1;
-                  const isActive = totalQty === 0
-                    ? i === 0
-                    : totalQty >= tier.minQty && (isLastVisible || totalQty < product.tiers[i + 1].minQty);
-                  return (
-                    <div key={tier.minQty} className={`flex flex-col text-[9px] px-1 py-0.5 ${isActive ? 'bg-sun' : 'opacity-50'}`}>
-                      <span className="whitespace-nowrap">{isLastVisible ? `${tier.minQty}-100` : `${tier.minQty}`} {T.stk}</span>
-                      <span className="font-black">{tier.price.toFixed(2)}€</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          {selectedPrint.price > 0 && (
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase border-t border-ink/20 pt-1">
-              <span className="opacity-60">{druckLabel(selectedPrint.value)}</span>
-              {isFree ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="line-through opacity-40">+{selectedPrint.price.toFixed(2)}€</span>
-                  <span className="bg-olive text-white font-black px-1 py-0.5 text-[8px]">{T.gratis}</span>
-                </span>
-              ) : (
-                <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ {T.proStueck}</span>
-              )}
-            </div>
-          )}
-          {selectedPrint.price > 0 && !isFree && (
-            <div className="flex items-center justify-between text-[11px] font-black uppercase border-t-2 border-ink pt-1">
-              <span>{T.gesamtProStueck}</span>
-              <span>{totalUnitPrice.toFixed(2)}€</span>
-            </div>
-          )}
+        <div className="flex gap-2" aria-label={T.farbe}>
+          {product.colors.map((c) => (
+            <span key={c.name} title={farbe(c.name)} style={{ backgroundColor: c.hex }} className="w-6 h-6 border-2 border-ink" />
+          ))}
         </div>
 
-        {/* Teslimat süresi */}
-        {product.deliveryTime && (
-          <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest">
-            <span className="opacity-50">{T.lieferzeit}</span>
-            <span className={`px-2 py-0.5 ${product.deliveryTime.startsWith('1') ? 'bg-olive text-white' : 'bg-sun text-ink'}`}>
-              {product.deliveryTime}
-            </span>
-          </div>
-        )}
-
-        {/* Renk */}
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.farbe}</p>
-          <div className="flex gap-2">
-            {product.colors.map((c) => (
-              <button key={c.name} onClick={() => setSelectedColor(c.name)} title={farbe(c.name)}
-                style={{ backgroundColor: c.hex }}
-                className={`w-7 h-7 border-2 transition-all ${selectedColor === c.name ? 'border-tomato scale-110' : 'border-ink'}`}
-              />
-            ))}
-          </div>
+        <div className="mt-auto pt-4 border-t-2 border-ink/15 flex items-center justify-between gap-3">
+          <p className="text-[11px] uppercase">
+            <span className="opacity-60">{T.ab} </span>
+            <span className="font-black text-lg">{startPreis.toFixed(2)}€</span>
+            <span className="opacity-60"> {T.proStueck}</span>
+          </p>
+          <Link href={href}
+            className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border-b-2 border-ink pb-0.5 hover:text-tomato hover:border-tomato transition-colors">
+            {T.konfigurieren} <ArrowRight size={13} />
+          </Link>
         </div>
-
-        {/* Kumaş Seçimi — Dropdown */}
-        {product.fabricOptions && (() => {
-          const selected = product.fabricOptions.find(o => o.value === selectedFabric);
-          return (
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.stoffqualitaet}</p>
-              <div className="relative">
-                <select
-                  value={selectedFabric}
-                  onChange={(e) => setSelectedFabric(e.target.value)}
-                  className="w-full border-2 border-ink bg-paper px-2 py-2 text-[9px] font-black uppercase appearance-none cursor-pointer focus:outline-none focus:bg-sun pr-6"
-                >
-                  {product.fabricOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label} – {opt.sublabel} ({opt.weight})
-                    </option>
-                  ))}
-                </select>
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none font-black text-[9px]">▾</span>
-              </div>
-              {selected?.careNote && (
-                <p className="text-[8px] font-bold mt-1 bg-sun text-ink px-2 py-1">{selected.careNote}</p>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* Baskı — Dropdown */}
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.druckoption}</p>
-          <div className="relative">
-            <select
-              value={printType}
-              onChange={(e) => setPrintType(e.target.value)}
-              className="w-full border-2 border-ink bg-paper px-3 py-3 text-[10px] font-black uppercase appearance-none cursor-pointer focus:outline-none focus:bg-sun pr-8 tracking-widest"
-            >
-              {availablePrints.map((opt) => {
-                const locked = totalQty < opt.minQty;
-                const suffix = locked
-                  ? f(T.abMenge, { n: opt.minQty })
-                  : isOptFree(opt)
-                    ? (opt.price === 0 ? ` — ${T.kostenlos}` : ` — ${T.gratis}`)
-                    : ` — +${opt.price.toFixed(2)}€/${T.stk}`;
-                return (
-                  <option key={opt.value} value={opt.value} disabled={locked}>
-                    {druckLabel(opt.value)}{suffix}
-                  </option>
-                );
-              })}
-            </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none font-black text-[10px]">▾</span>
-          </div>
-          {selectedPrint && selectedPrint.value !== 'none' && (
-            <div className="mt-2 flex items-center justify-between px-3 py-2 border border-ink/20 bg-white text-[9px] font-black uppercase">
-              <span className="opacity-60">{druckLabel(selectedPrint.value)}</span>
-              {isOptFree(selectedPrint) ? (
-                <span className="flex items-center gap-1.5">
-                  {selectedPrint.price > 0 && <span className="line-through opacity-40">+{selectedPrint.price.toFixed(2)}€</span>}
-                  <span className="bg-olive text-white px-1.5 py-0.5">{T.gratis}</span>
-                </span>
-              ) : (
-                <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ / {T.stk}</span>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Baskı boyut notu */}
-        {printType !== 'none' && !isBestickung(printType) && (
-          <div className="text-[8px] leading-relaxed bg-sun/50 border border-ink/20 px-3 py-2 space-y-1">
-            <p className="font-black uppercase tracking-widest">{T.standardmasse}</p>
-            <p>{T.masse1}<strong>{T.masseBrust}</strong>{T.masse2}<strong>{T.masseRuecken}</strong></p>
-            <p className="opacity-70">{T.masseAbweichend}</p>
-            {printType !== 'siebdruck' && (
-              <p className="opacity-60 border-t border-ink/10 pt-1">
-                {T.dtfHinweis}
-              </p>
-            )}
-            {printType === 'siebdruck' && (
-              <p className="opacity-60 border-t border-ink/10 pt-1">
-                {T.siebHinweis}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Beden & Adet */}
-        {product.hasSizes ? (
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
-              {T.groesseMenge}{' '}
-              <span className={totalQty >= minQty ? 'text-olive' : 'text-tomato'}>
-                {f(T.gesamtMin, { n: totalQty, min: minQty })}
-              </span>
-            </p>
-            <div className="space-y-2">
-              {sizes.map(size => (
-                <div key={size} className="flex items-center gap-3">
-                  <span className="text-[10px] font-black uppercase w-8 flex-shrink-0">{size}</span>
-                  <div className="flex items-center border-2 border-ink">
-                    <button onClick={() => updateSize(size, sizeQtys[size] - 1)}
-                      className="px-2 py-1.5 hover:bg-sun transition-all">
-                      <Minus size={12} />
-                    </button>
-                    <input
-                      type="number" min="0" value={sizeQtys[size]}
-                      onChange={(e) => updateSize(size, e.target.value)}
-                      className="w-10 py-1.5 font-black text-sm border-x-2 border-ink text-center outline-none bg-transparent"
-                    />
-                    <button onClick={() => updateSize(size, sizeQtys[size] + 1)}
-                      className="px-2 py-1.5 hover:bg-sun transition-all">
-                      <Plus size={12} />
-                    </button>
-                  </div>
-                  {sizeQtys[size] > 0 && (
-                    <span className="text-[10px] opacity-50">
-                      = {((totalUnitPrice + groessenAufpreis(product, size)) * sizeQtys[size]).toFixed(2)}€
-                    </span>
-                  )}
-                  {groessenAufpreis(product, size) > 0 && sizeQtys[size] === 0 && (
-                    <span className="text-[9px] font-black text-tomato opacity-80">
-                      +{groessenAufpreis(product, size).toFixed(2)}€
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">
-              {T.menge} <span className="text-tomato">{f(T.minStueck, { min: minQty })}</span>
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center border-2 border-ink">
-                <button onClick={() => updateSize('-', sizeQtys['-'] - 1)}
-                  className="px-3 py-2 hover:bg-sun transition-all">
-                  <Minus size={14} />
-                </button>
-                <input
-                  type="number" min={minQty} value={sizeQtys['-']}
-                  onChange={(e) => updateSize('-', Math.max(minQty, parseInt(e.target.value) || minQty))}
-                  className="px-2 py-2 font-black text-sm border-x-2 border-ink w-16 text-center outline-none bg-transparent"
-                />
-                <button onClick={() => updateSize('-', sizeQtys['-'] + 1)}
-                  className="px-3 py-2 hover:bg-sun transition-all">
-                  <Plus size={14} />
-                </button>
-              </div>
-              <span className="text-[10px] font-black opacity-50 uppercase">
-                = {(totalUnitPrice * sizeQtys['-']).toFixed(2)}€
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Sepete ekle */}
-        <button onClick={handleAddToCart} disabled={!isValid}
-          className={`w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-brutalist transition-all mt-auto
-            ${added ? 'bg-olive text-white' : isValid ? 'bg-ink text-white hover:bg-tomato active:translate-x-1 active:translate-y-1 active:shadow-none' : 'bg-ink/30 text-white/50 cursor-not-allowed'}`}>
-          <ShoppingBag size={16} />
-          {added ? T.hinzugefuegt : isValid ? T.inWarenkorb : f(T.minWaehlen, { min: minQty })}
-        </button>
       </div>
     </div>
   );
