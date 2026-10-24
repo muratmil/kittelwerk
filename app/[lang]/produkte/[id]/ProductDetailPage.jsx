@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Plus, Minus, ArrowLeft, Check } from 'lucide-react';
+import { ShoppingBag, Plus, Minus, ArrowLeft, Check, Truck, AlertCircle } from 'lucide-react';
 import AlertBar from '@/components/layout/AlertBar';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -25,6 +25,19 @@ const PRINT_OPTIONS = [
   { value: 'both',       price: 8 },
   { value: 'bestickung', price: 0 },
 ];
+
+// Nummerierter Schritt im Kittelwerk-Stil (schwarzes Quadrat, gelbe Ziffer)
+function Schritt({ nr, titel, children }) {
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <span className="w-9 h-9 bg-ink text-sun font-black text-sm flex items-center justify-center shrink-0">{String(nr).padStart(2, '0')}</span>
+        <h2 className="font-black text-lg uppercase tracking-tight">{titel}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export default function ProductDetailPage({ product, seo = null }) {
   const { t, p, f, farbe } = useSprache();
@@ -50,6 +63,8 @@ export default function ProductDetailPage({ product, seo = null }) {
     product.fabricOptions ? product.fabricOptions[0].value : null
   );
   const [added, setAdded] = useState(false);
+  const [tab, setTab] = useState('details');
+  const [mehr, setMehr] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
   // Bald Hier — ürün henüz satista degil: fiyat/sepet yok, bilgi + WhatsApp CTA
@@ -205,6 +220,18 @@ export default function ProductDetailPage({ product, seo = null }) {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  let schrittNr = 0;
+  const naechster = () => ++schrittNr;
+  const tiers = [...(product.tiers || [])].sort((a, b) => a.minQty - b.minQty);
+  const abPreis = tiers.length ? Math.min(...tiers.map((x) => x.price)) : basePrice;
+  const abMenge = tiers.length ? tiers[tiers.length - 1].minQty : minQty;
+  const aufpreisGroessen = sizes.filter((g) => groessenAufpreis(product, g) > 0);
+  const tabs = [
+    (product.details || product.marketingText) && ['details', T.produktdetails],
+    product.washing && ['pflege', T.pflegehinweise],
+  ].filter(Boolean);
+  const aktiverTab = tabs.some(([k]) => k === tab) ? tab : tabs[0]?.[0];
+
   return (
     <main className="min-h-screen bg-paper">
       <AlertBar />
@@ -240,203 +267,127 @@ export default function ProductDetailPage({ product, seo = null }) {
             </div>
           </div>
 
-          {/* Sağ — Detaylar */}
-          <div className="flex flex-col gap-6">
+          {/* Sağ — Detaylar: Kopf, Preis, dann nummerierte Schritte */}
+          <div className="flex flex-col gap-8">
 
-            {/* Başlık */}
-            <div>
-              <h1 className="font-serif font-black text-4xl md:text-5xl uppercase italic tracking-tighter leading-none">
-                {product.name}
-              </h1>
-              <p className="text-[11px] uppercase tracking-widest opacity-60 mt-2">{product.desc}</p>
-            </div>
-
-            {/* Ürün Açıklaması */}
-            {product.longDesc && (
-              <p className="text-sm leading-relaxed opacity-75 border-l-4 border-tomato pl-4">
-                {product.longDesc}
-              </p>
-            )}
-
-            {/* Fiyat */}
-            <div className="border-4 border-ink bg-white p-5 shadow-brutalist">
-              <div className="flex items-baseline gap-3 mb-3">
-                <span className="font-black text-4xl text-ink">{basePrice.toFixed(2)}€</span>
-                {hatAltpreis && <span className="text-base line-through opacity-40">{product.oldPrice.toFixed(2)}€</span>}
-                <span className="text-[9px] font-black uppercase opacity-60">{T.proStueck}</span>
-                {hatAltpreis && <span className="ml-auto bg-tomato text-white text-[9px] font-black px-2 py-1">-{savings}%</span>}
+            <div className="flex flex-col gap-4">
+              <div>
+                <h1 className="font-serif font-black text-4xl md:text-5xl uppercase italic tracking-tighter leading-none">
+                  {product.name}
+                </h1>
+                <p className="text-[11px] uppercase tracking-widest text-tomato font-black mt-2">{product.desc}</p>
               </div>
-
-              <div className="border-t-2 border-ink/20 pt-3">
-                <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-2">
-                  {product.bestickungOnly ? T.staffelInklBestickung : T.staffelInklLogo}
-                </p>
-                <div className="grid grid-cols-6 gap-1">
-                  {product.tiers.map((tier, i) => {
-                    const isActive = totalQty === 0
-                      ? i === 0
-                      : totalQty >= tier.minQty && (i === product.tiers.length - 1 || totalQty < product.tiers[i + 1].minQty);
-                    return (
-                      <div key={tier.minQty} className={`flex flex-col text-[9px] px-2 py-1.5 border-2 ${isActive ? 'border-ink bg-sun font-black' : 'border-ink/20 opacity-50'}`}>
-                        <span className="whitespace-nowrap">{tier.minQty === 100 ? '100+' : `${tier.minQty}`} {T.stk}</span>
-                        <span className="font-black text-[10px]">{tier.price.toFixed(2)}€</span>
-                      </div>
-                    );
-                  })}
+              {product.longDesc && (
+                <div className="border-l-4 border-tomato pl-4">
+                  {/* Auf dem Handy gekürzt, damit die Auswahl schneller erreichbar ist */}
+                  <p className={`text-sm leading-relaxed opacity-75 ${mehr ? '' : 'max-lg:line-clamp-4'}`}>{product.longDesc}</p>
+                  <button onClick={() => setMehr(!mehr)} className="lg:hidden mt-1 text-[10px] font-black uppercase tracking-widest text-tomato">
+                    {mehr ? T.weniger : T.mehrLesen}
+                  </button>
                 </div>
-              </div>
+              )}
 
-              {selectedPrint?.price > 0 && (
-                <div className="border-t border-ink/20 mt-3 pt-2 flex items-center justify-between text-[10px] font-bold uppercase">
-                  <span className="opacity-60">{T.druckSeite[selectedPrint.value]}</span>
-                  {isFree ? (
-                    <span className="flex items-center gap-1.5">
-                      <span className="line-through opacity-40">+{selectedPrint.price.toFixed(2)}€</span>
-                      <span className="bg-olive text-white font-black px-1.5 py-0.5 text-[8px]">{T.gratis}</span>
-                    </span>
-                  ) : (
-                    <span className="text-tomato">+{selectedPrint.price.toFixed(2)}€ {T.proStueck}</span>
-                  )}
+              {/* Preis + Staffel */}
+              <div>
+                {/* Kein durchgestrichener Altpreis neben "ab": oldPrice bezieht sich auf die erste Staffel,
+                    neben dem 100er-Preis würde er die Ersparnis übertreiben (-%-Rozette am Bild bleibt) */}
+                <span className="font-black text-4xl">{T.ab} {abPreis.toFixed(2)}€</span>
+                <p className="text-[10px] font-black uppercase opacity-50 mt-1">{f(T.abStueck, { n: abMenge })}</p>
+              </div>
+              {tiers.length > 0 && (
+                <div>
+                  <p className="text-[8px] font-black uppercase tracking-widest opacity-50 mb-2">
+                    {product.bestickungOnly ? T.staffelInklBestickung : T.staffelInklLogo}
+                  </p>
+                  <div className="grid border-2 border-ink bg-white" style={{ gridTemplateColumns: `repeat(${tiers.length}, minmax(0, 1fr))` }}>
+                    {tiers.map((tier, i) => {
+                      const bis = tiers[i + 1] ? tiers[i + 1].minQty - 1 : null;
+                      const isActive = totalQty === 0
+                        ? i === 0
+                        : totalQty >= tier.minQty && (bis === null || totalQty <= bis);
+                      return (
+                        <div key={tier.minQty} className={`flex flex-col items-center text-center border-l-2 border-ink first:border-l-0 ${isActive ? 'bg-sun' : ''}`}>
+                          <span className="text-[9px] font-bold uppercase px-1 py-1.5 w-full border-b-2 border-ink/15 leading-tight">
+                            {bis === null ? `${tier.minQty}+` : `${tier.minQty}–${bis}`}<br />{T.stk}
+                          </span>
+                          <span className="font-black text-[12px] py-2">{tier.price.toFixed(2)}€</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Teslimat süresi */}
-            {product.deliveryTime && (
-              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest border-2 border-ink px-4 py-2.5">
-                <span className="opacity-50">{T.lieferzeit}</span>
-                <span className={`px-2 py-0.5 ${product.deliveryTime.startsWith('1') ? 'bg-olive text-white' : 'bg-sun text-ink'}`}>
-                  {product.deliveryTime}
-                </span>
-                <span className="opacity-40 normal-case font-medium text-[9px]">{T.abZahlung}</span>
+            {/* 01 — Farbe */}
+            <Schritt nr={naechster()} titel={T.farbeWaehlen}>
+              <div className="flex flex-wrap gap-4">
+                {product.colors.map((c) => {
+                  const an = selectedColor === c.name;
+                  return (
+                    <button key={c.name} onClick={() => setSelectedColor(c.name)} title={farbe(c.name)} aria-pressed={an}
+                      className="flex flex-col items-center gap-1.5 group">
+                      <span style={{ backgroundColor: c.hex }}
+                        className={`w-11 h-11 border-2 flex items-center justify-center transition-all ${an ? 'border-tomato shadow-brutalist' : 'border-ink group-hover:-translate-y-0.5'}`}>
+                        {an && <Check size={16} className="text-white drop-shadow" />}
+                      </span>
+                      <span className={`text-[10px] uppercase tracking-wide ${an ? 'font-black' : 'opacity-60'}`}>{farbe(c.name)}</span>
+                    </button>
+                  );
+                })}
               </div>
+            </Schritt>
+
+            {/* Stoffqualität (nur wenn vorhanden) */}
+            {product.fabricOptions && (
+              <Schritt nr={naechster()} titel={T.stoffWaehlen}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {product.fabricOptions.map((opt) => {
+                    const an = selectedFabric === opt.value;
+                    return (
+                      <button key={opt.value} onClick={() => setSelectedFabric(opt.value)}
+                        className={`text-left px-4 py-3 border-2 border-ink transition-all ${an ? 'bg-ink text-white' : 'bg-white hover:bg-sun'}`}>
+                        <span className="flex items-center gap-2 text-[11px] font-black uppercase">
+                          {an && <Check size={14} />}{opt.label} <span className="opacity-60 font-bold">{opt.weight}</span>
+                        </span>
+                        <span className="block text-[10px] opacity-70 mt-0.5">{opt.sublabel}</span>
+                        {an && opt.careNote && <span className="block text-[9px] font-black mt-1.5 bg-sun text-ink px-2 py-1">{opt.careNote}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Schritt>
             )}
 
-            {/* Renk */}
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
-                {T.farbe} — <span className="text-ink opacity-100">{farbe(selectedColor)}</span>
-              </p>
-              <div className="flex gap-3">
-                {product.colors.map((c) => (
-                  <button key={c.name} onClick={() => setSelectedColor(c.name)} title={farbe(c.name)}
-                    style={{ backgroundColor: c.hex }}
-                    className={`w-9 h-9 border-2 transition-all flex items-center justify-center ${selectedColor === c.name ? 'border-tomato scale-110' : 'border-ink'}`}>
-                    {selectedColor === c.name && <Check size={14} className="text-white drop-shadow" />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Kumaş Seçimi — Dropdown */}
-            {product.fabricOptions && (() => {
-              const selected = product.fabricOptions.find(o => o.value === selectedFabric);
-              return (
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">{T.stoffqualitaet}</p>
-                  <div className="relative">
-                    <select
-                      value={selectedFabric}
-                      onChange={(e) => setSelectedFabric(e.target.value)}
-                      className="w-full border-2 border-ink bg-paper px-3 py-3 text-[11px] font-black uppercase appearance-none cursor-pointer focus:outline-none focus:bg-sun pr-8"
-                    >
-                      {product.fabricOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label} – {opt.sublabel} ({opt.weight})
-                        </option>
-                      ))}
-                    </select>
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none font-black text-[10px]">▾</span>
-                  </div>
-                  {selected && (
-                    <div className="border-2 border-ink border-t-0 bg-white px-3 py-2">
-                      <p className="text-[10px] opacity-60 leading-snug">{selected.desc}</p>
-                      {selected.careNote && (
-                        <p className="text-[9px] font-black mt-1.5 bg-sun text-ink px-2 py-1">{selected.careNote}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* Baskı / Bestickung */}
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
-                {product.bestickungOnly ? T.veredelung : T.druckoption}
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {availablePrints.map((opt) => (
-                  <button key={opt.value} onClick={() => setPrintType(opt.value)}
-                    className={`px-3 py-3 text-left border-2 border-ink transition-all
-                      ${printType === opt.value ? 'bg-ink text-white' : 'bg-paper hover:bg-sun'}`}>
-                    <span className="block text-[10px] font-black uppercase">{T.druckSeite[opt.value]}</span>
-                    <span className={`block text-[9px] mt-0.5 ${printType === opt.value ? 'opacity-60' : 'opacity-50'}`}>{T.druckDesc[opt.value]}</span>
-                    {FREE_PRINT_TYPES.includes(opt.value) ? (
-                      opt.price === 0
-                        ? <span className="block text-[8px] font-bold mt-1 text-olive">{T.kostenlos}</span>
-                        : <span className="block text-[8px] font-black mt-1 text-olive">{T.gratis}</span>
-                    ) : (
-                      <span className={`block text-[8px] font-bold mt-1 ${printType === opt.value ? 'opacity-60' : 'text-tomato'}`}>
-                        +{opt.price.toFixed(2)}€ {T.proStueck}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Beden & Adet */}
+            {/* Größen & Stückzahlen */}
             {product.hasSizes ? (
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
-                  {T.groesseMenge}{' '}
-                  <span className={totalQty >= minQty ? 'text-olive' : 'text-tomato'}>
-                    {f(T.gesamtMin, { n: totalQty, min: minQty })}
-                  </span>
-                </p>
-                <div className="space-y-2">
-                  {sizes.map(size => (
-                    <div key={size} className="flex items-center gap-4">
-                      <span className="text-[11px] font-black uppercase w-10 flex-shrink-0">{size}</span>
-                      <div className="flex items-center border-2 border-ink">
-                        <button onClick={() => updateSize(size, sizeQtys[size] - 1)}
-                          className="px-3 py-2 hover:bg-sun transition-all">
-                          <Minus size={13} />
-                        </button>
-                        <input
-                          type="number" min="0" value={sizeQtys[size]}
-                          onChange={(e) => updateSize(size, e.target.value)}
-                          className="w-12 py-2 font-black text-sm border-x-2 border-ink text-center outline-none bg-transparent"
-                        />
-                        <button onClick={() => updateSize(size, sizeQtys[size] + 1)}
-                          className="px-3 py-2 hover:bg-sun transition-all">
-                          <Plus size={13} />
-                        </button>
-                      </div>
-                      {sizeQtys[size] > 0 && (
-                        <span className="text-[10px] font-black opacity-50">
-                          = {((totalUnitPrice + groessenAufpreis(product, size)) * sizeQtys[size]).toFixed(2)}€
-                        </span>
-                      )}
-                      {groessenAufpreis(product, size) > 0 && sizeQtys[size] === 0 && (
-                        <span className="text-[9px] font-black uppercase tracking-wider text-tomato opacity-80">
-                          +{groessenAufpreis(product, size).toFixed(2)}€
-                        </span>
-                      )}
-                    </div>
+              <Schritt nr={naechster()} titel={T.groessenStueck}>
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-2" style={sizes.length < 8 ? { gridTemplateColumns: `repeat(${Math.min(sizes.length, 8)}, minmax(0, 1fr))` } : undefined}>
+                  {sizes.map((size) => (
+                    <label key={size} className="flex flex-col items-center gap-1.5">
+                      <span className="text-[11px] font-black uppercase">{size}</span>
+                      <input
+                        type="number" min="0" inputMode="numeric" value={sizeQtys[size] || ''} placeholder="0"
+                        onChange={(e) => updateSize(size, e.target.value)}
+                        aria-label={`${size} ${T.stueck}`}
+                        className={`w-full border-2 border-ink py-2.5 text-center font-black text-sm outline-none focus:bg-sun ${sizeQtys[size] > 0 ? 'bg-sun/40' : 'bg-white'}`}
+                      />
+                    </label>
                   ))}
                 </div>
-              </div>
+                <div className="flex justify-between gap-4 text-[10px] font-bold uppercase opacity-60">
+                  <span>{f(T.mindestmenge, { min: minQty })}</span>
+                  {aufpreisGroessen.length > 0 && (
+                    <span>{f(T.aufpreisInfo, { sizes: aufpreisGroessen.join(' – '), preis: groessenAufpreis(product, aufpreisGroessen[0]).toFixed(2) })}</span>
+                  )}
+                </div>
+                {product.sizeChart && <SizeChart sizes={sizes} chart={product.sizeChart} />}
+              </Schritt>
             ) : (
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-widest mb-3 opacity-60">
-                  {T.menge} <span className="text-tomato">{f(T.minStueck, { min: minQty })}</span>
-                </p>
+              <Schritt nr={naechster()} titel={T.mengeWaehlen}>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center border-2 border-ink">
-                    <button onClick={() => updateSize('-', sizeQtys['-'] - 1)}
-                      className="px-4 py-2.5 hover:bg-sun transition-all">
+                  <div className="flex items-center border-2 border-ink bg-white">
+                    <button onClick={() => updateSize('-', Math.max(minQty, sizeQtys['-'] - 1))} className="px-4 py-2.5 hover:bg-sun transition-all" aria-label="−">
                       <Minus size={14} />
                     </button>
                     <input
@@ -444,110 +395,128 @@ export default function ProductDetailPage({ product, seo = null }) {
                       onChange={(e) => updateSize('-', Math.max(minQty, parseInt(e.target.value) || minQty))}
                       className="px-3 py-2.5 font-black text-sm border-x-2 border-ink w-20 text-center outline-none bg-transparent"
                     />
-                    <button onClick={() => updateSize('-', sizeQtys['-'] + 1)}
-                      className="px-4 py-2.5 hover:bg-sun transition-all">
+                    <button onClick={() => updateSize('-', sizeQtys['-'] + 1)} className="px-4 py-2.5 hover:bg-sun transition-all" aria-label="+">
                       <Plus size={14} />
                     </button>
                   </div>
-                  <span className="text-[11px] font-black opacity-50 uppercase">
-                    = {(totalUnitPrice * sizeQtys['-']).toFixed(2)}€
-                  </span>
+                  <span className="text-[10px] font-bold uppercase opacity-60">{f(T.mindestmenge, { min: minQty })}</span>
                 </div>
-              </div>
+              </Schritt>
             )}
 
-            {/* Ölçü tablosu */}
-            {product.hasSizes && product.sizeChart && (
-              <SizeChart sizes={sizes} chart={product.sizeChart} />
-            )}
-
-            {/* Toplam & Sepete Ekle */}
-            {isValid && (
-              <div className="border-4 border-ink bg-sun p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-[9px] font-black uppercase opacity-60">{T.gesamt}</p>
-                  <p className="font-black text-2xl">{gesamtPreis.toFixed(2)}€</p>
-                  <p className="text-[9px] opacity-60">
-                    {totalQty} {T.stueck} × {totalUnitPrice.toFixed(2)}€
-                    {aufpreisGesamt > 0 && ` + ${aufpreisGesamt.toFixed(2)}€ ${T.groessenaufpreis}`}
-                  </p>
-                </div>
-                <button onClick={handleAddToCart}
-                  className={`px-8 py-4 font-black text-sm uppercase flex items-center gap-2 shadow-brutalist transition-all
-                    ${added ? 'bg-olive text-white' : 'bg-ink text-white hover:bg-tomato active:translate-x-1 active:translate-y-1 active:shadow-none'}`}>
-                  <ShoppingBag size={18} />
-                  {added ? T.hinzugefuegt : T.inWarenkorb}
-                </button>
-              </div>
-            )}
-
-            {!isValid && (
-              <button disabled
-                className="w-full py-4 font-black text-xs uppercase flex items-center justify-center gap-2 bg-ink/20 text-ink/40 cursor-not-allowed border-4 border-ink/20">
-                <ShoppingBag size={16} />
-                {f(T.minWaehlen, { min: minQty })}
-              </button>
-            )}
-
-            {/* Ürün Detayları */}
-            {(product.details || product.marketingText) && (
-              <div className="border-4 border-ink p-5 bg-white">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-4">{T.produktdetails}</p>
-                {product.marketingText && (
-                  <p className="text-sm font-medium italic opacity-70 mb-4 pb-4 border-b-2 border-ink/10 leading-relaxed">
-                    „{product.marketingText}"
-                  </p>
-                )}
-                {product.details && (
-                  <ul className="space-y-2">
-                    {product.details.map((item, i) => {
-                      const [label, ...rest] = item.split(':');
-                      return (
-                        <li key={i} className="flex gap-2 text-[11px] leading-relaxed">
-                          <span className="text-tomato font-black mt-0.5 flex-shrink-0">—</span>
-                          <span>
-                            <strong className="font-black">{label}:</strong>
-                            {rest.join(':')}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            )}
-
-            {/* Yıkama Talimatları */}
-            {product.washing && (
-              <div className="border-4 border-ink p-5 bg-white">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-4">{T.pflegehinweise}</p>
-                <div className="grid grid-cols-1 gap-2">
-                  {product.washing.map((item, i) => (
-                    <div key={i} className="flex items-start gap-3 text-[11px]">
-                      <span className="text-[16px] flex-shrink-0 leading-none">
-                        {pflegeIcon(item)}
+            {/* Veredelung */}
+            <Schritt nr={naechster()} titel={T.veredelungWaehlen}>
+              <div className={`grid gap-2 ${availablePrints.length >= 4 ? 'grid-cols-2 sm:grid-cols-4' : availablePrints.length === 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2'}`}>
+                {availablePrints.map((opt) => {
+                  const an = printType === opt.value;
+                  const frei = FREE_PRINT_TYPES.includes(opt.value);
+                  return (
+                    <button key={opt.value} onClick={() => setPrintType(opt.value)} aria-pressed={an}
+                      className={`px-3 py-3 text-left border-2 border-ink transition-all ${an ? 'bg-ink text-white shadow-brutalist' : 'bg-white hover:bg-sun'}`}>
+                      <span className="flex items-center gap-1.5 text-[10px] font-black uppercase leading-tight">
+                        {an && <Check size={13} className="shrink-0" />}{T.druckSeite[opt.value]}
                       </span>
-                      <span className="leading-relaxed">{item}</span>
-                    </div>
+                      <span className={`block text-[8px] font-black mt-1 ${frei ? (an ? 'text-sun' : 'text-olive') : (an ? 'opacity-70' : 'text-tomato')}`}>
+                        {frei ? (opt.price === 0 ? T.kostenlos : T.gratis) : `+${opt.price.toFixed(2)}€ ${T.proStueck}`}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] opacity-60">{T.logoHinweis}</p>
+            </Schritt>
+
+            {/* Summe + Warenkorb */}
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-2 border-4 border-ink bg-white">
+                <div className="p-4 border-r-4 border-ink">
+                  <p className="text-[9px] font-black uppercase opacity-60">{T.gesamtmenge}</p>
+                  <p className="font-black text-2xl">{totalQty} {T.stueck}</p>
+                </div>
+                <div className={`p-4 ${isValid ? 'bg-sun' : ''}`}>
+                  <p className="text-[9px] font-black uppercase opacity-60">{T.gesamtpreis}</p>
+                  <p className="font-black text-2xl">{(isValid ? gesamtPreis : 0).toFixed(2)}€</p>
+                  {isValid && (
+                    <p className="text-[9px] opacity-60">
+                      {totalQty} × {totalUnitPrice.toFixed(2)}€
+                      {aufpreisGesamt > 0 && ` + ${aufpreisGesamt.toFixed(2)}€ ${T.groessenaufpreis}`}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {!isValid && !added && (
+                <p className="flex items-center gap-2 border-2 border-tomato bg-tomato/10 text-tomato px-4 py-2.5 text-[11px] font-black">
+                  <AlertCircle size={15} className="shrink-0" /> {f(T.minWarnung, { min: minQty })}
+                </p>
+              )}
+
+              <button onClick={handleAddToCart} disabled={!isValid}
+                className={`w-full py-4 font-black text-sm uppercase flex items-center justify-center gap-2 transition-all
+                  ${added ? 'bg-olive text-white shadow-brutalist'
+                    : !isValid ? 'bg-ink/20 text-ink/40 cursor-not-allowed border-4 border-ink/20'
+                      : 'bg-ink text-white shadow-brutalist hover:bg-tomato active:translate-x-1 active:translate-y-1 active:shadow-none'}`}>
+                <ShoppingBag size={18} />
+                {added ? T.hinzugefuegt : T.inWarenkorb}
+              </button>
+
+              {product.deliveryTime && (
+                <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                  <Truck size={15} className="shrink-0" />
+                  <span className="opacity-50">{T.lieferzeit}</span>
+                  <span className={`px-2 py-0.5 ${product.deliveryTime.startsWith('1') ? 'bg-olive text-white' : 'bg-sun text-ink'}`}>{product.deliveryTime}</span>
+                  <span className="opacity-40 normal-case font-medium text-[9px] tracking-normal">{T.abZahlung}</span>
+                </p>
+              )}
+            </div>
+
+            {/* Details / Pflege als Reiter statt zwei großer Kästen */}
+            {tabs.length > 0 && (
+              <div>
+                <div className="flex gap-6 border-b-2 border-ink/15" role="tablist">
+                  {tabs.map(([k, label]) => (
+                    <button key={k} role="tab" aria-selected={aktiverTab === k} onClick={() => setTab(k)}
+                      className={`pb-2.5 -mb-[2px] text-[10px] font-black uppercase tracking-widest border-b-4 transition-all ${aktiverTab === k ? 'border-tomato' : 'border-transparent opacity-50 hover:opacity-100'}`}>
+                      {label}
+                    </button>
                   ))}
                 </div>
+                <div className="pt-4">
+                  {aktiverTab === 'details' && (
+                    <>
+                      {product.marketingText && (
+                        <p className="text-sm font-medium italic opacity-70 mb-4 leading-relaxed">„{product.marketingText}"</p>
+                      )}
+                      {product.details && (
+                        <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 text-[11px] leading-relaxed">
+                          {product.details.map((item, i) => {
+                            const [label, ...rest] = item.split(':');
+                            return rest.length ? (
+                              <div key={i} className="contents">
+                                <dt className="font-black">{label}:</dt>
+                                <dd className="m-0">{rest.join(':').trim()}</dd>
+                              </div>
+                            ) : (
+                              <dd key={i} className="m-0 col-span-2">{label}</dd>
+                            );
+                          })}
+                        </dl>
+                      )}
+                    </>
+                  )}
+                  {aktiverTab === 'pflege' && (
+                    <div className="grid grid-cols-1 gap-2">
+                      {product.washing.map((item, i) => (
+                        <div key={i} className="flex items-start gap-3 text-[11px]">
+                          <span className="text-[16px] flex-shrink-0 leading-none">{pflegeIcon(item)}</span>
+                          <span className="leading-relaxed">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
-
-            {/* Güven & Geri */}
-            <div className="border-2 border-ink/20 p-4 bg-white grid grid-cols-2 gap-3 text-center">
-              <div>
-                <div className="w-8 h-8 bg-ink text-white flex items-center justify-center text-[8px] font-black mb-1 mx-auto border-2 border-ink">LOGO</div>
-                <p className="text-[9px] font-black uppercase">{T.logoGratis}</p>
-              </div>
-              <div>
-                <p className="text-[18px] mb-1">📦</p>
-                <p className="text-[9px] font-black uppercase">{T.ab10}</p>
-              </div>
-              <div className="hidden">
-                <p className="text-[9px] font-black uppercase">Logo per Mail</p>
-              </div>
-            </div>
 
             <Link href={p('/produkte')}
               className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-tomato transition-all w-fit">
