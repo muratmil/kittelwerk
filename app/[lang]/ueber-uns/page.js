@@ -2,6 +2,8 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { woerterbuch } from '@/lib/i18n';
 import { alternates } from '@/lib/i18n/config';
+import Referenzen from '@/components/sections/Referenzen';
+import { PRODUKTION_BILDER } from '@/data/produktion';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -18,6 +20,8 @@ export async function generateMetadata({ params }) {
 export default async function AboutUs({ params }) {
   const { lang } = await params;
   const u = woerterbuch(lang).ueberUns;
+  const P = u.produktion;
+  const bilder = PRODUKTION_BILDER.map((b) => ({ id: b.id, src: b.src, titel: P.bild[b.art] }));
   return (
     <main className="bg-paper min-h-screen">
       <Navbar />
@@ -37,6 +41,12 @@ export default async function AboutUs({ params }) {
             {u.zitat}
           </p>
         </div>
+      </section>
+      <section className="pb-32 container mx-auto px-6">
+        <span className="text-tomato font-black uppercase tracking-[0.3em] text-[10px]">{P.kicker}</span>
+        <h2 className="font-serif font-black text-4xl md:text-6xl mt-4 mb-4 italic tracking-tighter leading-none">{P.titel}</h2>
+        <p className="text-base font-medium opacity-70 max-w-2xl mb-10">{P.text}</p>
+        <Referenzen referenzen={bilder} />
       </section>
       <Footer />
     </main>
