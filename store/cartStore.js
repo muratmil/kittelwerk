@@ -18,6 +18,13 @@ export const DISCOUNT_CODES = { 'KITTEL10': 5 };
 
 export const FREE_SHIPPING_THRESHOLD = 300;
 
+// Alle Shop-Preise sind B2B-Nettopreise; die MwSt. kommt im Warenkorb oben drauf.
+export const MWST_SATZ = 19;
+
+export function calcMwst(netto) {
+  return Math.round(netto * MWST_SATZ) / 100;
+}
+
 export function calcShipping(subtotal) {
   if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
   if (subtotal >= 100) return 14.90;
@@ -87,6 +94,11 @@ export const useCartStore = create((set, get) => ({
     const logoFee = get().logoService ? LOGO_SERVICE_FEE : 0;
     const fileCheckFee = get().fileCheck ? FILE_CHECK_FEE : 0;
     return subtotal - discount + shipping + logoFee + fileCheckFee;
+  },
+  getMwst: () => calcMwst(get().getFinalTotal()),
+  getBrutto: () => {
+    const netto = get().getFinalTotal();
+    return Math.round((netto + calcMwst(netto)) * 100) / 100;
   },
 
   getTotalPrice: () => get().items.reduce((acc, item) => acc + zeilenSumme(item), 0),

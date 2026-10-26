@@ -3,9 +3,12 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import ProductImage from '@/components/atoms/ProductImage';
 import { useSprache } from '@/components/i18n/SpracheProvider';
+import { usePreis } from '@/store/preisStore';
+import { MWST_SATZ } from '@/store/cartStore';
 
 export default function ProductCard({ product }) {
   const { t, p, f, farbe } = useSprache();
+  const { modus, preis } = usePreis();
   const T = t.produkt;
   // Bald Hier — ürün henüz satista degil: fiyat/sepet yok, sade kart
   if (product.comingSoon) {
@@ -91,8 +94,9 @@ export default function ProductCard({ product }) {
         <div className="mt-auto pt-4 border-t-2 border-ink/15 flex items-center justify-between gap-3">
           <p className="text-[11px] uppercase">
             <span className="opacity-60">{T.ab} </span>
-            <span className="font-black text-lg">{Number.isInteger(startPreis) ? startPreis : startPreis.toFixed(2)}€</span>
+            <span className="font-black text-lg">{Number.isInteger(preis(startPreis)) ? preis(startPreis) : preis(startPreis).toFixed(2)}€</span>
             <span className="opacity-60"> {T.proStueck}</span>
+            <span className="block text-[9px] opacity-50">{modus === 'brutto' ? f(t.preisModus.hinweisBrutto, { satz: MWST_SATZ }) : t.preisModus.hinweisNetto}</span>
           </p>
           <Link href={href}
             className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border-b-2 border-ink pb-0.5 hover:text-tomato hover:border-tomato transition-colors">

@@ -9,6 +9,9 @@ import ProduktSeoBlock from './ProduktSeoBlock';
 import CartDrawer from '@/components/cart/CartDrawer';
 import ProductGallery from '@/components/atoms/ProductGallery';
 import SizeChart from '@/components/molecules/SizeChart';
+import PreisModusSchalter from '@/components/atoms/PreisModusSchalter';
+import { usePreis } from '@/store/preisStore';
+import { MWST_SATZ } from '@/store/cartStore';
 import { STANDARD_GROESSEN, groessenAufpreis, hatAufpreis } from '@/lib/groessen';
 import { useCartStore, FREE_PRINT_TYPES, getTieredPrice } from '@/store/cartStore';
 import { useSprache } from '@/components/i18n/SpracheProvider';
@@ -44,6 +47,7 @@ function Schritt({ nr, titel, children }) {
 
 export default function ProductDetailPage({ product, seo = null }) {
   const { t, p, f, farbe } = useSprache();
+  const { modus, preis } = usePreis();
   const T = t.produkt;
   const L = t.liste;
   const minQty = product.minQty || MIN_QTY;
@@ -297,8 +301,13 @@ export default function ProductDetailPage({ product, seo = null }) {
               <div>
                 {/* Kein durchgestrichener Altpreis neben "ab": oldPrice bezieht sich auf die erste Staffel,
                     neben dem 100er-Preis würde er die Ersparnis übertreiben (-%-Rozette am Bild bleibt) */}
-                <span className="font-black text-4xl">{eur(kopfPreis)}</span>
-                <p className="text-[10px] font-black uppercase opacity-50 mt-1">{f(T.abStueck, { n: minQty })}</p>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="font-black text-4xl">{eur(preis(kopfPreis))}</span>
+                  <PreisModusSchalter />
+                </div>
+                <p className="text-[10px] font-black uppercase opacity-50 mt-1">
+                  {f(T.abStueck, { n: minQty })} · {modus === 'brutto' ? f(t.preisModus.hinweisBrutto, { satz: MWST_SATZ }) : t.preisModus.hinweisNetto}
+                </p>
               </div>
               {tiers.length > 0 && (
                 <div>
@@ -317,7 +326,7 @@ export default function ProductDetailPage({ product, seo = null }) {
                           <span className="text-[9px] font-bold uppercase px-1 py-1.5 w-full border-b-2 border-ink/15 leading-tight">
                             {T.ab} {tier.minQty}<br />{T.stueck}
                           </span>
-                          <span className="font-black text-[12px] py-2">{eur(tier.price)}</span>
+                          <span className="font-black text-[12px] py-2">{eur(preis(tier.price))}</span>
                         </div>
                       );
                     })}
@@ -394,7 +403,7 @@ export default function ProductDetailPage({ product, seo = null }) {
                 <div className="flex justify-between gap-4 text-[10px] font-bold uppercase opacity-60">
                   <span>{f(T.mindestmenge, { min: minQty })}</span>
                   {aufpreisGroessen.length > 0 && (
-                    <span>{f(T.aufpreisInfo, { sizes: aufpreisGroessen.join(' – '), preis: groessenAufpreis(product, aufpreisGroessen[0]).toFixed(2) })}</span>
+                    <span>{f(T.aufpreisInfo, { sizes: aufpreisGroessen.join(' – '), preis: preis(groessenAufpreis(product, aufpreisGroessen[0])).toFixed(2) })}</span>
                   )}
                 </div>
                 {product.sizeChart && <SizeChart sizes={sizes} chart={product.sizeChart} />}
@@ -433,7 +442,7 @@ export default function ProductDetailPage({ product, seo = null }) {
                         {an && <Check size={13} className="shrink-0" />}{T.druckSeite[opt.value]}
                       </span>
                       <span className={`block text-[8px] font-black mt-1 ${frei ? (an ? 'text-sun' : 'text-olive') : (an ? 'opacity-70' : 'text-tomato')}`}>
-                        {frei ? (opt.price === 0 ? T.kostenlos : T.gratis) : `+${opt.price.toFixed(2)}€ ${T.proStueck}`}
+                        {frei ? (opt.price === 0 ? T.kostenlos : T.gratis) : `+${preis(opt.price).toFixed(2)}€ ${T.proStueck}`}
                       </span>
                     </button>
                   );
@@ -451,11 +460,11 @@ export default function ProductDetailPage({ product, seo = null }) {
                 </div>
                 <div className={`p-4 ${isValid ? 'bg-sun' : ''}`}>
                   <p className="text-[9px] font-black uppercase opacity-60">{T.gesamtpreis}</p>
-                  <p className="font-black text-2xl">{(isValid ? gesamtPreis : 0).toFixed(2)}€</p>
+                  <p className="font-black text-2xl">{(isValid ? preis(gesamtPreis) : 0).toFixed(2)}€</p>
                   {isValid && (
                     <p className="text-[9px] opacity-60">
-                      {totalQty} × {totalUnitPrice.toFixed(2)}€
-                      {aufpreisGesamt > 0 && ` + ${aufpreisGesamt.toFixed(2)}€ ${T.groessenaufpreis}`}
+                      {totalQty} × {preis(totalUnitPrice).toFixed(2)}€
+                      {aufpreisGesamt > 0 && ` + ${preis(aufpreisGesamt).toFixed(2)}€ ${T.groessenaufpreis}`}
                     </p>
                   )}
                 </div>

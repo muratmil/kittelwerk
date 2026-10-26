@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cartStore';
 import { ShoppingBag, Menu, X } from 'lucide-react';
 import { useSprache } from '@/components/i18n/SpracheProvider';
 import SprachWahl from '@/components/i18n/SprachWahl';
+import PreisModusSchalter from '@/components/atoms/PreisModusSchalter';
 
 // Etiketler sözlükte (`nav.*`), adresler dile göre `p()` ile ön ekleniyor.
 const LINKS = [
@@ -44,6 +45,7 @@ export default function Navbar({ onOpenCart }) {
         </div>
         {/* Telefonda dar: dil düğmesi eklenince 390 px'e sığmıyordu. */}
         <div className="shrink-0 flex items-center gap-2 sm:gap-3">
+          <PreisModusSchalter className="hidden 2xl:inline-flex" />
           <SprachWahl />
           <button onClick={onOpenCart} className="bg-ink text-white px-3 sm:px-4 py-3 flex items-center gap-2 shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
             <ShoppingBag size={18} />
@@ -67,6 +69,10 @@ export default function Navbar({ onOpenCart }) {
       {menuOpen && (
         <div id="mobile-menu" className="xl:hidden absolute left-0 right-0 top-full bg-paper border-b-4 border-ink shadow-lg">
           <div className="container mx-auto px-6 py-2 flex flex-col">
+            <div className="py-4 border-b border-ink/10 flex items-center justify-between gap-4">
+              <span className="font-bold text-sm uppercase tracking-widest text-ink">{t.preisModus.label}</span>
+              <PreisModusSchalter />
+            </div>
             {LINKS.map((l) => (
               <a
                 key={l.href}

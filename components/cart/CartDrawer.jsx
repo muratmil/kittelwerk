@@ -1,6 +1,6 @@
 'use client';
 import { aufpreisSumme } from '@/lib/groessen';
-import { useCartStore, FREE_SHIPPING_THRESHOLD, LOGO_SERVICE_FEE, FILE_CHECK_FEE } from '@/store/cartStore';
+import { useCartStore, FREE_SHIPPING_THRESHOLD, LOGO_SERVICE_FEE, FILE_CHECK_FEE, MWST_SATZ } from '@/store/cartStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Tag, CheckCircle, PenLine, ScanSearch } from 'lucide-react';
 import OrderForm from './OrderForm';
@@ -20,7 +20,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   const {
     items, removeItem,
     appliedCode, discountPercent, applyCode, removeCode,
-    getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal,
+    getSubtotal, getDiscountAmount, getShippingCost, getFinalTotal, getMwst, getBrutto,
     logoService, setLogoService,
     fileCheck, setFileCheck,
   } = useCartStore();
@@ -35,6 +35,8 @@ export default function CartDrawer({ isOpen, onClose }) {
   const discountAmount = getDiscountAmount();
   const shippingCost = getShippingCost();
   const finalTotal = getFinalTotal();
+  const mwst = getMwst();
+  const brutto = getBrutto();
   const remainingForFreeShipping = FREE_SHIPPING_THRESHOLD - subtotal;
   const totalQty = items.reduce((acc, item) => acc + item.qty, 0);
   const hasAnyService = logoService || fileCheck;
@@ -246,10 +248,22 @@ export default function CartDrawer({ isOpen, onClose }) {
                   )}
                 </div>
 
-                <div className="flex justify-between items-baseline font-serif font-black text-3xl italic border-t-2 border-ink pt-3">
-                  <span>{W.total}</span>
-                  <span>{finalTotal.toFixed(2)}€</span>
+                <div className="space-y-1.5 border-t-2 border-ink/30 pt-3">
+                  <div className="flex justify-between text-[11px] font-black uppercase">
+                    <span>{W.summeNetto}</span>
+                    <span>{finalTotal.toFixed(2)}€</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] font-bold uppercase">
+                    <span className="opacity-60">{f(W.mwst, { satz: MWST_SATZ })}</span>
+                    <span>{mwst.toFixed(2)}€</span>
+                  </div>
                 </div>
+
+                <div className="flex justify-between items-baseline font-serif font-black text-3xl italic border-t-2 border-ink pt-3">
+                  <span>{W.totalBrutto}</span>
+                  <span>{brutto.toFixed(2)}€</span>
+                </div>
+                <p className="text-[10px] font-bold uppercase opacity-60 -mt-2">{W.hinweisNetto}</p>
 
                 <button onClick={() => setShowForm(true)}
                   className="w-full bg-ink text-white py-5 font-black uppercase shadow-brutalist hover:bg-tomato transition-all active:translate-x-1 active:translate-y-1">
