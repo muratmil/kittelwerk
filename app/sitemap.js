@@ -1,5 +1,6 @@
 import { createPublicClient } from '@/utils/supabase/public';
-import { LOCALES, DEFAULT_LOCALE, BASIS, pfad } from '@/lib/i18n/config';
+import { INDEX_LOCALES as LOCALES, DEFAULT_LOCALE, BASIS, pfad } from '@/lib/i18n/config';
+// Yalnız Google'a açık diller (INDEX_LOCALES, 2026-10-27) — noindex sayfalar haritaya girmez.
 
 // Ürünler veritabanından: yeni ürün eklendiğinde site haritasına elle satır
 // eklemek gerekmiyor, `products` tablosuna düşen her ürün buraya da düşer.

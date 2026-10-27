@@ -505,7 +505,7 @@ export const PRODUCTS = [
   {
     id: 'bistro',
     category: 'schuerzen',
-    name: 'Barista-Schürze',
+    name: 'Barista- & Bistroschürze',
     desc: 'Robuster Canvas · Lederriemen · Barista-Stil',
     deliveryTime: '1–2 Wochen',
     image: '/images/barista-01-damen-marineblau.webp',

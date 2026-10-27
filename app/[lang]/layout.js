@@ -1,7 +1,7 @@
 import '../globals.css';
 import { notFound } from 'next/navigation';
 import { Fraunces, DM_Sans, Playfair_Display, Inter } from 'next/font/google';
-import { LOCALES, SPRACHEN, istSprache, alternates } from '@/lib/i18n/config';
+import { LOCALES, SPRACHEN, istSprache, alternates, indexlenir } from '@/lib/i18n/config';
 import { woerterbuch } from '@/lib/i18n';
 import { SpracheProvider } from '@/components/i18n/SpracheProvider';
 
@@ -43,10 +43,8 @@ export async function generateMetadata({ params }) {
       description: m.description,
       images: ['/images/og-image.jpg'],
     },
-    robots: {
-      index: true,
-      follow: true,
-    },
+    // FR/ES/IT/RU şimdilik Google'a kapalı (INDEX_LOCALES, 2026-10-27); bağlantılar izlenir
+    robots: { index: indexlenir(lang), follow: true },
   };
 }
 

@@ -2,7 +2,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Massgeblich } from '@/components/recht/RechtText';
 import { woerterbuch } from '@/lib/i18n';
-import { alternates, pfad } from '@/lib/i18n/config';
+import { alternates, pfad, indexlenir } from '@/lib/i18n/config';
 
 // Metin sözlükte: lib/i18n/<dil>/recht.js → recht.liefer.
 export async function generateMetadata({ params }) {
@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
     title: L.metaTitle,
     description: L.metaDescription,
     alternates: alternates(lang, '/lieferbedingungen'),
-    robots: { index: true, follow: true },
+    robots: { index: indexlenir(lang), follow: true },
   };
 }
 

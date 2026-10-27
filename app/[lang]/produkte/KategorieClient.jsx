@@ -71,6 +71,8 @@ export default function KategorieClient({ kategorie, products = [] }) {
             </div>
           )}
 
+          {kategorie.ratgeber && <Ratgeber r={kategorie.ratgeber} p={p} />}
+
           <div className="mt-10 flex flex-wrap gap-4">
             <Link href={p('/produkte')} className="border-2 border-ink px-5 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-ink hover:text-white transition-all">
               {L.alleProdukte}
@@ -85,5 +87,41 @@ export default function KategorieClient({ kategorie, products = [] }) {
       <Footer />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </main>
+  );
+}
+
+// Ratgeber-Abschnitt (2026-10-27, SEO): nur Kategorien mit `ratgeber` im Wörterbuch.
+function Ratgeber({ r, p }) {
+  return (
+    <section className="mt-16 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
+      <div>
+        <h2 className="font-serif font-black text-2xl md:text-3xl uppercase italic tracking-tighter leading-tight mb-5">{r.h2}</h2>
+        <div className="space-y-4 text-[15px] leading-relaxed opacity-80">
+          {r.absaetze.map((a) => <p key={a}>{a}</p>)}
+        </div>
+        <ol className="mt-8 grid gap-4 sm:grid-cols-2">
+          {r.schritte.map((s, i) => (
+            <li key={s.t} className="border-2 border-ink bg-white p-4">
+              <span className="text-tomato font-black">{i + 1}.</span> <span className="font-bold">{s.t}</span>
+              <p className="mt-1 text-[14px] opacity-75">{s.d}</p>
+            </li>
+          ))}
+        </ol>
+        <Link href={p('/druckinfo')} className="inline-block mt-6 text-[11px] font-black uppercase tracking-widest underline decoration-2 underline-offset-4 hover:text-tomato">Druck & Stickerei im Detail →</Link>
+      </div>
+      <div>
+        <h3 className="text-[11px] font-black uppercase tracking-widest opacity-60 mb-3">Häufige Fragen</h3>
+        <div className="border-2 border-ink divide-y-2 divide-ink/10 bg-white">
+          {r.faq.map((f) => (
+            <details key={f.q} className="group p-4">
+              <summary className="cursor-pointer font-bold text-[14px] list-none flex justify-between gap-3">
+                {f.q}<span className="group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <p className="mt-3 text-[14px] leading-relaxed opacity-80">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

@@ -24,5 +24,17 @@ export async function generateMetadata({ params }) {
 export default async function Seite({ params }) {
   const { lang } = await params;
   const { products } = await loadCatalog(createPublicClient(), { siteId: 'kittelwerk', lang });
-  return <KategorieClient kategorie={kategorieBySlug(SLUG, lang)} products={products} />;
+  const kategorie = kategorieBySlug(SLUG, lang);
+  // FAQ als strukturierte Daten (2026-10-27), nur wenn die Sprache einen Ratgeber hat
+  const faqSchema = kategorie.ratgeber && {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: kategorie.ratgeber.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  };
+  return (
+    <>
+      {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
+      <KategorieClient kategorie={kategorie} products={products} />
+    </>
+  );
 }
